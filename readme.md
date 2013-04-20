@@ -28,7 +28,6 @@ Installing
 
 Node.js:
 
-    git clone http://github.com/breck7/space
     npm install space
 
 Using

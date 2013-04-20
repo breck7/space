@@ -6,7 +6,7 @@ scripts
  test node tests/node-index.js
 repository
  type git
- url git://github.com/breck7/space
+ url git://github.com/nudgepad/space
 keywords space json xml
 devDependencies
  qunit ~0.5.1
