@@ -94,6 +94,9 @@ Uses
 
 Space is a great alternative encoding wherever XML or JSON is currently used.
 
+Release Schedule
+----------------
 
+A stable, 1.0 release of Space should happen by the end of 2013. Hopefully soon!
 
 
