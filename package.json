@@ -1,0 +1,24 @@
+{
+  "name": "space",
+  "version": "0.1.1",
+  "description": "A whitespace encoding for associative arrays.",
+  "main": "./space.js",
+  "scripts": {
+    "test": "node tests/node-index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/breck7/space"
+  },
+  "keywords": [
+    "space",
+    "arrays",
+    "json",
+    "xml"
+  ],
+  "devDependencies": {
+    "qunit": "~0.5.1"
+  },
+  "author": "Breck Yunits, Ben Zulauf",
+  "license": "MIT"
+}
