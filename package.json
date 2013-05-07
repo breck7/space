@@ -1,8 +1,11 @@
 {
   "name": "space",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A whitespace encoding for associative arrays.",
   "main": "./space.js",
+  "bin" : {
+    "space" : "cli.js"
+  },
   "scripts": {
     "test": "node tests/node-index.js"
   },
@@ -17,7 +20,8 @@
     "xml"
   ],
   "devDependencies": {
-    "qunit": "~0.5.1"
+    "qunit": "~0.5.1",
+    "mime" : ">=0.0.1"
   },
   "author": "Breck Yunits, Ben Zulauf",
   "license": "MIT"
