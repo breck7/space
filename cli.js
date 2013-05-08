@@ -10,21 +10,20 @@ var isText = function (path) {
   return mime.lookup(path).match(/^text\//)
 }
 
-var folderToSpace = function (path, prefix) {
+var folderToSpace = function (path) {
   var space = new Space()
   var files = fs.readdirSync(path)
-  prefix = (prefix ? prefix + ' ' : '')
   for (var i in files) {
     var file = files[i]
     if (file === '.')
       continue
     if (file === '..')
       continue
-    var xpath = prefix + file
+    var xpath = file
     var filePath = path + '/' + file
     var stats = fs.statSync(filePath)
     if (stats.isDirectory()) {
-      space.set(xpath, folderToSpace(filePath, xpath))
+      space.set(xpath, folderToSpace(filePath))
       continue
     }
     // If text
