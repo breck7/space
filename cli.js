@@ -38,10 +38,11 @@ var folderToSpace = function (path, prefix) {
   return space
 }
 
-var spaceToFolder = function (root, space) {
-  fs.mkdirSync(root)
+var spaceToFolder = function (destination, space) {
+  if (!fs.existsSync(destination))
+    fs.mkdirSync(destination)
   space.each(function (key, value) {
-    var path = root + key
+    var path = destination + '/' + key
     if (value instanceof Space)
       spaceToFolder(path, value)
     else if (isText(key))
@@ -68,17 +69,17 @@ var arg2 = null
 if (process.argv.length > 3)
   arg2 = process.argv[3]
 
-// FolderToSpace
+// Space to Folder
 if (arg1.match(/\.space$/)) {
   
-  var folderName = arg1.replace(/\.space$/, '')
-  var space = fs.readFileSync(arg1, 'utf8')
-  var path = arg2 || ''
-  spaceToFolder(path + folderName, space)
+  var space = new Space(fs.readFileSync(arg1, 'utf8'))
+  var path = arg2 || '.'
+  path = resolvePath(path)
+  spaceToFolder(path, space)
 
 }
 
-// SpaceToFolder
+// Folder to Space
 else {
   var folder = Path.dirname(arg1)
   var filename = arg2 || Path.basename(arg1) + '.space'
