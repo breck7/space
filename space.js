@@ -98,7 +98,7 @@ Space.prototype.clear = function () {
  * @return {Space}
  */
 Space.prototype.clone = function () {
-  return new Space(this)
+  return new Space(this.toString())
 }
 
 Space.prototype['delete'] = function (key) {
