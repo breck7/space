@@ -279,6 +279,41 @@ test('empty', function() {
 
 })
 
+test('every', function() {
+  
+
+ var obj = new Space('user\n\
+name Aristotle\n\
+admin false\n\
+stage\n\
+ name home\n\
+ domain test.test.com\n\
+pro false\n\
+domains\n\
+ test.test.com\n\
+  images\n\
+  blocks\n\
+  users\n\
+  stage home\n\
+  pages\n\
+   home\n\
+    settings\n\
+     data\n\
+      title Hello, World\n\
+    block1\n\
+     content Hello world\n')
+  var i = 0
+  obj.every(function (key, value) {
+    this.rename(key, key.toUpperCase())
+    i++
+  })
+    
+  equal(i, 20)
+  equal(obj.get('DOMAINS TEST.TEST.COM PAGES HOME SETTINGS').toString(), 'DATA\n TITLE Hello, World\n')
+  
+})
+
+
 test('first', function() {
 
   var value = new Space('hello world\nhi mom')

@@ -230,6 +230,16 @@ Space.prototype.empty = function () {
   return this.keys.length === 0
 }
 
+Space.prototype.every = function (fn) {
+  for (var i in this.keys) {
+    var value = this.values[this.keys[i]]
+    if (value instanceof Space)
+      value.every(fn)
+    fn.call(this, this.keys[i], this.values[this.keys[i]])
+  }
+  return this
+}
+
 /**
  * Search the space for a given path (xpath).
  * @param {string|int|space}

@@ -1,6 +1,6 @@
 {
   "name": "space",
-  "version": "0.1.33",
+  "version": "0.1.4",
   "description": "A whitespace encoding for associative arrays.",
   "main": "./space.js",
   "bin" : {
