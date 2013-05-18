@@ -7,7 +7,7 @@
     "space" : "cli.js"
   },
   "scripts": {
-    "test": "node tests/node-index.js"
+    "test": "node tests/node-test.js"
   },
   "repository": {
     "type": "git",

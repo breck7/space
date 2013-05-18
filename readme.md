@@ -99,4 +99,7 @@ Release Schedule
 
 A stable, 1.0 release of Space should happen by the end of 2013. Hopefully soon!
 
+Build Status
+------------
 
+[![Build Status](https://travis-ci.org/nudgepad/space.png?branch=master)](https://travis-ci.org/nudgepad/space)
