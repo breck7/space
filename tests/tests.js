@@ -313,6 +313,35 @@ domains\n\
   
 })
 
+test('events', function() {
+
+  var value = new Space('hello world\nhi mom')
+  var result = ''
+  var popsMethod = function () {
+    result = 'pops'
+  }
+  value.on('change', popsMethod)
+  value.set('hi', 'dad')
+  equal(result, 'pops')
+  result = ''
+  value.off('change', popsMethod)
+  value.set('hi', 'pop')
+  equal(result, '')
+  
+  var count = 0
+  var inc = function () {
+    count++
+  }
+  value.on('change', inc)
+  value.set('yo', 'bob')
+  value.patch('foo bar')
+  value.delete('yo')
+  value.rename('foo', 'foo2')
+  value.clear()
+  equal(count, 5)
+  
+})
+
 
 test('first', function() {
 
