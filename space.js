@@ -89,9 +89,11 @@ Space.prototype.values = {}
  * @return this
  */
 Space.prototype.clear = function () {
+  if (this.isEmpty())
+    return this
   this.keys = []
   this.values = {}
-  this.trigger('change')
+  this.trigger('clear')
   return this
 }
 
@@ -107,24 +109,23 @@ Space.prototype._delete = function (key) {
   if (!key.match(/ /)) {
     var index = this.keys.indexOf(key)
     if (index === -1)
-      return this
+      return 0
     this.keys.splice(index, 1)
     delete this.values[key]
-    return this
+    return 1
   }
   // Get parent
   var parts = key.split(/ /)
   var child = parts.pop()
   var parent = this.get(parts.join(' '))
-  if (parent instanceof Space) {
-    parent._delete(child)
-  }
-  return this
+  if (parent instanceof Space)
+    return parent._delete(child)
+  return 0
 }
 
 Space.prototype['delete'] = function (key) {
-  this._delete(key)
-  this.trigger('change')
+  if (this._delete(key))
+    this.trigger('delete', key)
   return this
 }
 
@@ -210,7 +211,7 @@ Space.prototype.diffOrder = function (space) {
     if (!(value instanceof Space) || !(this.values[key] instanceof Space))
       continue
     var childDiff = this.values[key].diffOrder(value)
-    if (childDiff.empty())
+    if (childDiff.isEmpty())
       continue
     diff._set(key, childDiff)
   }
@@ -234,7 +235,7 @@ Space.prototype.each = function (fn) {
   return this
 }
 
-Space.prototype.empty = function () {
+Space.prototype.isEmpty = function () {
   return this.keys.length === 0
 }
 
@@ -457,8 +458,9 @@ Space.prototype._patch = function (patch) {
 }
 
 Space.prototype.patch = function (patch) {
+  // todo, don't trigger patch if no change
   this._patch(patch)
-  this.trigger('change')
+  this.trigger('patch')
   return this
 }
 
@@ -495,8 +497,9 @@ Space.prototype._patchOrder = function (space) {
 }
 
 Space.prototype.patchOrder = function (space) {
+  // todo: don't trigger event if no change
   this._patchOrder(space)
-  this.trigger('change')
+  this.trigger('patchOrder')
   return this
 }
 
@@ -521,7 +524,8 @@ Space.prototype._rename = function (oldName, newName) {
 
 Space.prototype.rename = function (oldName, newName) {
   this._rename(oldName, newName)
-  this.trigger('change')
+  if (oldName !== newName)
+    this.trigger('rename')
   return this
 }
 
@@ -557,8 +561,12 @@ Space.prototype._set = function (key, value, index) {
 }
 
 Space.prototype.set = function (key, value, index) {
+  var isUpdate = !!this.get(key)
   this._set(key, value, index)
-  this.trigger('change')
+  if (isUpdate)
+    this.trigger('update')
+  else
+    this.trigger('create')
   return this
 }
 

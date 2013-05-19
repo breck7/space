@@ -270,12 +270,12 @@ test('each', function() {
   
 })
 
-test('empty', function() {
+test('isEmpty', function() {
 
   var a = new Space()
-  equal(a.empty(), true)
+  equal(a.isEmpty(), true)
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  equal(a.empty(), false)
+  equal(a.isEmpty(), false)
 
 })
 
@@ -320,11 +320,11 @@ test('events', function() {
   var popsMethod = function () {
     result = 'pops'
   }
-  value.on('change', popsMethod)
+  value.on('update', popsMethod)
   value.set('hi', 'dad')
   equal(result, 'pops')
   result = ''
-  value.off('change', popsMethod)
+  value.off('update', popsMethod)
   value.set('hi', 'pop')
   equal(result, '')
   
@@ -332,7 +332,12 @@ test('events', function() {
   var inc = function () {
     count++
   }
-  value.on('change', inc)
+  value.on('create', inc)
+  value.on('update', inc)
+  value.on('patch', inc)
+  value.on('clear', inc)
+  value.on('delete', inc)
+  value.on('rename', inc)
   value.set('yo', 'bob')
   value.patch('foo bar')
   value.delete('yo')
