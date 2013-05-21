@@ -1,6 +1,6 @@
 name space
 version 0.1.1
-description A whitespace encoding for associative arrays.
+description A lightweight language for data
 main ./space.js
 scripts
  test node tests/node-index.js

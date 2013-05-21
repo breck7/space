@@ -1,9 +1,9 @@
 Space
 =====
 
-Space is a whitespace encoding for associative arrays.
+Space is a lightweight language for data.
 
-A space character separates a key from its value, and a new line separates key/value pairs.
+Space gives you all the benefits of XML or JSON, without the bloated syntax.
 
 Example
 -------
@@ -11,8 +11,10 @@ Example
 An object like this:
 
     {"name" : "John", "age" : 29}
+    
+    <person><name>John</name><age>29</age></person>
 
-Can be encoded with Space like this:
+Can be written in Space like this:
 
     name John
     age 29
@@ -47,7 +49,7 @@ Using
 Examples
 --------
 
-Here's how I could encode a tax return:
+Here's how I could write a tax return in Space:
 
     socialSecurityNumber 555-55-5555
     name John Smith
@@ -92,12 +94,20 @@ Working with the above stats example:
 Uses
 ----
 
-Space is a great alternative encoding wherever XML or JSON is currently used.
+Space is a great alternative language wherever XML or JSON is currently used.
 
 Release Schedule
 ----------------
 
-A stable, 1.0 release of Space should happen by the end of 2013. Hopefully soon!
+We aim to have a final 1.0 release of Space by the end of 2013.
+
+Technical Definition
+--------------------
+
+Space is a whitespace encoding for associative arrays.
+
+A space character separates a key from its value, a new line separates key/value pairs, and a new line
+plus space(s) indicates nesting.
 
 Build Status
 ------------
