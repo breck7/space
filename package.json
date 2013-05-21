@@ -1,10 +1,10 @@
 {
   "name": "space",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "A lightweight language for data",
   "main": "./space.js",
-  "bin" : {
-    "space" : "cli.js"
+  "bin": {
+    "space": "cli.js"
   },
   "scripts": {
     "test": "node tests/node-test.js"
@@ -21,7 +21,7 @@
   ],
   "devDependencies": {
     "qunit": "~0.5.1",
-    "mime" : ">=0.0.1"
+    "mime": ">=0.0.1"
   },
   "author": "Breck Yunits, Ben Zulauf",
   "license": "MIT"
