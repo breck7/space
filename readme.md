@@ -3,7 +3,7 @@ Space
 
 Space is a lightweight language for data.
 
-Space gives you all the benefits of XML or JSON, without the bloated syntax.
+Space is like XML or JSON, with less features and syntax.
 
 Example
 -------
@@ -94,7 +94,9 @@ Working with the above stats example:
 Uses
 ----
 
-Space is a great alternative language wherever XML or JSON is currently used.
+Space is a great encoding anytime you have objects that you want to be human readable and writeable.
+
+Pretty much anywhere JSON or XML is currently used, Space may be helpful.
 
 Release Schedule
 ----------------
@@ -108,6 +110,12 @@ Space is a whitespace encoding for associative arrays.
 
 A space character separates a key from its value, a new line separates key/value pairs, and a new line
 plus space(s) indicates nesting.
+
+License
+-------
+
+Space is released to the Public Domain.
+
 
 Build Status
 ------------
