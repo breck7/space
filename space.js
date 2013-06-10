@@ -18,9 +18,12 @@ function Space(properties) {
     return this
   }
   
+  
+  
   // Load from object
   for (var key in properties) {
-    if (!properties.hasOwnProperty(key))
+    if (!Object.prototype.hasOwnProperty.call(properties, key))
+//    if (!properties.hasOwnProperty(key))
       continue
     var value = properties[key]
     if (typeof value === 'object')

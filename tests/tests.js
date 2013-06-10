@@ -122,6 +122,13 @@ test('delete', function() {
   
 })
 
+test('hasOwnProperty bug', function () {
+  var foo = { bar : foo}
+  foo.hasOwnProperty = null
+  space = new Space(foo)
+  ok(space)
+})
+
 // For testing diffs of composites
 function Page (space) {
   
