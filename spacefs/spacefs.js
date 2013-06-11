@@ -22,6 +22,8 @@ SpaceFS.folderToSpace = function (path) {
       continue
     var xpath = file
     var filePath = path + '/' + file
+    if (file.match(/ /))
+      throw "Space does not support spaces in filenames. Found a space in file: " + filePath
     var stats = fs.statSync(filePath)
     if (stats.isDirectory()) {
       space.set(xpath, SpaceFS.folderToSpace(filePath))

@@ -49,6 +49,17 @@ describe('folderToSpace', function(){
     assert.equal(false, !!data.get('four.txt').match(/\=\=$/))
   })
   
+  it('should fail if a file has a space in it', function(){
+    
+    assert.throws(
+      function() {
+        SpaceFS.folderToSpace(__dirname + '/../fail')
+      },
+      /Space does not support spaces in filenames/
+    )
+    
+  })
+  
   fs.unlinkSync(filename)
 })
 
