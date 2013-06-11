@@ -11,5 +11,10 @@ test:
 testmin:
 	open tests/min.html
 
+testnode:
+	node tests/node-test.js
+
+testfs:
+	mocha spacefs/tests/test.js
 
 .PHONY: test install testmin
