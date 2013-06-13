@@ -49,6 +49,12 @@ describe('folderToSpace', function(){
     assert.equal(false, !!data.get('four.txt').match(/\=\=$/))
   })
   
+  it('should encode empty files as files and not folders', function(){
+    assert.strictEqual(data.get('emptyfile.txt'), '')
+    assert.equal(data.get('emptyfile.txt') instanceof Space, false)
+    
+  })
+  
   it('should fail if a file has a space in it', function(){
     
     assert.throws(

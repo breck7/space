@@ -162,7 +162,7 @@ test('diff', function() {
   equal(a.diff(b).toString(), 'hello mom\n')
   ok(a.diff(c) instanceof Space, 'diff is a space')
   equal(a.diff(c).values.hello, '')
-  equal(a.diff(c).toString(), 'hello\nfirst John\n')
+  equal(a.diff(c).toString(), 'hello \nfirst John\n')
   
   equal(a.diff(c).values.first, 'John')
 
@@ -250,6 +250,21 @@ test('diffOrder', function() {
   equal(a.diffOrder(c).toString(), 'hi\nhello\nyo\nhola\n', 'different')
   
   
+})
+
+test('difference between a blank key/value and empty object', function() {
+
+  var a = new Space('hi ')
+  var b = new Space('hi\n')
+  strictEqual(a.get('hi'), '', 'hi is equal to empty string')
+  ok(b.get('hi') instanceof Space, 'b is instance of space')
+  equal(typeof a.get('hi'), 'string')
+  equal(typeof b.get('hi'), 'object')
+  notStrictEqual(a.get('hi'), b.get('hi'))
+  
+  equal(a.toString(), 'hi \n', 'a should be a key with empty string value')
+  equal(b.toString(), 'hi\n')
+
 })
 
 test('duplicate key', function() {

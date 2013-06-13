@@ -1,4 +1,4 @@
-var Space = require('space'),
+var Space = require(__dirname + '/../space.js'),
     fs = require('fs'),
     mime = require('mime'),
     Path = require('path')
@@ -30,9 +30,10 @@ SpaceFS.folderToSpace = function (path) {
       continue
     }
     // If text
-    if (SpaceFS.isText(file))
+    if (SpaceFS.isText(file)) {
       space.set(xpath, fs.readFileSync(filePath, 'utf8'))
 
+    }
     // Base64 encode it
     else
       space.set(xpath, fs.readFileSync(filePath).toString('base64'))

@@ -358,7 +358,7 @@ Space.prototype.loadFromString = function (string) {
   string = string.replace(/\n\r/g, '\n').replace(/\r\n/g, '\n')
   
   /** Eliminate newlines at end of string.*/
-  string = string.replace(/[\n ]*$/, '')
+  string = string.replace(/\n[\n ]*$/, '')
   
   /** Space doesn't have useless lines*/
   string = string.replace(/\n\n+/, '\n')
@@ -637,7 +637,7 @@ Space.prototype.toString =  function (spaces) {
     
     // dont put a blank string on blank values.
     else if (value.toString() === '')
-      string += '\n'
+      string += ' \n'
     
     // multiline string
     else if (value.toString().match(/\n/))
