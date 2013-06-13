@@ -49,6 +49,10 @@ describe('folderToSpace', function(){
     assert.equal(false, !!data.get('four.txt').match(/\=\=$/))
   })
   
+  it('should ignore hidden files', function(){
+    assert.equal(undefined, data.get('.hidden'))
+  })
+  
   it('should encode empty files as files and not folders', function(){
     assert.strictEqual(data.get('emptyfile.txt'), '')
     assert.equal(data.get('emptyfile.txt') instanceof Space, false)
