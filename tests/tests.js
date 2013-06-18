@@ -367,6 +367,21 @@ test('events', function() {
   value.clear()
   equal(count, 5)
   
+  // Event params
+  var a = new Space('hello world')
+  var b = ''
+  var c = ''
+  a.on('update', function (key, value) {
+    b = value
+  })
+  a.on('patch', function (patch) {
+    c = patch
+  })
+  a.set('hello', 'bob')
+  a.patch('hi mom')
+  equal(b, 'bob')
+  equal(c, 'hi mom')
+  
 })
 
 

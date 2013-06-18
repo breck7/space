@@ -463,7 +463,7 @@ Space.prototype._patch = function (patch) {
 Space.prototype.patch = function (patch) {
   // todo, don't trigger patch if no change
   this._patch(patch)
-  this.trigger('patch')
+  this.trigger('patch', patch)
   return this
 }
 
@@ -502,7 +502,7 @@ Space.prototype._patchOrder = function (space) {
 Space.prototype.patchOrder = function (space) {
   // todo: don't trigger event if no change
   this._patchOrder(space)
-  this.trigger('patchOrder')
+  this.trigger('patchOrder', space)
   return this
 }
 
@@ -528,7 +528,7 @@ Space.prototype._rename = function (oldName, newName) {
 Space.prototype.rename = function (oldName, newName) {
   this._rename(oldName, newName)
   if (oldName !== newName)
-    this.trigger('rename')
+    this.trigger('rename', oldName, newName)
   return this
 }
 
@@ -567,9 +567,9 @@ Space.prototype.set = function (key, value, index) {
   var isUpdate = !!this.get(key)
   this._set(key, value, index)
   if (isUpdate)
-    this.trigger('update')
+    this.trigger('update', key, value, index)
   else
-    this.trigger('create')
+    this.trigger('create', key, value, index)
   return this
 }
 
@@ -653,8 +653,9 @@ Space.prototype.toString =  function (spaces) {
 Space.prototype.trigger = function (eventName) {
   if (!this.events[eventName])
     return true
+  var args = Array.prototype.slice.call(arguments)
   for (var i in this.events[eventName]) {
-    this.events[eventName][i].apply(this, arguments)
+    this.events[eventName][i].apply(this, args.slice(1))
   }
 }
 
