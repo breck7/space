@@ -566,6 +566,7 @@ Space.prototype._set = function (key, value, index) {
 Space.prototype.set = function (key, value, index) {
   var isUpdate = !!this.get(key)
   this._set(key, value, index)
+  this.trigger('set', key, value, index)
   if (isUpdate)
     this.trigger('update', key, value, index)
   else

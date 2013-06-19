@@ -371,16 +371,22 @@ test('events', function() {
   var a = new Space('hello world')
   var b = ''
   var c = ''
+  var setCount = 0
   a.on('update', function (key, value) {
     b = value
   })
   a.on('patch', function (patch) {
     c = patch
   })
+  a.on('set', function (key, value) {
+     setCount++
+  })
   a.set('hello', 'bob')
   a.patch('hi mom')
   equal(b, 'bob')
   equal(c, 'hi mom')
+  equal(setCount, 1)
+  
   
 })
 
