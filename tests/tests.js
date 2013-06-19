@@ -375,6 +375,10 @@ test('events', function() {
   a.on('update', function (key, value) {
     b = value
   })
+  var changeCount = 0
+  a.on('change', function () {
+    changeCount++
+  })
   a.on('patch', function (patch) {
     c = patch
   })
@@ -386,7 +390,7 @@ test('events', function() {
   equal(b, 'bob')
   equal(c, 'hi mom')
   equal(setCount, 1)
-  
+  equal(changeCount, 2)
   
 })
 

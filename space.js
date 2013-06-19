@@ -97,6 +97,7 @@ Space.prototype.clear = function () {
   this.keys = []
   this.values = {}
   this.trigger('clear')
+  this.trigger('change')
   return this
 }
 
@@ -129,6 +130,7 @@ Space.prototype._delete = function (key) {
 Space.prototype['delete'] = function (key) {
   if (this._delete(key))
     this.trigger('delete', key)
+  this.trigger('change')
   return this
 }
 
@@ -464,6 +466,7 @@ Space.prototype.patch = function (patch) {
   // todo, don't trigger patch if no change
   this._patch(patch)
   this.trigger('patch', patch)
+  this.trigger('change')
   return this
 }
 
@@ -503,6 +506,7 @@ Space.prototype.patchOrder = function (space) {
   // todo: don't trigger event if no change
   this._patchOrder(space)
   this.trigger('patchOrder', space)
+  this.trigger('change')
   return this
 }
 
@@ -529,6 +533,7 @@ Space.prototype.rename = function (oldName, newName) {
   this._rename(oldName, newName)
   if (oldName !== newName)
     this.trigger('rename', oldName, newName)
+  this.trigger('change')
   return this
 }
 
@@ -571,6 +576,7 @@ Space.prototype.set = function (key, value, index) {
     this.trigger('update', key, value, index)
   else
     this.trigger('create', key, value, index)
+  this.trigger('change')
   return this
 }
 
