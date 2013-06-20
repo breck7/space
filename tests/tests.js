@@ -120,6 +120,12 @@ test('delete', function() {
   a.delete('content')
   equal(a.get('type'), 'meta', 'delete a non existing entry works')
   
+  
+  // #28
+  var a = new Space()
+  a.delete(2)
+  
+  
 })
 
 test('hasOwnProperty bug', function () {

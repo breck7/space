@@ -118,7 +118,7 @@ Space.prototype.clone = function () {
 }
 
 Space.prototype._delete = function (key) {
-  if (!key.match(/ /)) {
+  if (!key.toString().match(/ /)) {
     var index = this.keys.indexOf(key)
     if (index === -1)
       return 0
