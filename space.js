@@ -86,6 +86,15 @@ Space.unionSingle = function(spaceA, spaceB) {
 Space.prototype.keys = []
 Space.prototype.values = {}
 
+/**
+ * Deletes all keys and values.
+ * @return this
+ */
+Space.prototype._clear = function () {
+  this.keys = []
+  this.values = {}
+  return this
+}
 
 /**
  * Deletes all keys and values.
@@ -94,8 +103,7 @@ Space.prototype.values = {}
 Space.prototype.clear = function () {
   if (this.isEmpty())
     return this
-  this.keys = []
-  this.values = {}
+  this._clear()
   this.trigger('clear')
   this.trigger('change')
   return this
