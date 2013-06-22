@@ -400,6 +400,18 @@ test('events', function() {
   
 })
 
+test('event bubbling', function() {
+  var count = 0
+  var cafe = new Space('name Haus\nmenu\n coffee\n  light\n   price 2.50\n  dark\n   price 3\n')
+  cafe.get('menu coffee light').on('change', function () {
+    count++
+  })
+//  cafe.set('menu coffee light price', '5')
+  cafe.get('menu coffee light').set('price', '6')
+  equal(count, 1)
+  
+})
+
 
 test('first', function() {
 
