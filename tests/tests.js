@@ -67,6 +67,11 @@ test('clear', function() {
   ok(a.clear() instanceof Space, 'clear should return this so its chainable')
   equal(a.keys.length, 0)
   
+  var a = new Space('hello world')
+  a.clear('foo bar')
+  ok(!a.get('hello'))
+  equal(a.get('foo'), 'bar')
+  
 
 })
 

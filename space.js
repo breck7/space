@@ -3,34 +3,7 @@ function Space(properties) {
   this.keys = []
   this.values = {}
   this.events = {}
-
-  // Load from string
-  if (typeof properties === 'string')
-    return this.loadFromString(properties)
-  
-  // Load from Space object
-  if (properties instanceof Space) {
-    this.keys = properties.keys
-    for (var i in this.keys) {
-      var key = this.keys[i]
-      this.values[key] = properties.values[key]
-    }
-    return this
-  }
-  
-  
-  
-  // Load from object
-  for (var key in properties) {
-    if (!Object.prototype.hasOwnProperty.call(properties, key))
-//    if (!properties.hasOwnProperty(key))
-      continue
-    var value = properties[key]
-    if (typeof value === 'object')
-      this._set(key, new Space(value))
-    else
-      this._set(key, value)
-  }
+  this._load(properties)
   return this
 }
 
@@ -100,11 +73,13 @@ Space.prototype._clear = function () {
  * Deletes all keys and values.
  * @return this
  */
-Space.prototype.clear = function () {
+Space.prototype.clear = function (space) {
   if (this.isEmpty())
     return this
   this._clear()
   this.trigger('clear')
+  if (space)
+    this._load(space)
   this.trigger('change')
   return this
 }
@@ -352,6 +327,37 @@ Space.prototype.getBySpace = function (space) {
  */
 Space.prototype.length = function () {
   return this.keys.length
+}
+
+Space.prototype._load = function (properties) {
+  
+  // Load from string
+  if (typeof properties === 'string')
+    return this.loadFromString(properties)
+  
+  // Load from Space object
+  if (properties instanceof Space) {
+    this.keys = properties.keys
+    for (var i in this.keys) {
+      var key = this.keys[i]
+      this.values[key] = properties.values[key]
+    }
+    return this
+  }
+  
+  
+  
+  // Load from object
+  for (var key in properties) {
+    if (!Object.prototype.hasOwnProperty.call(properties, key))
+//    if (!properties.hasOwnProperty(key))
+      continue
+    var value = properties[key]
+    if (typeof value === 'object')
+      this._set(key, new Space(value))
+    else
+      this._set(key, value)
+  }
 }
 
 /**
