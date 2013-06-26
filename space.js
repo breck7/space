@@ -218,7 +218,8 @@ Space.prototype.diffOrder = function (space) {
 
 Space.prototype.each = function (fn) {
   for (var i in this.keys) {
-    fn.call(this, this.keys[i], this.values[this.keys[i]])
+    if (fn.call(this, this.keys[i], this.values[this.keys[i]]) === false)
+      return this
   }
   return this
 }

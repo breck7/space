@@ -301,6 +301,15 @@ test('each', function() {
   }).length(), 2, 'test chaining')
   equal(string, 'HELLOWORLD2HIMOM2')
   
+  // test breaking
+  var count  = 0
+  var value = new Space('hello world\nhi mom')
+  value.each(function (key, value) {
+    count++
+    if (key === 'hello')
+      return false
+  })
+  equal(count, 1)
 })
 
 test('isEmpty', function() {
