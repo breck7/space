@@ -652,6 +652,12 @@ test('set', function() {
   
   a.set('hola', 'pal', 2)
   equal(a.keys.join(''), 'yohelloholahi', 'order correct')
+  
+  var c = new Space()
+  c.set('hi', 'hello world')
+  c.set('yo', new Space('hello world'))
+  // should these be equal?
+  notEqual(c.get('hi'), c.get('yo'))
 
 })
 
