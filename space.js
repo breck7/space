@@ -7,6 +7,21 @@ function Space(properties) {
   return this
 }
 
+Space.pathBranch = function (xpath) {
+  var nodes = xpath.split(/ /g)
+  if (nodes.length < 2)
+    return ''
+  nodes.pop()
+  return nodes.join(' ')
+}
+
+Space.pathLeaf = function (xpath) {
+  var nodes = xpath.split(/ /g)
+  if (nodes.length < 2)
+    return xpath
+  return nodes[nodes.length - 1]
+}
+
 /**
  * @param {string}
  * @param {int}
@@ -559,7 +574,15 @@ Space.prototype._rename = function (oldName, newName) {
 }
 
 Space.prototype.rename = function (oldName, newName) {
-  this._rename(oldName, newName)
+  var branch = Space.pathBranch(oldName)
+  var leaf = Space.pathLeaf(oldName)
+  var newLeaf = newName
+  var space = this
+  if (branch) {
+    space = this.get(branch)
+    newLeaf = newName.substr(branch.length + 1)
+  }
+  space._rename(leaf, newLeaf)
   if (oldName !== newName)
     this.trigger('rename', oldName, newName)
   this.trigger('change')

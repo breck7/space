@@ -568,6 +568,18 @@ test('patch performance test', function() {
   equal(space.keys.length, 2000)
 })
 
+test('path functions', function() {
+  equal(Space.pathLeaf('football'), 'football')
+  equal(Space.pathLeaf('page header'), 'header')
+  equal(Space.pathLeaf('page header content'), 'content')
+  
+  equal(Space.pathBranch('football'), '')
+  equal(Space.pathBranch('page header'), 'page')
+  equal(Space.pathBranch('page header content'), 'page header')
+  
+  
+})
+
 test('prev', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
@@ -646,6 +658,12 @@ test('rename', function() {
   ok(a.rename('john', 'breck') instanceof Space, 'returns itself for chaining')
   equal(a.keys[0], 'breck', 'index okay')
   equal(a.get('breck age'), '5', 'value okay')
+  
+  var page = new Space()
+  page.set('header content', 'football')
+  page.rename('header content', 'header text')
+  equal(page.get('header text'), 'football')
+  
 })
 
 test('set', function() {
