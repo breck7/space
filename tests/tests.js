@@ -60,6 +60,18 @@ domains\n\
 
 })
 
+test('append', function() {
+  var a = new Space('hello world')
+  var count = 0
+  a.on('append', function (key, value) {
+    count++
+  })
+  a.append('foo', 'bar')
+  a.set('foo2', 'bar')
+  equal(a.get('foo'), 'bar')
+  equal(count, 1)
+})
+
 
 test('clear', function() {
   var a = new Space('hello world')
@@ -102,6 +114,18 @@ test('clone', function() {
   f.hi = 'test'
   equal(a.hi, undefined)
 
+})
+
+test('create', function() {
+  var a = new Space('hello world')
+  var count = 0
+  a.on('create', function (key, value) {
+    count++
+  })
+  a.create('foo', 'bar')
+  a.set('foo2', 'bar')
+  equal(a.get('foo'), 'bar')
+  equal(count, 1)
 })
 
 test('delete', function() {
@@ -362,20 +386,20 @@ test('events', function() {
   var popsMethod = function () {
     result = 'pops'
   }
-  value.on('update', popsMethod)
+  value.on('change', popsMethod)
   value.set('hi', 'dad')
   equal(result, 'pops')
   result = ''
-  value.off('update', popsMethod)
+  value.off('change', popsMethod)
   value.set('hi', 'pop')
   equal(result, '')
+  
   
   var count = 0
   var inc = function () {
     count++
   }
-  value.on('create', inc)
-  value.on('update', inc)
+  value.on('set', inc)
   value.on('patch', inc)
   value.on('clear', inc)
   value.on('delete', inc)
@@ -392,7 +416,7 @@ test('events', function() {
   var b = ''
   var c = ''
   var setCount = 0
-  a.on('update', function (key, value) {
+  a.on('set', function (key, value) {
     b = value
   })
   var changeCount = 0

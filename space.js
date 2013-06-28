@@ -59,6 +59,13 @@ Space.unionSingle = function(spaceA, spaceB) {
 Space.prototype.keys = []
 Space.prototype.values = {}
 
+Space.prototype.append = function (key, value) {
+  this._set(key, value)
+  this.trigger('append', key, value)
+  this.trigger('change')
+  return this
+}
+
 /**
  * Deletes all keys and values.
  * @return this
@@ -90,6 +97,13 @@ Space.prototype.clear = function (space) {
  */
 Space.prototype.clone = function () {
   return new Space(this.toString())
+}
+
+Space.prototype.create = function (key, value) {
+  this._set(key, value)
+  this.trigger('create', key, value)
+  this.trigger('change')
+  return this
 }
 
 Space.prototype._delete = function (key) {
@@ -587,10 +601,6 @@ Space.prototype.set = function (key, value, index) {
   var isUpdate = !!this.get(key)
   this._set(key, value, index)
   this.trigger('set', key, value, index)
-  if (isUpdate)
-    this.trigger('update', key, value, index)
-  else
-    this.trigger('create', key, value, index)
   this.trigger('change')
   return this
 }
