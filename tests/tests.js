@@ -821,3 +821,14 @@ test('union', function() {
   
   
 })
+
+
+test('url methods', function() {
+
+  var a = new Space('maine me\nnew_york nyc\ncali ca')
+  var encoded = a.toURL()
+  var b = new Space(decodeURIComponent(encoded))
+  equal(a.toString(), b.toString(), 'toUrl worked')
+
+})
+

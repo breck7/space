@@ -705,6 +705,10 @@ Space.prototype.toString =  function (spaces) {
   return string
 }
 
+Space.prototype.toURL = function () {
+  return encodeURIComponent(this.toString())
+}
+
 Space.prototype.trigger = function (eventName) {
   if (!this.events[eventName])
     return true
