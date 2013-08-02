@@ -34,9 +34,11 @@ if (arg1.match(/\.space$/)) {
 else {
   var folder = Path.dirname(arg1)
   var filename = arg2 || Path.basename(arg1) + '.space'
-  if (arg3)
-    SpaceFS.ignore = new RegExp(arg3)
   
-  var space = SpaceFS.folderToSpace(arg1)
+  var options = new Space()
+  if (arg3)
+    options = new Space(fs.readFileSync(arg3, 'utf8'))
+  
+  var space = SpaceFS.folderToSpace(arg1, options)
   fs.writeFileSync(filename, space.toString(), 'utf8')
 }

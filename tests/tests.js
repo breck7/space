@@ -462,6 +462,16 @@ test('get', function() {
 
   var value = new Space('hello world')
   equal(value.get('hello'), 'world')
+  
+  // get non existant value
+  
+  var value = new Space().get('some long path')
+  strictEqual(value, undefined)
+  
+  
+  var value = new Space().get('some')
+  strictEqual(value, undefined)
+  
 
 })
 

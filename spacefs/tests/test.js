@@ -75,8 +75,9 @@ describe('folderToSpace', function(){
 
 describe('folderToSpace ignore', function(){
 
-  SpaceFS.ignore = new RegExp('four\.txt')
-  var space = SpaceFS.folderToSpace(__dirname)
+  var options = new Space()
+  options.set('ignore four.txt', '')
+  var space = SpaceFS.folderToSpace(__dirname, options)
   var filename = 'temp.space'
   fs.writeFileSync(filename, space.toString(), 'utf8')
   var data = new Space(fs.readFileSync(filename, 'utf8'))
@@ -85,7 +86,7 @@ describe('folderToSpace ignore', function(){
     assert.equal(undefined, data.get('four.txt'))
   })
   
-  it('should have not ignored sample.png', function(){
+  it('should have sample.png', function(){
     assert.notEqual(undefined, data.get('sample.png'))
   })
   

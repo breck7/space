@@ -307,7 +307,7 @@ Space.prototype.getByInt = function (index) {
 Space.prototype.getByString = function (xpath) {
   
   if (!xpath)
-    return null
+    return undefined
   if (!xpath.match(/ /))
     return this.values[xpath]
   var parts = xpath.split(/ /g)
@@ -315,7 +315,7 @@ Space.prototype.getByString = function (xpath) {
   
   // Not set
   if (!(current in this.values))
-    return null
+    return undefined
   
   return this.values[current].get(parts.join(' '))
 }

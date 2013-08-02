@@ -11,7 +11,9 @@ SpaceFS.isText = function (path) {
   return !!mime.lookup(path).match(/^text\//)
 }
 
-SpaceFS.folderToSpace = function (path) {
+SpaceFS.folderToSpace = function (path, options) {
+  if (!options)
+    options = new Space()
   var space = new Space()
   var files = fs.readdirSync(path)
   for (var i in files) {
@@ -22,15 +24,15 @@ SpaceFS.folderToSpace = function (path) {
       continue
     if (file.substr(0,1) === '.')
       continue
-    if (SpaceFS.ignore && file.match(SpaceFS.ignore))
-      continue
     var xpath = file
     var filePath = path + '/' + file
     if (file.match(/ /))
       throw "Space does not support spaces in filenames. Found a space in file: " + filePath
+    if (options.get('ignore ' + file) !== undefined)
+      continue
     var stats = fs.statSync(filePath)
     if (stats.isDirectory()) {
-      space.set(xpath, SpaceFS.folderToSpace(filePath))
+      space.set(xpath, SpaceFS.folderToSpace(filePath, options))
       continue
     }
     // If text
