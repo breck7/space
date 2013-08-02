@@ -6,7 +6,7 @@ var Space = require('space'),
     SpaceFS = require('./spacefs/spacefs.js')
 
 if (process.argv.length < 3) {
-  console.log('Usage: space someFolder [destination] OR space someFile.space [destination]')
+  console.log('Usage: space someFolder [destination] [ignoreRegex] OR space someFile.space [destination]')
   process.exit()
 }
 
