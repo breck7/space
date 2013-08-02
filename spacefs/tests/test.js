@@ -73,6 +73,26 @@ describe('folderToSpace', function(){
   fs.unlinkSync(filename)
 })
 
+describe('folderToSpace ignore', function(){
+
+  SpaceFS.ignore = new RegExp('four\.txt')
+  var space = SpaceFS.folderToSpace(__dirname)
+  var filename = 'temp.space'
+  fs.writeFileSync(filename, space.toString(), 'utf8')
+  var data = new Space(fs.readFileSync(filename, 'utf8'))
+  
+  it('should have ignored four.txt', function(){
+    assert.equal(undefined, data.get('four.txt'))
+  })
+  
+  it('should have not ignored sample.png', function(){
+    assert.notEqual(undefined, data.get('sample.png'))
+  })
+  
+  fs.unlinkSync(filename)
+
+})
+
 
 describe('spaceToFolder', function(){
 

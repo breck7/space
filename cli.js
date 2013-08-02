@@ -15,6 +15,9 @@ var arg2 = null
 if (process.argv.length > 3)
   arg2 = process.argv[3]
 
+if (process.argv.length > 4)
+  arg3 = process.argv[4]
+
 // Space to Folder
 if (arg1.match(/\.space$/)) {
 
@@ -29,6 +32,9 @@ if (arg1.match(/\.space$/)) {
 else {
   var folder = Path.dirname(arg1)
   var filename = arg2 || Path.basename(arg1) + '.space'
+  if (arg3)
+    SpaceFS.ignore = new RegExp(arg3)
+  
   var space = SpaceFS.folderToSpace(arg1)
   fs.writeFileSync(filename, space.toString(), 'utf8')
 }

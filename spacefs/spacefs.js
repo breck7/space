@@ -22,6 +22,8 @@ SpaceFS.folderToSpace = function (path) {
       continue
     if (file.substr(0,1) === '.')
       continue
+    if (SpaceFS.ignore && file.match(SpaceFS.ignore))
+      continue
     var xpath = file
     var filePath = path + '/' + file
     if (file.match(/ /))
