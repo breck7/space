@@ -475,6 +475,13 @@ test('get', function() {
 
 })
 
+// https://github.com/nudgepad/space/issues/58
+test('get expecting a branch but hitting a leaf', function() {
+  var value = new Space('posts leaf')
+  equal(undefined, value.get('posts branch'))
+  
+})
+
 test('last', function() {
 
   var value = new Space('hello world\nhi mom')

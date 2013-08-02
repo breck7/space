@@ -317,7 +317,11 @@ Space.prototype.getByString = function (xpath) {
   if (!(current in this.values))
     return undefined
   
-  return this.values[current].get(parts.join(' '))
+  if (this.values[current] instanceof Space)
+    return this.values[current].get(parts.join(' '))
+  
+  else
+    return undefined
 }
 
 /**
