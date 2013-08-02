@@ -475,6 +475,30 @@ test('get', function() {
 
 })
 
+test('getCharMap', function() {
+
+  var value = new Space('hello world')
+  equal('KKKKKSVVVVV', value.getCharMap())
+  
+  var value = new Space('hello mom')
+  equal('KKKKKSVVV', value.getCharMap())
+  
+  var value =     new Space('first Breck' + '\n' + 'last Yunits')
+  equal(value.getCharMap(), 'KKKKKSVVVVV' + 'N'  + 'KKKKSVVVVVV')
+  
+  var value =     new Space('a\n a1 hi\n a2 yo\n')
+  equal(value.getCharMap(), 'KNNKKSVVNNKKSVV')
+  
+  var value =     new Space('a\n a1 hi\n a2 yo\nyo hi')
+  equal(value.getCharMap(), 'KNNKKSVVNNKKSVVNKKSVV')
+  
+  
+  var value =     new Space()
+  value.set('multi', 'line1\nline2')
+  equal(value.getCharMap(true), 'KKKKKSVEVVVVVVEVVVVV')
+  
+})
+
 // https://github.com/nudgepad/space/issues/58
 test('get expecting a branch but hitting a leaf', function() {
   var value = new Space('posts leaf')
@@ -486,6 +510,18 @@ test('last', function() {
 
   var value = new Space('hello world\nhi mom')
   equal(value.get(-1), 'mom')
+})
+
+test('multiline', function () {
+  
+  var a = new Space('my multiline\n string')
+  equal(a.get('my'), 'multiline\nstring')
+  
+  // If you have a SPACE\n to start a multiline string, we
+  // effectively ignore that first newline
+  var a = new Space('my \n \n multiline\n string')
+  equal(a.get('my'), '\nmultiline\nstring')
+  
 })
 
 test('next', function() {

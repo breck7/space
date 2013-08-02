@@ -356,6 +356,87 @@ Space.prototype.getBySpace = function (space) {
   return result 
 }
 
+Space.prototype.getCharMap = function (debug) {
+  
+  var string = this.toString()
+  var mode = 'K'
+  var charMap = ''
+  var escapeLength = 1
+  var escaping = 0
+  for (var i = 0; i < string.length - 1; i++) {
+    var character = string.substr(i, 1)
+    if (debug)
+      console.log('map: %s; mode: %s; char: %s', charMap, mode, character)
+
+    if (escaping > 0) {
+    // skip over the escaped spaces
+      charMap += 'E'
+      escaping--
+      continue
+    }
+    
+    if (character !== ' ' && character !== '\n') {
+      if (mode === 'N')
+        mode = 'K'
+      charMap += mode
+      continue
+    }
+    
+    if (character === ' ') {
+      
+      if (mode === 'V') {
+        charMap += mode
+        continue
+      }
+      
+      else if (mode === 'K') {
+        charMap += 'S'
+        mode = 'V'
+        continue        
+      }
+      
+      // KEY hunt mode
+      else {
+        escapeLength++
+        charMap += 'N'
+        continue
+      }
+      
+    }
+    
+    //  else its a newline
+    
+    if (mode === 'K') {
+      mode = 'N'
+      escapeLength = 1
+      charMap += 'N'
+      continue
+    }
+    
+    else if (mode === 'V') {
+      
+      // if is escaped
+      if (string.substr(i + 1, escapeLength) === Space.strRepeat(' ', escapeLength)) {
+        charMap += 'V'
+        escaping = escapeLength
+        continue
+      }
+      
+      // else not escaped
+      mode = 'N'
+      escapeLength = 1
+      charMap += 'N'
+      continue
+      
+      
+    }
+  
+  }
+  
+  return charMap
+  
+}
+
 /**
  * @return int
  */
