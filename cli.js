@@ -11,7 +11,9 @@ if (process.argv.length < 3) {
 }
 
 var arg1 = SpaceFS.resolvePath(process.argv[2])
-var arg2 = null
+var arg2
+var arg3
+
 if (process.argv.length > 3)
   arg2 = process.argv[3]
 
