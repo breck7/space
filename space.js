@@ -3,7 +3,7 @@ function Space(properties) {
   this.keys = []
   this.values = {}
   this.events = {}
-  this._load(properties)
+  this._parse(properties)
   return this
 }
 
@@ -101,7 +101,7 @@ Space.prototype.clear = function (space) {
   this._clear()
   this.trigger('clear')
   if (space)
-    this._load(space)
+    this._parse(space)
   this.trigger('change')
   return this
 }
@@ -444,11 +444,11 @@ Space.prototype.length = function () {
   return this.keys.length
 }
 
-Space.prototype._load = function (properties) {
+Space.prototype._parse = function (properties) {
   
   // Load from string
   if (typeof properties === 'string')
-    return this.loadFromString(properties)
+    return this._parseFromString(properties)
   
   // Load from Space object
   if (properties instanceof Space) {
@@ -480,7 +480,7 @@ Space.prototype._load = function (properties) {
  * @param {string}
  * @return {Space}
  */
-Space.prototype.loadFromString = function (string) {
+Space.prototype._parseFromString = function (string) {
   
   // Space always start on a key. Eliminate whitespace at beginning of string
   string = string.replace(/^[\n ]*/, '')
