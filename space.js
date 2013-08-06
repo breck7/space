@@ -460,8 +460,6 @@ Space.prototype._parse = function (properties) {
     return this
   }
   
-  
-  
   // Load from object
   for (var key in properties) {
     if (!Object.prototype.hasOwnProperty.call(properties, key))
