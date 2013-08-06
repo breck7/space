@@ -475,27 +475,27 @@ test('get', function() {
 
 })
 
-test('getCharMap', function() {
+test('getTokens', function() {
 
   var value = new Space('hello world')
-  equal('KKKKKSVVVVV', value.getCharMap())
+  equal('KKKKKSVVVVV', value.getTokens())
   
   var value = new Space('hello mom')
-  equal('KKKKKSVVV', value.getCharMap())
+  equal('KKKKKSVVV', value.getTokens())
   
   var value =     new Space('first Breck' + '\n' + 'last Yunits')
-  equal(value.getCharMap(), 'KKKKKSVVVVV' + 'N'  + 'KKKKSVVVVVV')
+  equal(value.getTokens(), 'KKKKKSVVVVV' + 'N'  + 'KKKKSVVVVVV')
   
   var value =     new Space('a\n a1 hi\n a2 yo\n')
-  equal(value.getCharMap(), 'KNNKKSVVNNKKSVV')
+  equal(value.getTokens(), 'KNNKKSVVNNKKSVV')
   
   var value =     new Space('a\n a1 hi\n a2 yo\nyo hi')
-  equal(value.getCharMap(), 'KNNKKSVVNNKKSVVNKKSVV')
+  equal(value.getTokens(), 'KNNKKSVVNNKKSVVNKKSVV')
   
   
   var value =     new Space()
   value.set('multi', 'line1\nline2')
-  equal(value.getCharMap(true), 'KKKKKSVEVVVVVVEVVVVV')
+  equal(value.getTokens(true), 'KKKKKSVEVVVVVVEVVVVV')
   
 })
 

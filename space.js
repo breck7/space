@@ -356,21 +356,21 @@ Space.prototype.getBySpace = function (space) {
   return result 
 }
 
-Space.prototype.getCharMap = function (debug) {
+Space.prototype.getTokens = function (debug) {
   
   var string = this.toString()
   var mode = 'K'
-  var charMap = ''
+  var tokens = ''
   var escapeLength = 1
   var escaping = 0
   for (var i = 0; i < string.length - 1; i++) {
     var character = string.substr(i, 1)
     if (debug)
-      console.log('map: %s; mode: %s; char: %s', charMap, mode, character)
+      console.log('map: %s; mode: %s; char: %s', tokens, mode, character)
 
     if (escaping > 0) {
     // skip over the escaped spaces
-      charMap += 'E'
+      tokens += 'E'
       escaping--
       continue
     }
@@ -378,19 +378,19 @@ Space.prototype.getCharMap = function (debug) {
     if (character !== ' ' && character !== '\n') {
       if (mode === 'N')
         mode = 'K'
-      charMap += mode
+      tokens += mode
       continue
     }
     
     if (character === ' ') {
       
       if (mode === 'V') {
-        charMap += mode
+        tokens += mode
         continue
       }
       
       else if (mode === 'K') {
-        charMap += 'S'
+        tokens += 'S'
         mode = 'V'
         continue        
       }
@@ -398,7 +398,7 @@ Space.prototype.getCharMap = function (debug) {
       // KEY hunt mode
       else {
         escapeLength++
-        charMap += 'N'
+        tokens += 'N'
         continue
       }
       
@@ -409,7 +409,7 @@ Space.prototype.getCharMap = function (debug) {
     if (mode === 'K') {
       mode = 'N'
       escapeLength = 1
-      charMap += 'N'
+      tokens += 'N'
       continue
     }
     
@@ -417,7 +417,7 @@ Space.prototype.getCharMap = function (debug) {
       
       // if is escaped
       if (string.substr(i + 1, escapeLength) === Space.strRepeat(' ', escapeLength)) {
-        charMap += 'V'
+        tokens += 'V'
         escaping = escapeLength
         continue
       }
@@ -425,7 +425,7 @@ Space.prototype.getCharMap = function (debug) {
       // else not escaped
       mode = 'N'
       escapeLength = 1
-      charMap += 'N'
+      tokens += 'N'
       continue
       
       
@@ -433,7 +433,7 @@ Space.prototype.getCharMap = function (debug) {
   
   }
   
-  return charMap
+  return tokens
   
 }
 
