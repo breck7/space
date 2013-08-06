@@ -437,11 +437,62 @@ Space.prototype.getTokens = function (debug) {
   
 }
 
+Space.prototype.getTokensConcise = function () {
+  // http://stackoverflow.com/questions/7780794/javascript-regex-remove-duplicate-characters
+  return this.getTokens().replace(/[^\w\s]|(.)(?=\1)/gi, "")
+}
+
+Space.prototype.keyCount = function () {
+  var count = this.length()
+  this.each(function (key, value) {
+    if (value instanceof Space)
+      count += value.keyCount()
+  })
+  return count
+}
+
 /**
  * @return int
  */
 Space.prototype.length = function () {
   return this.keys.length
+}
+
+/**
+ * Return the next name in the Space, given a name.
+ * @param {string}
+ * @return {string}
+ */
+Space.prototype.next = function (name) {
+  var index = this.keys.indexOf(name) + 1
+  if (this.keys[index])
+    return this.keys[index]
+  return this.keys[0]
+}
+
+Space.prototype.off = function (eventName, fn) {
+  if (!this.events[eventName])
+    return true
+  for (var i in this.events[eventName]) {
+    if (this.events[eventName][i] === fn)
+      this.events[eventName].splice(i, 1)
+  }
+}
+
+Space.prototype.objectCount = function () {
+  var count = 0
+  this.each(function (key, value) {
+    if (value instanceof Space)
+      count += 1 + value.objectCount()
+  })
+  return count
+}
+
+Space.prototype.on = function (eventName, fn) {
+  
+  if (!this.events[eventName])
+    this.events[eventName] = []
+  this.events[eventName].push(fn)
 }
 
 Space.prototype._parse = function (properties) {
@@ -512,34 +563,6 @@ Space.prototype._parseFromString = function (string) {
       this._set(matches[1], space.substr(matches[1].length + 1).replace(/^\n /, '').replace(/\n /g, '\n') )
   }
   return this
-}
-
-/**
- * Return the next name in the Space, given a name.
- * @param {string}
- * @return {string}
- */
-Space.prototype.next = function (name) {
-  var index = this.keys.indexOf(name) + 1
-  if (this.keys[index])
-    return this.keys[index]
-  return this.keys[0]
-}
-
-Space.prototype.off = function (eventName, fn) {
-  if (!this.events[eventName])
-    return true
-  for (var i in this.events[eventName]) {
-    if (this.events[eventName][i] === fn)
-      this.events[eventName].splice(i, 1)
-  }
-}
-
-Space.prototype.on = function (eventName, fn) {
-  
-  if (!this.events[eventName])
-    this.events[eventName] = []
-  this.events[eventName].push(fn)
 }
 
 /**

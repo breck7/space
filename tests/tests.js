@@ -495,8 +495,20 @@ test('getTokens', function() {
   
   var value =     new Space()
   value.set('multi', 'line1\nline2')
-  equal(value.getTokens(true), 'KKKKKSVEVVVVVVEVVVVV')
+  equal(value.getTokens(), 'KKKKKSVEVVVVVVEVVVVV')
   
+})
+
+test('getTokensConcise', function() {
+  var value =     new Space()
+  value.set('multi', 'line1\nline2')
+  equal(value.getTokensConcise(), 'KSVEVEV')
+  
+  var value =     new Space('a\n a1 hi\n a2 yo\n')
+  equal(value.getTokensConcise(), 'KNKSVNKSV')
+  
+  var value =     new Space('a\n a1 hi\n a2 yo\nyo hi')
+  equal(value.getTokensConcise(), 'KNKSVNKSVNKSV')
 })
 
 // https://github.com/nudgepad/space/issues/58
@@ -505,6 +517,17 @@ test('get expecting a branch but hitting a leaf', function() {
   equal(undefined, value.get('posts branch'))
   
 })
+
+test('key count', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  equal(a.keyCount(), 6)
+  var b = new Space('')
+  equal(b.keyCount(), 0)
+  var c = new Space('hello world')
+  equal(c.keyCount(), 1)
+})
+
 
 test('last', function() {
 
@@ -535,6 +558,17 @@ test('next', function() {
   equal(a.prev('susy'), 'john')
   equal(a.prev('bob'), 'susy')
   equal(a.next('bob'), 'john')
+})
+
+test('object count', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  equal(a.objectCount(), 3)
+  var b = new Space('')
+  equal(b.objectCount(), 0)
+  var c = new Space('hello world')
+  equal(c.objectCount(), 0)
+  
 })
 
 test('order', function() {
