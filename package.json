@@ -1,7 +1,7 @@
 {
   "name": "space",
   "version": "0.2.9",
-  "description": "A lightweight language for data",
+  "description": "A lightweight language for objects",
   "main": "./space.js",
   "bin": {
     "space": "cli.js"

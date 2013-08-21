@@ -1,7 +1,7 @@
 Space
 =====
 
-Space is a lightweight language for data.
+Space is a lightweight language for objects.
 
 Space is like XML or JSON, with less features and syntax.
 
