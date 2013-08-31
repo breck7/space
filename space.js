@@ -744,6 +744,16 @@ Space.prototype.set = function (key, value, index) {
   return this
 }
 
+Space.prototype.shift = function () {
+  if (!this.keys.length)
+    return null
+  var key = this.keys.shift()
+  var result = new Space()
+  result.set(key, this.get(key))
+  this._delete(key)
+  return result
+}
+
 /**
  * Return executable javascript code.
  * @return {string}

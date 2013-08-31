@@ -802,6 +802,18 @@ test('set', function() {
 
 })
 
+test('shift', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  equal(a.length(), 3)
+  equal(a.shift().toString(), 'john\n age 5\n')
+  equal(a.length(), 2)
+  
+  var empty = new Space()
+  equal(empty.shift(), null)
+  
+})
+
 test('loadFromString', function() {
 
   a = new Space('text \n this is a string\n and more')
