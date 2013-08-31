@@ -661,6 +661,8 @@ Space.prototype.patchOrder = function (space) {
 }
 
 Space.prototype.pop = function () {
+  if (!this.keys.length)
+    return null
   var key = this.keys.pop()
   var result = new Space()
   result.set(key, this.get(key))

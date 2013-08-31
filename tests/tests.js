@@ -673,6 +673,10 @@ test('pop', function() {
   equal(a.length(), 3)
   equal(a.pop().toString(), 'bob\n age 10\n')
   equal(a.length(), 2)
+  
+  var empty = new Space()
+  equal(empty.pop(), null)
+  
 })
 
 test('prev', function() {
