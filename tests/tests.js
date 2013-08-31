@@ -667,6 +667,14 @@ test('path functions', function() {
   
 })
 
+test('pop', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  equal(a.length(), 3)
+  equal(a.pop().toString(), 'bob\n age 10\n')
+  equal(a.length(), 2)
+})
+
 test('prev', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')

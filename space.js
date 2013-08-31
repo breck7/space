@@ -660,6 +660,14 @@ Space.prototype.patchOrder = function (space) {
   return this
 }
 
+Space.prototype.pop = function () {
+  var key = this.keys.pop()
+  var result = new Space()
+  result.set(key, this.get(key))
+  this._delete(key)
+  return result
+}
+
 /**
  * Return the previous name in the Space, given a name.
  * @param {string}
