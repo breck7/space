@@ -450,6 +450,16 @@ test('event bubbling', function() {
   
 })
 
+test('find', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  
+  equal(a.find('age', '5').length(), 1)
+//  equal(a.find('age', /(5|6)/).length(), 2)
+//  equal(a.find('age', function (value) {return value > 4}).length(), 3)
+
+})
+
 
 test('first', function() {
 
@@ -690,6 +700,15 @@ test('prev', function() {
   equal(a.prev('susy'), 'john')
   equal(a.prev('bob'), 'susy')
   equal(a.next('bob'), 'john')
+})
+
+test('push', function() {
+
+  var a = new Space()
+  a.push('hello world')
+  equal(a.get('0'), 'hello world')
+  a.push(new Space())
+  ok(a.get('1') instanceof Space)
 })
 
 test('query', function() {

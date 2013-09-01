@@ -253,6 +253,24 @@ Space.prototype.each = function (fn) {
   return this
 }
 
+Space.prototype.find = function (keyTest, valueTest) {
+  // for now assume string test
+  // search this one
+  var matches = new Space()
+  if (this.get(keyTest) === valueTest)
+    matches.push(this)
+  this.each(function (key, value) {
+    if (!(value instanceof Space))
+      return true
+    value
+      .find(keyTest, valueTest)
+      .each(function (k, v) {
+        matches.push(v)    
+      })
+  })
+  return matches
+}
+
 Space.prototype.isEmpty = function () {
   return this.keys.length === 0
 }
@@ -680,6 +698,15 @@ Space.prototype.prev = function (name) {
   if (index >= 0)
     return this.keys[index]
   return this.keys[this.keys.length - 1]
+}
+
+Space.prototype.push = function (value) {
+  var i = this.length()
+  while (this.get(i.toString())) {
+    i++
+  }
+  this._set(i.toString(), value)
+  return this
 }
 
 Space.prototype._rename = function (oldName, newName) {
