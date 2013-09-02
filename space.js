@@ -572,7 +572,7 @@ Space.prototype._parseFromString = function (string) {
   }
   */
   var spaces = string.split(/\n(?! )/g)
-  
+  var matches
   for (var i in spaces) {
     var space = spaces[i]
     if (matches = space.match(/^([^ ]+)(\n|$)/)) // Space

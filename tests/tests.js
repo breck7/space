@@ -545,6 +545,12 @@ test('last', function() {
   equal(value.get(-1), 'mom')
 })
 
+test('matches leak', function() {
+  var foo = new Space('hello world')
+  equal(typeof(matches), "undefined")
+})
+
+
 test('multiline', function () {
   
   var a = new Space('my multiline\n string')
