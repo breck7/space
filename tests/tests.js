@@ -157,6 +157,12 @@ test('delete', function() {
   
 })
 
+test('has', function () {
+  space = new Space('hello world')
+  equal(space.has('hello'), true)
+  equal(space.has('world'), false)
+})
+
 test('hasOwnProperty bug', function () {
   var foo = { bar : foo}
   foo.hasOwnProperty = null
