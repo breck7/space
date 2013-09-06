@@ -46,7 +46,7 @@ Space.union = function () {
   for (var i in arguments) {
     if (i === 1) continue // skip the first one
     union = Space.unionSingle(union, arguments[i])
-    if (!union.keys.length) break
+    if (!union.length()) break
   }
   return union
 }
@@ -627,7 +627,7 @@ Space.prototype._patch = function (patch) {
     }
     
     // If its an empty space, delete patch.
-    if (patchValue instanceof Space && !patchValue.keys.length) {
+    if (patchValue instanceof Space && !patchValue.length()) {
       this._delete(key)
       continue
     }
@@ -663,7 +663,7 @@ Space.prototype._patchOrder = function (space) {
     space = new Space(space)
   
   // make sure space has all keys
-  var keys = this.keys.length
+  var keys = this.length()
   for (var i in space.keys) {
     var key = space.keys[i]
     // If the keys differ a bit, skip this level
@@ -678,7 +678,7 @@ Space.prototype._patchOrder = function (space) {
   for (var i in space.keys) {
     var key = space.keys[i]
     var value = space.getByKey(key)
-    if (value instanceof Space && value.keys.length && this.getByKey(key) instanceof Space)
+    if (value instanceof Space && value.length() && this.getByKey(key) instanceof Space)
       this.getByKey(key)._patchOrder(value)
   }
   return this
@@ -693,7 +693,7 @@ Space.prototype.patchOrder = function (space) {
 }
 
 Space.prototype.pop = function () {
-  if (!this.keys.length)
+  if (!this.length())
     return null
   var key = this.keys.pop()
   var result = new Space()
@@ -711,7 +711,7 @@ Space.prototype.prev = function (name) {
   var index = this.keys.indexOf(name) - 1
   if (index >= 0)
     return this.keys[index]
-  return this.keys[this.keys.length - 1]
+  return this.keys[this.length() - 1]
 }
 
 Space.prototype.push = function (value) {
@@ -790,7 +790,7 @@ Space.prototype.setValue = function (key, value) {
 }
 
 Space.prototype.shift = function () {
-  if (!this.keys.length)
+  if (!this.length())
     return null
   var key = this.keys.shift()
   var result = new Space()
