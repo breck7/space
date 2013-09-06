@@ -276,14 +276,6 @@ Space.prototype.find = function (keyTest, valueTest) {
   return matches
 }
 
-Space.prototype.has = function (key) {
-  return this.values[key] !== undefined
-}
-
-Space.prototype.isEmpty = function () {
-  return this.keys.length === 0
-}
-
 Space.prototype.every = function (fn) {
   for (var i in this.keys) {
     var key = this.keys[i]
@@ -472,6 +464,14 @@ Space.prototype.getTokens = function (debug) {
 Space.prototype.getTokensConcise = function () {
   // http://stackoverflow.com/questions/7780794/javascript-regex-remove-duplicate-characters
   return this.getTokens().replace(/[^\w\s]|(.)(?=\1)/gi, "")
+}
+
+Space.prototype.has = function (key) {
+  return this.values[key] !== undefined
+}
+
+Space.prototype.isEmpty = function () {
+  return this.keys.length === 0
 }
 
 Space.prototype.keyCount = function () {

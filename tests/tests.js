@@ -156,6 +156,13 @@ test('delete', function() {
   
   
 })
+/*
+test('dupes', function () {
+  space = new Space('time 123')
+  space.append('time', '456')
+  equal(space.length(), 2)
+})
+*/
 
 test('has', function () {
   space = new Space('hello world')
