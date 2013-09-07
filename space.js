@@ -1,7 +1,7 @@
 function Space(properties) {
   
   this.keys = []
-  this.values = {}
+  this.clearValues()
   this.events = {}
   this._parse(properties)
   return this
@@ -69,9 +69,6 @@ Space.unionSingle = function(spaceA, spaceB) {
   return union
 }
 
-Space.prototype.keys = []
-Space.prototype.values = {}
-
 Space.prototype.append = function (key, value) {
   this._set(key, value)
   this.trigger('append', key, value)
@@ -85,7 +82,7 @@ Space.prototype.append = function (key, value) {
  */
 Space.prototype._clear = function () {
   this.keys = []
-  this.values = {}
+  this.clearValues()
   return this
 }
 
@@ -102,6 +99,10 @@ Space.prototype.clear = function (space) {
     this._parse(space)
   this.trigger('change')
   return this
+}
+
+Space.prototype.clearValues = function () {
+  this.values = {}
 }
 
 /**
