@@ -278,13 +278,11 @@ Space.prototype.find = function (keyTest, valueTest) {
 }
 
 Space.prototype.every = function (fn) {
-  for (var i in this.keys) {
-    var key = this.keys[i]
-    var value = this.getByKey(key)
+  this.each(function (key, value) {
     if (value instanceof Space)
       value.every(fn)
-    fn.call(this, key, this.getByKey(key))
-  }
+    fn.call(this, key, value)    
+  })
   return this
 }
 
@@ -485,7 +483,7 @@ Space.prototype.has = function (key) {
 }
 
 Space.prototype.isEmpty = function () {
-  return this.keys.length === 0
+  return this.length() === 0
 }
 
 Space.prototype.keyCount = function () {
@@ -678,14 +676,14 @@ Space.prototype._patchOrder = function (space) {
     space = new Space(space)
   
   // make sure space has all keys
-  var keys = this.length()
+  var count = this.length()
   var me = this
   space.each(function (key, value) {
     if (!me.has(key))
       return false
-    keys--
+    count--
   })
-  if (keys === 0) {
+  if (count === 0) {
     // Reorder this level.
     this.setOrder(space.getOrder())
   }
