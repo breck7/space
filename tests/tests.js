@@ -619,7 +619,7 @@ test('next', function() {
   equal(a.next('susy'), 'bob')
   equal(a.prev('susy'), 'john')
   equal(a.prev('bob'), 'susy')
-  equal(a.next('bob'), 'john')
+  equal(a.next('bob'), undefined)
   
   equal(a.next('foobar'), 'john')
   
@@ -748,14 +748,12 @@ test('pop', function() {
 test('prev', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-
   
   equal(a.next('john'), 'susy')
   equal(a.prev('john'), 'bob')
   equal(a.next('susy'), 'bob')
   equal(a.prev('susy'), 'john')
   equal(a.prev('bob'), 'susy')
-  equal(a.next('bob'), 'john')
 })
 
 test('push', function() {

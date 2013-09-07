@@ -314,19 +314,23 @@ Space.prototype.get = function (query) {
  * @return The matching value
  */
 Space.prototype.getByIndex = function (index) {
-  // Passing -1 gets the last item, et cetera
-  if (index < 0)
-    index = this.length() + index
-  var key = this.keys[index]
+  var key = this.getKeyByIndex(index)
   return this.getByKey(key)
+}
+
+Space.prototype.getByKey = function (key) {
+  return this.values[key]
 }
 
 Space.prototype.getIndexByKey = function (key) {
   return this.keys.indexOf(key)
 }
 
-Space.prototype.getByKey = function (key) {
-  return this.values[key]
+Space.prototype.getKeyByIndex = function (index) {
+  // Passing -1 gets the last item, et cetera
+  if (index < 0)
+    index = this.length() + index
+  return this.keys[index]
 }
 
 Space.prototype.getOrder = function () {
@@ -508,9 +512,7 @@ Space.prototype.length = function () {
 Space.prototype.next = function (key) {
   var index = this.getIndexByKey(key)
   var next = index + 1
-  if (this.keys[next])
-    return this.keys[next]
-  return this.keys[0]
+  return this.getKeyByIndex(next)
 }
 
 Space.prototype.off = function (eventName, fn) {
