@@ -7,6 +7,10 @@ function Space(properties) {
   return this
 }
 
+Space.isXPath = function (key) {
+  return key.match(/ /)
+}
+
 Space.pathBranch = function (xpath) {
   var nodes = xpath.split(/ /g)
   if (nodes.length < 2)
@@ -52,7 +56,7 @@ Space.union = function () {
 }
 
 /**
- * space: will probably be removed.
+ * todo: this method will probably be removed.
  * @param {Space}
  * @return {Space}
  */
@@ -62,15 +66,15 @@ Space.unionSingle = function(spaceA, spaceB) {
     return union
   spaceA.each(function (key, value) {
     if (value instanceof Space && spaceB._getValueByKey(key) && spaceB._getValueByKey(key) instanceof Space)
-      union._set(key, Space.unionSingle(value, spaceB._getValueByKey(key)))
+      union._setPair(key, Space.unionSingle(value, spaceB._getValueByKey(key)))
     if (value === spaceB._getValueByKey(key))
-      union._set(key, value)
+      union._setPair(key, value)
   })
   return union
 }
 
 Space.prototype.append = function (key, value) {
-  this._set(key, value)
+  this._setPair(key, value)
   this.trigger('append', key, value)
   this.trigger('change')
   return this
@@ -125,7 +129,7 @@ Space.prototype.clone = function () {
 }
 
 Space.prototype.create = function (key, value) {
-  this._set(key, value)
+  this._setPair(key, value)
   this.trigger('create', key, value)
   this.trigger('change')
   return this
@@ -187,31 +191,31 @@ Space.prototype.diff = function (space) {
 
     // Case: Deleted
     if (typeof spaceValue === 'undefined') {
-      diff._set(key, '')
+      diff._setPair(key, '')
       return true
     }
     // Different Types
     if (typeof(this._getValueByKey(key)) !== typeof(spaceValue)) {
       if (typeof spaceValue === 'object')
-        diff._set(key, new Space(spaceValue))
+        diff._setPair(key, new Space(spaceValue))
       
       // We treat a spaceValue of 1 equal to '1'
       else if (this._getValueByKey(key) == spaceValue)
         return true
       else
-        diff._set(key, spaceValue)
+        diff._setPair(key, spaceValue)
       return true
     }
     // Strings, floats, etc
     if (typeof(this._getValueByKey(key)) !== 'object') {
       if (this._getValueByKey(key) != spaceValue)
-        diff._set(key, spaceValue)
+        diff._setPair(key, spaceValue)
       return true
     }
     // Both are Objects
     var sub_diff = this._getValueByKey(key).diff(spaceValue)
     if (sub_diff.length())
-      diff._set(key, sub_diff)
+      diff._setPair(key, sub_diff)
   })
 
   // Leftovers are Additions
@@ -220,13 +224,13 @@ Space.prototype.diff = function (space) {
     if (me.has(key))
       return true
     if (typeof value !== 'object') {
-      diff._set(key, value)
+      diff._setPair(key, value)
       return true
     }
     else if (value instanceof Space)
-      diff._set(key, new Space(value))
+      diff._setPair(key, new Space(value))
     else
-      diff._set(key, new Space(space))
+      diff._setPair(key, new Space(space))
   })
   return diff
 }
@@ -247,7 +251,7 @@ Space.prototype.diffOrder = function (space) {
     var childDiff = me._getValueByKey(key).diffOrder(value)
     if (childDiff.isEmpty())
       return true
-    diff._set(key, childDiff)
+    diff._setPair(key, childDiff)
   })
   
   // Parent hasnt changed
@@ -392,7 +396,7 @@ Space.prototype._getValueBySpace = function (space) {
     
     // If the request is a leaf or empty space, set
     if (!(space._getValueByKey(key) instanceof Space) || !space._getValueByKey(key).length()) {
-      result._set(key, value)
+      result._setPair(key, value)
       return true
     }
     
@@ -401,7 +405,7 @@ Space.prototype._getValueBySpace = function (space) {
       return true
     
     // Now time to recurse
-    result._set(key, value._getValueBySpace(space._getValueByKey(key)))
+    result._setPair(key, value._getValueBySpace(space._getValueByKey(key)))
   })
   return result 
 }
@@ -602,9 +606,9 @@ Space.prototype._parse = function (properties) {
       continue
     var value = properties[key]
     if (typeof value === 'object')
-      this._set(key, new Space(value))
+      this._setPair(key, new Space(value))
     else
-      this._set(key, value)
+      this._setPair(key, value)
   }
 }
 
@@ -642,9 +646,9 @@ Space.prototype._parseFromString = function (string) {
   for (var i in spaces) {
     var space = spaces[i]
     if (matches = space.match(/^([^ ]+)(\n|$)/)) // Space
-      this._set(matches[1], new Space(space.substr(matches[1].length).replace(/\n /g, '\n')))
+      this._setPair(matches[1], new Space(space.substr(matches[1].length).replace(/\n /g, '\n')))
     else if (matches = space.match(/^([^ ]+) /)) // Leaf
-      this._set(matches[1], space.substr(matches[1].length + 1).replace(/^\n /, '').replace(/\n /g, '\n') )
+      this._setPair(matches[1], space.substr(matches[1].length + 1).replace(/^\n /, '').replace(/\n /g, '\n') )
   }
   return this
 }
@@ -667,13 +671,13 @@ Space.prototype._patch = function (patch) {
       if (patchValue === '')
         me._delete(key)
       else
-        me._set(key, patchValue)
+        me._setPair(key, patchValue)
       return true
     }
     
     // If patch value is an int, doesnt matter what type subject is.
     if (typeof patchValue === 'number') {
-      me._set(key, patchValue)
+      me._setPair(key, patchValue)
       return true
     }
     
@@ -690,7 +694,7 @@ Space.prototype._patch = function (patch) {
     }
     
     // Final case. Do a deep copy of space.
-    me._set(key, new Space(patchValue))
+    me._setPair(key, new Space(patchValue))
     
   })
 
@@ -769,7 +773,7 @@ Space.prototype.push = function (value) {
   while (this.get(i.toString())) {
     i++
   }
-  this._set(i.toString(), value)
+  this._setPair(i.toString(), value)
   return this
 }
 
@@ -797,6 +801,16 @@ Space.prototype.rename = function (oldName, newName) {
   return this
 }
 
+Space.prototype.set = function (key, value, index) {
+  if (Space.isXPath(key.toString()))
+    this._setByXPath(key, value, index)
+  else
+    this._setPair(key, value, index)
+  this.trigger('set', key, value, index)
+  this.trigger('change')
+  return this
+}
+
 /**
  * Search the space for a given path (xpath).
  * @param {string}
@@ -804,7 +818,7 @@ Space.prototype.rename = function (oldName, newName) {
  * @param {int} Optional index to insert at
  * @return The matching value
  */
-Space.prototype._set = function (key, value, index) {
+Space.prototype._setByXPath = function (key, value, index) {
   if (!key)
     return null
   var steps = key.toString().split(/ /g)
@@ -828,24 +842,20 @@ Space.prototype._set = function (key, value, index) {
   return this
 }
 
-Space.prototype.set = function (key, value, index) {
-  this._setByXPath(key, value, index)
-  this.trigger('set', key, value, index)
-  this.trigger('change')
-  return this
-}
-
-Space.prototype._setByXPath = function (key, value, index) {
-  // todo
-  this._set(key, value, index)
-}
-
 Space.prototype._setKey = function (index, key) {
   this._keys[index] = key
 }
 
 Space.prototype._setKeys = function (arr) {
   this._keys = arr
+}
+
+Space.prototype._setPair = function (key, value, index) {
+  this._values[key] = value
+  if (index === undefined)
+    this._keys.push(key)
+  else
+    this._insertKey(index, key)
 }
 
 Space.prototype._setValue = function (key, value) {
