@@ -475,20 +475,20 @@ test('get', function() {
 
 })
 
-test('getValueByIndex', function() {
+test('_getValueByIndex', function() {
 
   var value = new Space('hello world\nhow are you\nhola friend')
-  equal(value.getValueByIndex(0), 'world')
-  equal(value.getValueByIndex(1), 'are you')
-  equal(value.getValueByIndex(2), 'friend')
-  equal(value.getValueByIndex(3), undefined)
-  equal(value.getValueByIndex(-1), 'friend')
+  equal(value._getValueByIndex(0), 'world')
+  equal(value._getValueByIndex(1), 'are you')
+  equal(value._getValueByIndex(2), 'friend')
+  equal(value._getValueByIndex(3), undefined)
+  equal(value._getValueByIndex(-1), 'friend')
 })
 
-test('getIndexByKey', function () {
+test('_getIndexByKey', function () {
   space = new Space('hello world')
-  equal(space.getIndexByKey('hello'), 0)
-  equal(space.getIndexByKey('hello2'), -1)
+  equal(space._getIndexByKey('hello'), 0)
+  equal(space._getIndexByKey('hello2'), -1)
 })
 
 test('getTokens', function() {
@@ -637,11 +637,11 @@ test('next', function() {
 test('object count', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  equal(a.objectCount(), 3)
+  equal(a._objectCount(), 3)
   var b = new Space('')
-  equal(b.objectCount(), 0)
+  equal(b._objectCount(), 0)
   var c = new Space('hello world')
-  equal(c.objectCount(), 0)
+  equal(c._objectCount(), 0)
   
 })
 
