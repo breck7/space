@@ -854,14 +854,12 @@ Space.prototype.toJSON = function () {
  */
 Space.prototype.toObject = function () {
   var obj = {}
-  for (var i in this.keys) {
-    var key = this.keys[i]
-    var value = this.getByKey(key)
+  this.each(function (key, value) {
     if (value instanceof Space)
       obj[key] = value.toObject()
     else
       obj[key] = value
-  }
+  })
   return obj
 }
 
@@ -872,15 +870,12 @@ Space.prototype.toString =  function (spaces) {
   spaces = spaces || 0
   var string = ''
   // Iterate over each property
-  for (var i in this.keys) {
+  this.each(function (key, value) {
     
-    var key = this.keys[i]
-    var value = this.getByKey(key)
-
     // If property value is undefined
     if (typeof value === 'undefined') {
       string += '\n'
-      continue
+      return true
     }
 
     // Set up the key part of the key/value pair
@@ -905,7 +900,9 @@ Space.prototype.toString =  function (spaces) {
     // Plain string
     else
       string += ' ' + value.toString() + '\n'
-  }
+    
+  })
+
   return string
 }
 
