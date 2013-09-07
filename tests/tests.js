@@ -164,43 +164,30 @@ test('dupes', function () {
 })
 */
 
-test('has', function () {
-  space = new Space('hello world')
-  equal(space.has('hello'), true)
-  equal(space.has('world'), false)
-})
-
-test('hasOwnProperty bug', function () {
-  var foo = { bar : foo}
-  foo.hasOwnProperty = null
-  space = new Space(foo)
-  ok(space)
-})
-
-// For testing diffs of composites
-function Page (space) {
+test('diff of subclasses', function() {
   
-  this.clear()
   
-  if (space)
-    this.patch(space)
-  return this
-}
+  function Page (space) {
 
-Page.prototype = new Space()
+    this.clear()
 
-function Block (id, space) {
-  
-  this.clear()
-  
-  this.id = id
-  if (space)
-    this.patch(space)
-}
+    if (space)
+      this.patch(space)
+    return this
+  }
 
-Block.prototype = new Space()
+  Page.prototype = new Space()
 
-test('diff', function() {
+  function Block (id, space) {
+
+    this.clear()
+
+    this.id = id
+    if (space)
+      this.patch(space)
+  }
+
+  Block.prototype = new Space()
 
   var a = new Space('hello world')
   var b = new Space('hello mom')
@@ -277,8 +264,6 @@ test('diff', function() {
   ok(diff.get('body foobar') instanceof Space, 'block1 in page3 diff is instance of space')
   ok(!diff.values.body.values.foobar.id, 'id did not get set')
   
-  
-
 })
 
 test('diffOrder', function() {
@@ -300,7 +285,7 @@ test('diffOrder', function() {
   
 })
 
-test('difference between a blank key/value and empty object', function() {
+test('diff between a blank key/value and empty object', function() {
 
   var a = new Space('hi ')
   var b = new Space('hi\n')
@@ -347,49 +332,6 @@ test('each', function() {
       return false
   })
   equal(count, 1)
-})
-
-test('isEmpty', function() {
-
-  var a = new Space()
-  equal(a.isEmpty(), true)
-  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  equal(a.isEmpty(), false)
-
-})
-
-test('every', function() {
-  
-
- var obj = new Space('user\n\
-name Aristotle\n\
-admin false\n\
-stage\n\
- name home\n\
- domain test.test.com\n\
-pro false\n\
-domains\n\
- test.test.com\n\
-  images\n\
-  blocks\n\
-  users\n\
-  stage home\n\
-  pages\n\
-   home\n\
-    settings\n\
-     data\n\
-      title Hello, World\n\
-    block1\n\
-     content Hello world\n')
-  var i = 0
-  obj.every(function (key, value) {
-    this.rename(key, key.toUpperCase())
-    i++
-  })
-    
-  equal(i, 20)
-  equal(obj.get('DOMAINS TEST.TEST.COM PAGES HOME SETTINGS').toString(), 'DATA\n TITLE Hello, World\n')
-  
 })
 
 test('events', function() {
@@ -463,6 +405,40 @@ test('event bubbling', function() {
   
 })
 
+test('every', function() {
+  
+
+ var obj = new Space('user\n\
+name Aristotle\n\
+admin false\n\
+stage\n\
+ name home\n\
+ domain test.test.com\n\
+pro false\n\
+domains\n\
+ test.test.com\n\
+  images\n\
+  blocks\n\
+  users\n\
+  stage home\n\
+  pages\n\
+   home\n\
+    settings\n\
+     data\n\
+      title Hello, World\n\
+    block1\n\
+     content Hello world\n')
+  var i = 0
+  obj.every(function (key, value) {
+    this.rename(key, key.toUpperCase())
+    i++
+  })
+    
+  equal(i, 20)
+  equal(obj.get('DOMAINS TEST.TEST.COM PAGES HOME SETTINGS').toString(), 'DATA\n TITLE Hello, World\n')
+  
+})
+
 test('find', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
@@ -496,6 +472,12 @@ test('get', function() {
   strictEqual(value, undefined)
   
 
+})
+
+test('getIndexByKey', function () {
+  space = new Space('hello world')
+  equal(space.getIndexByKey('hello'), 0)
+  equal(space.getIndexByKey('hello2'), -1)
 })
 
 test('getTokens', function() {
@@ -541,6 +523,29 @@ test('get expecting a branch but hitting a leaf', function() {
   
 })
 
+
+test('has', function () {
+  space = new Space('hello world')
+  equal(space.has('hello'), true)
+  equal(space.has('world'), false)
+})
+
+test('hasOwnProperty bug', function () {
+  var foo = { bar : foo}
+  foo.hasOwnProperty = null
+  space = new Space(foo)
+  ok(space)
+})
+
+test('isEmpty', function() {
+
+  var a = new Space()
+  equal(a.isEmpty(), true)
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  equal(a.isEmpty(), false)
+
+})
+
 test('key count', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
@@ -556,6 +561,24 @@ test('last', function() {
 
   var value = new Space('hello world\nhi mom')
   equal(value.get(-1), 'mom')
+})
+
+test('loadFromString', function() {
+
+  a = new Space('text \n this is a string\n and more')
+
+  equal(a.values.text, 'this is a string\nand more')
+
+  b = new Space('a\n text \n  this is a string\n  and more')
+  equal(b.get('a text'), 'this is a string\nand more')
+  equal(b.toString(), 'a\n text \n  this is a string\n  and more\n')
+
+  var string = 'first_name John\nlast_name Doe\nchildren\n 1\n  first_name Joe\n  last_name Doe\n  children\n   1\n    first_name Joe Jr.\n    last_name Doe\n    age 12\ncolors\n blue\n red\nbio \n Hello this is\n my multline\n biography\n \n Theres a blank line in there as well\n \n \n Two blank lines above this one.\ncode <p></p>\n'
+  c = new Space(string)
+  equal(c.get('children 1 children 1 age'), '12')
+  equal(c.toString().length, string.length)
+  equal(c.toString(), string)
+
 })
 
 test('matches leak', function() {
@@ -763,6 +786,20 @@ test('query', function() {
   equal(result.get('user domains test.test.com pages home block1 content'), 'Hello world')
 })
 
+test('rename', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6')
+  equal(a.keys[0], 'john', 'index okay')
+  ok(a.rename('john', 'breck') instanceof Space, 'returns itself for chaining')
+  equal(a.keys[0], 'breck', 'index okay')
+  equal(a.get('breck age'), '5', 'value okay')
+  
+  var page = new Space()
+  page.set('header content', 'football')
+  page.rename('header content', 'header text')
+  equal(page.get('header text'), 'football')
+  
+})
 
 test('reorder', function() {
   var a = new Space('hello world\n')
@@ -785,21 +822,6 @@ test('reorder', function() {
   b = new Space('b\n value foobar\n content hi')
   equal(a.diffOrder(b).toString(), 'b\n value\n content\n', 'diff order correct')
   equal(a.patchOrder(a.diffOrder(b)).toString(), b.toString(), 'recursive order patch')
-  
-})
-
-test('rename', function() {
-
-  var a = new Space('john\n age 5\nsusy\n age 6')
-  equal(a.keys[0], 'john', 'index okay')
-  ok(a.rename('john', 'breck') instanceof Space, 'returns itself for chaining')
-  equal(a.keys[0], 'breck', 'index okay')
-  equal(a.get('breck age'), '5', 'value okay')
-  
-  var page = new Space()
-  page.set('header content', 'football')
-  page.rename('header content', 'header text')
-  equal(page.get('header text'), 'football')
   
 })
 
@@ -850,24 +872,6 @@ test('shift', function() {
   var empty = new Space()
   equal(empty.shift(), null)
   
-})
-
-test('loadFromString', function() {
-
-  a = new Space('text \n this is a string\n and more')
-
-  equal(a.values.text, 'this is a string\nand more')
-
-  b = new Space('a\n text \n  this is a string\n  and more')
-  equal(b.get('a text'), 'this is a string\nand more')
-  equal(b.toString(), 'a\n text \n  this is a string\n  and more\n')
-
-  var string = 'first_name John\nlast_name Doe\nchildren\n 1\n  first_name Joe\n  last_name Doe\n  children\n   1\n    first_name Joe Jr.\n    last_name Doe\n    age 12\ncolors\n blue\n red\nbio \n Hello this is\n my multline\n biography\n \n Theres a blank line in there as well\n \n \n Two blank lines above this one.\ncode <p></p>\n'
-  c = new Space(string)
-  equal(c.get('children 1 children 1 age'), '12')
-  equal(c.toString().length, string.length)
-  equal(c.toString(), string)
-
 })
 
 test('toJavascript', function() {

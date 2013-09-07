@@ -60,14 +60,12 @@ Space.unionSingle = function(spaceA, spaceB) {
   var union = new Space()
   if (!(spaceB instanceof Space))
     return union
-  for (var i in spaceA.keys) {
-    var key = spaceA.keys[i]
-    var value = spaceA.getByKey(key)
+  spaceA.each(function (key, value) {
     if (value instanceof Space && spaceB.getByKey(key) && spaceB.getByKey(key) instanceof Space)
       union._set(key, Space.unionSingle(value, spaceB.getByKey(key)))
     if (value === spaceB.getByKey(key))
       union._set(key, value)
-  }
+  })
   return union
 }
 
@@ -123,11 +121,11 @@ Space.prototype.create = function (key, value) {
 
 Space.prototype._delete = function (key) {
   if (!key.toString().match(/ /)) {
-    var index = this.keys.indexOf(key)
+    var index = this.getIndexByKey(key)
     if (index === -1)
       return 0
-    this.keys.splice(index, 1)
-    delete this.deleteByKey(key)
+    this.deleteIndex(index)
+    this.deleteByKey(key)
     return 1
   }
   // Get parent
@@ -144,6 +142,10 @@ Space.prototype['delete'] = function (key) {
     this.trigger('delete', key)
   this.trigger('change')
   return this
+}
+
+Space.prototype.deleteIndex = function (index) {
+  this.keys.splice(index, 1)
 }
 
 Space.prototype.deleteByKey = function (key) {
@@ -166,54 +168,54 @@ Space.prototype.diff = function (space) {
   
   if (!(space instanceof Space))
     space = new Space(space)
-  
-  for (var i in this.keys) {
+
+  this.each(function (key, value) {
     
-    var key = this.keys[i]
-    var value = space.getByKey(key)
+    var spaceValue = space.getByKey(key)
+
     // Case: Deleted
-    if (typeof value === 'undefined') {
+    if (typeof spaceValue === 'undefined') {
       diff._set(key, '')
-      continue
+      return true
     }
     // Different Types
-    if (typeof(this.getByKey(key)) !== typeof(value)) {
-      if (typeof value === 'object')
-        diff._set(key, new Space(value))
+    if (typeof(this.getByKey(key)) !== typeof(spaceValue)) {
+      if (typeof spaceValue === 'object')
+        diff._set(key, new Space(spaceValue))
       
-      // We treat a value of 1 equal to '1'
-      else if (this.getByKey(key) == value)
-        continue
+      // We treat a spaceValue of 1 equal to '1'
+      else if (this.getByKey(key) == spaceValue)
+        return true
       else
-        diff._set(key, value)
-      continue
+        diff._set(key, spaceValue)
+      return true
     }
     // Strings, floats, etc
     if (typeof(this.getByKey(key)) !== 'object') {
-      if (this.getByKey(key) != value)
-        diff._set(key, value)
-      continue
+      if (this.getByKey(key) != spaceValue)
+        diff._set(key, spaceValue)
+      return true
     }
     // Both are Objects
-    var sub_diff = this.getByKey(key).diff(value)
-    if (sub_diff.keys.length)
+    var sub_diff = this.getByKey(key).diff(spaceValue)
+    if (sub_diff.length())
       diff._set(key, sub_diff)
-  }
+  })
+
   // Leftovers are Additions
-  for (var i in space.keys) {
-    var key = space.keys[i]
-    var value = space.getByKey(key)
-    if (this.has(key))
-      continue
+  var me = this
+  space.each(function (key, value) {
+    if (me.has(key))
+      return true
     if (typeof value !== 'object') {
       diff._set(key, value)
-      continue
+      return true
     }
     else if (value instanceof Space)
       diff._set(key, new Space(value))
     else
       diff._set(key, new Space(space))
-  }
+  })
   return diff
 }
 
@@ -226,26 +228,25 @@ Space.prototype.diffOrder = function (space) {
   if (!(space instanceof Space))
     space = new Space(space)
   var diff = new Space()
-  for (var i in space.keys) {
-    var key = space.keys[i]
-    var value = space.getByKey(key)
-    if (!(value instanceof Space) || !(this.getByKey(key) instanceof Space))
-      continue
-    var childDiff = this.getByKey(key).diffOrder(value)
+  var me = this
+  space.each(function (key, value) {
+    if (!(value instanceof Space) || !(me.getByKey(key) instanceof Space))
+      return true
+    var childDiff = me.getByKey(key).diffOrder(value)
     if (childDiff.isEmpty())
-      continue
+      return true
     diff._set(key, childDiff)
-  }
+  })
+  
   // Parent hasnt changed
-  if (space.keys.join(' ') === this.keys.join(' '))
+  if (space.tableOfContents() === this.tableOfContents())
     return diff
   // Parent has changed
-  diff.keys = space.keys
-  for (var i in space.keys) {
-    var key = space.keys[i]
+  diff.setOrder(space.getOrder())
+  space.each(function (key, value) {
     if (!diff.has(key))
       diff.setValue(key, new Space())
-  }
+  })
   return diff
 }
 
@@ -314,13 +315,21 @@ Space.prototype.get = function (query) {
  */
 Space.prototype.getByInt = function (index) {
   if (index < 0)
-    index = this.keys.length + index
+    index = this.length() + index
   var key = this.keys[index]
   return this.getByKey(key)
 }
 
+Space.prototype.getIndexByKey = function (key) {
+  return this.keys.indexOf(key)
+}
+
 Space.prototype.getByKey = function (key) {
   return this.values[key]
+}
+
+Space.prototype.getOrder = function () {
+  return this.keys
 }
 
 /**
@@ -356,27 +365,27 @@ Space.prototype.getByString = function (xpath) {
 Space.prototype.getBySpace = function (space) {
   var result = new Space()
   
-  for (var i in space.keys) {
-    var key = space.keys[i]
-    var value = this.getByKey(key)
+  var me = this
+  space.each(function (key, v) {
+    var value = me.getByKey(key)
     
     // If this doesnt have that property, continue
     if (typeof value === 'undefined')
-      continue
+      return true
     
     // If the request is a leaf or empty space, set
-    if (!(space.getByKey(key) instanceof Space) || !space.getByKey(key).keys.length) {
+    if (!(space.getByKey(key) instanceof Space) || !space.getByKey(key).length()) {
       result._set(key, value)
-      continue
+      return true
     }
     
     // Else the request is a space with keys, make sure the subject is a space
     if (!(value instanceof Space))
-      continue
+      return true
     
     // Now time to recurse
     result._set(key, value.getBySpace(space.getByKey(key)))
-  }
+  })
   return result 
 }
 
@@ -491,12 +500,12 @@ Space.prototype.length = function () {
 }
 
 /**
- * Return the next name in the Space, given a name.
+ * Return the next key in the Space, given a key.
  * @param {string}
  * @return {string}
  */
-Space.prototype.next = function (name) {
-  var index = this.keys.indexOf(name) + 1
+Space.prototype.next = function (key) {
+  var index = this.getIndexByKey(key) + 1
   if (this.keys[index])
     return this.keys[index]
   return this.keys[0]
@@ -785,6 +794,10 @@ Space.prototype.set = function (key, value, index) {
   return this
 }
 
+Space.prototype.setOrder = function (arr) {
+  this.keys = arr
+}
+
 Space.prototype.setValue = function (key, value) {
   this.values[key] = value
 }
@@ -797,6 +810,19 @@ Space.prototype.shift = function () {
   result.set(key, this.get(key))
   this._delete(key)
   return result
+}
+
+/**
+ * For a space object like this:
+ * name John
+ * age 12
+ * hometown Brockton
+ *
+ * The TOC is equal to "name age hometown"
+ *
+ */
+Space.prototype.tableOfContents = function () {
+  return this.keys.join(' ')
 }
 
 /**
