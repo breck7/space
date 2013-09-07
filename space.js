@@ -78,8 +78,8 @@ Space.prototype.append = function (key, value) {
 
 /*
 Space.prototype.appendPair = function (key, value) {
-  this.keys.push(key)
-  this.values.push(value)
+  this._keys.push(key)
+  this._values.push(value)
 }
 */
 
@@ -109,11 +109,11 @@ Space.prototype.clear = function (space) {
 }
 
 Space.prototype._clearKeys = function () {
-  this.keys = []
+  this._keys = []
 }
 
 Space.prototype._clearValues = function () {
-  this.values = {}
+  this._values = {}
 }
 
 /**
@@ -157,11 +157,11 @@ Space.prototype.delete = function (key) {
 }
 
 Space.prototype._deleteKeyByIndex = function (index) {
-  this.keys.splice(index, 1)
+  this._keys.splice(index, 1)
 }
 
 Space.prototype._deleteValueByKey = function (key) {
-  delete this.values[key]
+  delete this._values[key]
 }
 
 /**
@@ -330,7 +330,7 @@ Space.prototype._getValueByIndex = function (index) {
 }
 
 Space.prototype._getValueByKey = function (key) {
-  return this.values[key]
+  return this._values[key]
 }
 
 Space.prototype._getIndexByKey = function (key) {
@@ -345,7 +345,7 @@ Space.prototype._getKeyByIndex = function (index) {
 }
 
 Space.prototype.getKeys = function () {
-  return this.keys
+  return this._keys
 }
 
 
@@ -497,7 +497,7 @@ Space.prototype.has = function (key) {
 }
 
 Space.prototype._insertKey = function (index, key) {
-  this.keys.splice(index, 0, key)
+  this._keys.splice(index, 0, key)
 }
 
 Space.prototype.isEmpty = function () {
@@ -526,11 +526,11 @@ Space.prototype.isASet = function () {
   return result
 }
 
-Space.prototype.keyCount = function () {
+Space.prototype._keyCount = function () {
   var count = this.length()
   this.each(function (key, value) {
     if (value instanceof Space)
-      count += value.keyCount()
+      count += value._keyCount()
   })
   return count
 }
@@ -841,15 +841,15 @@ Space.prototype._setByXPath = function (key, value, index) {
 }
 
 Space.prototype._setKey = function (index, key) {
-  this.keys[index] = key
+  this._keys[index] = key
 }
 
 Space.prototype._setKeys = function (arr) {
-  this.keys = arr
+  this._keys = arr
 }
 
 Space.prototype._setValue = function (key, value) {
-  this.values[key] = value
+  this._values[key] = value
 }
 
 Space.prototype.shift = function () {
