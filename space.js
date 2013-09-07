@@ -489,6 +489,10 @@ Space.prototype.has = function (key) {
   return this.getValueByKey(key) !== undefined
 }
 
+Space.prototype.insertKey = function (index, key) {
+  this.keys.splice(index, 0, key)
+}
+
 Space.prototype.isEmpty = function () {
   return this.length() === 0
 }
@@ -803,9 +807,9 @@ Space.prototype._set = function (key, value, index) {
     var newValue
     if (!context.has(step)) {
       if (typeof index === 'number')
-        context.keys.splice(index, 0, step)
+        context.insertKey(index, step)
       else
-        context.keys.push(step)
+        context.setKey(context.length(), step)
     }
     // Leaf
     if (!steps.length)
