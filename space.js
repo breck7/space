@@ -254,10 +254,10 @@ Space.prototype.diffOrder = function (space) {
   if (space.tableOfContents() === this.tableOfContents())
     return diff
   // Parent has changed
-  diff.setKeys(space.getKeys())
+  diff._setKeys(space.getKeys())
   space.each(function (key, value) {
     if (!diff.has(key))
-      diff.setValue(key, new Space())
+      diff._setValue(key, new Space())
   })
   return diff
 }
@@ -587,9 +587,9 @@ Space.prototype._parse = function (properties) {
   // Load from Space object
   if (properties instanceof Space) {
     var me = this
-    me.setKeys(properties.getKeys())
+    me._setKeys(properties.getKeys())
     properties.each(function (key, value) {
-      me.setValue(key, value)
+      me._setValue(key, value)
     })
     return this
   }
@@ -725,7 +725,7 @@ Space.prototype._patchOrder = function (space) {
   })
   if (count === 0) {
     // Reorder this level.
-    this.setKeys(space.getKeys())
+    this._setKeys(space.getKeys())
   }
   space.each(function (key, value) {
     if (value instanceof Space && value.length() && me.getValueByKey(key) instanceof Space)
@@ -774,10 +774,10 @@ Space.prototype.push = function (value) {
 }
 
 Space.prototype._rename = function (oldName, newName) {
-  this.setValue(newName, this.getValueByKey(oldName))
+  this._setValue(newName, this.getValueByKey(oldName))
   this.deleteValueByKey(oldName)
   var index = this.getIndexByKey(oldName)
-  this.setKey(index, newName)
+  this._setKey(index, newName)
   return this
 }
 
@@ -816,35 +816,39 @@ Space.prototype._set = function (key, value, index) {
       if (typeof index === 'number')
         context.insertKey(index, step)
       else
-        context.setKey(context.length(), step)
+        context._setKey(context.length(), step)
     }
     // Leaf
     if (!steps.length)
-      context.setValue(step, value)
+      context._setValue(step, value)
     else if (!(context.getValueByKey(step) instanceof Space))
-      context.setValue(step, new Space())
+      context._setValue(step, new Space())
     context = context.getValueByKey(step)
   }
   return this
 }
 
 Space.prototype.set = function (key, value, index) {
-  var isUpdate = !!this.get(key)
-  this._set(key, value, index)
+  this.setByXPath(key, value, index)
   this.trigger('set', key, value, index)
   this.trigger('change')
   return this
 }
 
-Space.prototype.setKey = function (index, key) {
+Space.prototype.setByXPath = function (key, value, index) {
+  // todo
+  this._set(key, value, index)
+}
+
+Space.prototype._setKey = function (index, key) {
   this.keys[index] = key
 }
 
-Space.prototype.setKeys = function (arr) {
+Space.prototype._setKeys = function (arr) {
   this.keys = arr
 }
 
-Space.prototype.setValue = function (key, value) {
+Space.prototype._setValue = function (key, value) {
   this.values[key] = value
 }
 
