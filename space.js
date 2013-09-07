@@ -80,13 +80,6 @@ Space.prototype.append = function (key, value) {
   return this
 }
 
-/*
-Space.prototype.appendPair = function (key, value) {
-  this._keys.push(key)
-  this._values.push(value)
-}
-*/
-
 /**
  * Deletes all data. Should this clear listeners?
  * @return this
