@@ -1,6 +1,6 @@
 function Space(properties) {
   
-  this.keys = []
+  this.clearKeys()
   this.clearValues()
   this.events = {}
   this._parse(properties)
@@ -81,7 +81,7 @@ Space.prototype.append = function (key, value) {
  * @return this
  */
 Space.prototype._clear = function () {
-  this.keys = []
+  this.clearKeys()
   this.clearValues()
   return this
 }
@@ -99,6 +99,10 @@ Space.prototype.clear = function (space) {
     this._parse(space)
   this.trigger('change')
   return this
+}
+
+Space.prototype.clearKeys = function () {
+  this.keys = []
 }
 
 Space.prototype.clearValues = function () {
@@ -125,8 +129,8 @@ Space.prototype._delete = function (key) {
     var index = this.getIndexByKey(key)
     if (index === -1)
       return 0
-    this.deleteIndex(index)
-    this.deleteByKey(key)
+    this.deleteKeyByIndex(index)
+    this.deleteValueByKey(key)
     return 1
   }
   // Get parent
@@ -145,11 +149,11 @@ Space.prototype['delete'] = function (key) {
   return this
 }
 
-Space.prototype.deleteIndex = function (index) {
+Space.prototype.deleteKeyByIndex = function (index) {
   this.keys.splice(index, 1)
 }
 
-Space.prototype.deleteByKey = function (key) {
+Space.prototype.deleteValueByKey = function (key) {
   delete this.values[key]
 }
 
@@ -243,7 +247,7 @@ Space.prototype.diffOrder = function (space) {
   if (space.tableOfContents() === this.tableOfContents())
     return diff
   // Parent has changed
-  diff.setOrder(space.getOrder())
+  diff.setKeys(space.getKeys())
   space.each(function (key, value) {
     if (!diff.has(key))
       diff.setValue(key, new Space())
@@ -252,8 +256,9 @@ Space.prototype.diffOrder = function (space) {
 }
 
 Space.prototype.each = function (fn) {
-  for (var i in this.keys) {
-    var key = this.keys[i]
+  var keys = this.getKeys()
+  for (var i in keys) {
+    var key = keys[i]
     if (fn.call(this, key, this.getValueByKey(key)) === false)
       return this
   }
@@ -322,19 +327,20 @@ Space.prototype.getValueByKey = function (key) {
 }
 
 Space.prototype.getIndexByKey = function (key) {
-  return this.keys.indexOf(key)
+  return this.getKeys().indexOf(key)
 }
 
 Space.prototype.getKeyByIndex = function (index) {
   // Passing -1 gets the last item, et cetera
   if (index < 0)
     index = this.length() + index
-  return this.keys[index]
+  return this.getKeys()[index]
 }
 
-Space.prototype.getOrder = function () {
+Space.prototype.getKeys = function () {
   return this.keys
 }
+
 
 /**
  * Search the space for a given path (xpath).
@@ -522,7 +528,7 @@ Space.prototype.keyCount = function () {
  * @return int
  */
 Space.prototype.length = function () {
-  return this.keys.length
+  return this.getKeys().length
 }
 
 /**
@@ -570,7 +576,7 @@ Space.prototype._parse = function (properties) {
   // Load from Space object
   if (properties instanceof Space) {
     var me = this
-    me.setOrder(properties.getOrder())
+    me.setKeys(properties.getKeys())
     properties.each(function (key, value) {
       me.setValue(key, value)
     })
@@ -708,7 +714,7 @@ Space.prototype._patchOrder = function (space) {
   })
   if (count === 0) {
     // Reorder this level.
-    this.setOrder(space.getOrder())
+    this.setKeys(space.getKeys())
   }
   space.each(function (key, value) {
     if (value instanceof Space && value.length() && me.getValueByKey(key) instanceof Space)
@@ -729,8 +735,9 @@ Space.prototype.pop = function () {
   if (!this.length())
     return null
   var result = new Space()
-  var key = this.keys.pop()
-  result.set(key, this.get(key))
+  var key = this.getKeyByIndex(-1)
+  var value = this.getValueByKey(key)
+  result.set(key, value)
   this._delete(key)
   return result
 }
@@ -757,7 +764,7 @@ Space.prototype.push = function (value) {
 
 Space.prototype._rename = function (oldName, newName) {
   this.setValue(newName, this.getValueByKey(oldName))
-  this.deleteByKey(oldName)
+  this.deleteValueByKey(oldName)
   var index = this.getIndexByKey(oldName)
   this.setKey(index, newName)
   return this
@@ -822,7 +829,7 @@ Space.prototype.setKey = function (index, key) {
   this.keys[index] = key
 }
 
-Space.prototype.setOrder = function (arr) {
+Space.prototype.setKeys = function (arr) {
   this.keys = arr
 }
 
@@ -833,7 +840,7 @@ Space.prototype.setValue = function (key, value) {
 Space.prototype.shift = function () {
   if (!this.length())
     return null
-  var key = this.keys.shift()
+  var key = this.getKeyByIndex(0)
   var result = new Space()
   result.set(key, this.get(key))
   this._delete(key)
@@ -850,7 +857,7 @@ Space.prototype.shift = function () {
  *
  */
 Space.prototype.tableOfContents = function () {
-  return this.keys.join(' ')
+  return this.getKeys().join(' ')
 }
 
 /**
