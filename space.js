@@ -77,7 +77,7 @@ Space.prototype.append = function (key, value) {
 }
 
 /**
- * Deletes all keys and values.
+ * Deletes all data. Should this clear listeners?
  * @return this
  */
 Space.prototype._clear = function () {
@@ -87,7 +87,7 @@ Space.prototype._clear = function () {
 }
 
 /**
- * Deletes all keys and values.
+ * Deletes all data. Should this clear listeners?
  * @return this
  */
 Space.prototype.clear = function (space) {
@@ -480,7 +480,7 @@ Space.prototype.getTokensConcise = function () {
 }
 
 Space.prototype.has = function (key) {
-  return this.values[key] !== undefined
+  return this.getValueByKey(key) !== undefined
 }
 
 Space.prototype.isEmpty = function () {
@@ -910,7 +910,7 @@ Space.prototype.toString =  function (spaces) {
     else if (typeof value === 'object')
       string += '\n' + new Space(value).toString(spaces + 1)
     
-    // dont put a blank string on blank values.
+    // dont put a blank string on a blank value.
     else if (value.toString() === '')
       string += ' \n'
     
