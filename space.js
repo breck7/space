@@ -303,7 +303,7 @@ Space.prototype.get = function (query) {
       return this.getBySpace(query)
     break
     case "number":
-      return this.getByInt(query)
+      return this.getByIndex(query)
     break
   }
   return null
@@ -313,7 +313,8 @@ Space.prototype.get = function (query) {
  * @param {int}
  * @return The matching value
  */
-Space.prototype.getByInt = function (index) {
+Space.prototype.getByIndex = function (index) {
+  // Passing -1 gets the last item, et cetera
   if (index < 0)
     index = this.length() + index
   var key = this.keys[index]
@@ -505,9 +506,10 @@ Space.prototype.length = function () {
  * @return {string}
  */
 Space.prototype.next = function (key) {
-  var index = this.getIndexByKey(key) + 1
-  if (this.keys[index])
-    return this.keys[index]
+  var index = this.getIndexByKey(key)
+  var next = index + 1
+  if (this.keys[next])
+    return this.keys[next]
   return this.keys[0]
 }
 

@@ -474,6 +474,16 @@ test('get', function() {
 
 })
 
+test('getByIndex', function() {
+
+  var value = new Space('hello world\nhow are you\nhola friend')
+  equal(value.getByIndex(0), 'world')
+  equal(value.getByIndex(1), 'are you')
+  equal(value.getByIndex(2), 'friend')
+  equal(value.getByIndex(3), undefined)
+  equal(value.getByIndex(-1), 'friend')
+})
+
 test('getIndexByKey', function () {
   space = new Space('hello world')
   equal(space.getIndexByKey('hello'), 0)
@@ -610,6 +620,10 @@ test('next', function() {
   equal(a.prev('susy'), 'john')
   equal(a.prev('bob'), 'susy')
   equal(a.next('bob'), 'john')
+  
+  equal(a.next('foobar'), 'john')
+  
+  
 })
 
 test('object count', function() {
