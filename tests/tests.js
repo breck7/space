@@ -156,11 +156,12 @@ test('delete', function() {
   
   
 })
+
 /*
 test('dupes', function () {
-  space = new Space('time 123')
-  space.append('time', '456')
+  space = new Space('time 123\ntime 456')
   equal(space.length(), 2)
+  equal(space.toString(), 'time 123\ntime 456\n')
 })
 */
 
@@ -474,14 +475,14 @@ test('get', function() {
 
 })
 
-test('getByIndex', function() {
+test('getValueByIndex', function() {
 
   var value = new Space('hello world\nhow are you\nhola friend')
-  equal(value.getByIndex(0), 'world')
-  equal(value.getByIndex(1), 'are you')
-  equal(value.getByIndex(2), 'friend')
-  equal(value.getByIndex(3), undefined)
-  equal(value.getByIndex(-1), 'friend')
+  equal(value.getValueByIndex(0), 'world')
+  equal(value.getValueByIndex(1), 'are you')
+  equal(value.getValueByIndex(2), 'friend')
+  equal(value.getValueByIndex(3), undefined)
+  equal(value.getValueByIndex(-1), 'friend')
 })
 
 test('getIndexByKey', function () {
@@ -553,6 +554,13 @@ test('isEmpty', function() {
   equal(a.isEmpty(), true)
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a.isEmpty(), false)
+
+})
+
+test('isASet', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  equal(a.isASet(), true)
 
 })
 
