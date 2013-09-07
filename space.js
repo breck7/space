@@ -548,18 +548,19 @@ Space.prototype._parse = function (properties) {
   
   // Load from Space object
   if (properties instanceof Space) {
-    this.keys = properties.keys
-    for (var i in this.keys) {
-      var key = this.keys[i]
-      this.setValue(key, properties.getByKey(key))
-    }
+    var me = this
+    me.setOrder(properties.getOrder())
+    properties.each(function (key, value) {
+      me.setValue(key, value)
+    })
     return this
   }
   
   // Load from object
   for (var key in properties) {
+    // In case hasOwnProperty has been overwritten we
+    // call the original
     if (!Object.prototype.hasOwnProperty.call(properties, key))
-//    if (!properties.hasOwnProperty(key))
       continue
     var value = properties[key]
     if (typeof value === 'object')
@@ -620,40 +621,41 @@ Space.prototype._patch = function (patch) {
   if (!(patch instanceof Space))
     patch = new Space(patch)
   
-  for (var i in patch.keys) {
-    var key = patch.keys[i]
-    var patchValue = patch.getByKey(key)
-
+  var me = this
+  patch.each(function (key, patchValue) {
+    
     // If patch value is a string, doesnt matter what type subject is.
     if (typeof patchValue === 'string') {
       if (patchValue === '')
-        this._delete(key)
+        me._delete(key)
       else
-        this._set(key, patchValue)
-      continue
+        me._set(key, patchValue)
+      return true
     }
     
     // If patch value is an int, doesnt matter what type subject is.
     if (typeof patchValue === 'number') {
-      this._set(key, patchValue)
-      continue
+      me._set(key, patchValue)
+      return true
     }
     
     // If its an empty space, delete patch.
     if (patchValue instanceof Space && !patchValue.length()) {
-      this._delete(key)
-      continue
+      me._delete(key)
+      return true
     }
     
     // If both subject value and patch value are Spaces, do a recursive patch.
-    if (this.getByKey(key) instanceof Space) {
-      this.getByKey(key)._patch(patchValue)
-      continue
+    if (me.getByKey(key) instanceof Space) {
+      me.getByKey(key)._patch(patchValue)
+      return true
     }
     
     // Final case. Do a deep copy of space.
-    this._set(key, new Space(patchValue))
-  }
+    me._set(key, new Space(patchValue))
+    
+  })
+
   return this
 }
 
@@ -677,23 +679,20 @@ Space.prototype._patchOrder = function (space) {
   
   // make sure space has all keys
   var keys = this.length()
-  for (var i in space.keys) {
-    var key = space.keys[i]
-    // If the keys differ a bit, skip this level
-    if (!this.has(key))
-      break
+  var me = this
+  space.each(function (key, value) {
+    if (!me.has(key))
+      return false
     keys--
-  }
+  })
   if (keys === 0) {
     // Reorder this level.
-    this.keys = space.keys
+    this.setOrder(space.getOrder())
   }
-  for (var i in space.keys) {
-    var key = space.keys[i]
-    var value = space.getByKey(key)
-    if (value instanceof Space && value.length() && this.getByKey(key) instanceof Space)
-      this.getByKey(key)._patchOrder(value)
-  }
+  space.each(function (key, value) {
+    if (value instanceof Space && value.length() && me.getByKey(key) instanceof Space)
+      me.getByKey(key)._patchOrder(value)
+  })
   return this
 }
 
@@ -708,8 +707,8 @@ Space.prototype.patchOrder = function (space) {
 Space.prototype.pop = function () {
   if (!this.length())
     return null
-  var key = this.keys.pop()
   var result = new Space()
+  var key = this.keys.pop()
   result.set(key, this.get(key))
   this._delete(key)
   return result
@@ -721,10 +720,9 @@ Space.prototype.pop = function () {
  * @return {string}
  */
 Space.prototype.prev = function (name) {
-  var index = this.keys.indexOf(name) - 1
-  if (index >= 0)
-    return this.keys[index]
-  return this.keys[this.length() - 1]
+  var index = this.getIndexByKey(name)
+  var prev = index - 1
+  return this.getKeyByIndex(prev)
 }
 
 Space.prototype.push = function (value) {
@@ -739,7 +737,8 @@ Space.prototype.push = function (value) {
 Space.prototype._rename = function (oldName, newName) {
   this.setValue(newName, this.getByKey(oldName))
   this.deleteByKey(oldName)
-  this.keys[this.keys.indexOf(oldName)] = newName
+  var index = this.getIndexByKey(oldName)
+  this.setKey(index, newName)
   return this
 }
 
@@ -796,6 +795,10 @@ Space.prototype.set = function (key, value, index) {
   this.trigger('set', key, value, index)
   this.trigger('change')
   return this
+}
+
+Space.prototype.setKey = function (index, key) {
+  this.keys[index] = key
 }
 
 Space.prototype.setOrder = function (arr) {
