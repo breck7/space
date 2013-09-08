@@ -805,18 +805,19 @@ Space.prototype.set = function (key, value, index) {
 Space.prototype._setByXPath = function (key, value) {
   if (!key)
     return null
-  var steps = key.toString().split(/ /g)
+  var generations = key.toString().split(/ /g)
   var context = this
-  var step
-  while (step = steps.shift()) {
-    if (!context.has(step))
-      context._setKey(context.length(), step)
+  var currentKey
+  for (var i = 0; i < generations.length; i++) {
+    currentKey = generations[i]
+    if (!context.has(currentKey))
+      context._setKey(context.length(), currentKey)
     // Leaf
-    if (!steps.length)
-      context._setValue(step, value)
-    else if (!(context._getValueByKey(step) instanceof Space))
-      context._setValue(step, new Space())
-    context = context._getValueByKey(step)
+    if (i === (generations.length - 1))
+      context._setValue(currentKey, value)
+    else if (!(context._getValueByKey(currentKey) instanceof Space))
+      context._setValue(currentKey, new Space())
+    context = context.get(currentKey)
   }
   return this
 }
