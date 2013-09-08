@@ -71,7 +71,8 @@ test('append', function() {
   equal(count, 1)
   
   a.append('foo', 'two')
-//  console.log(a.toString())
+  console.log(a._tuples)
+  console.log(a.toString())
   equal(a.length(), 4)
   
 })
