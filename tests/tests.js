@@ -553,6 +553,16 @@ test('hasOwnProperty bug', function () {
   ok(space)
 })
 
+test('html dsl', function () {
+  var html = new Space('h1 hello world\nh1 hello world')
+  var page = ''
+  html.every(function (key, value) {
+    page += '<' + key + '>' + value + '</' + key + '>'
+  })
+  equal(page, '<h1>hello world</h1><h1>hello world</h1>')
+})
+
+
 test('isEmpty', function() {
 
   var a = new Space()
