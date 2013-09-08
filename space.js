@@ -1,10 +1,12 @@
 function Space(properties) {
-  
-  this._clearKeys()
-  this._clearValues()
+  this._tuples = []  
   this.events = {}
   this._parse(properties)
   return this
+}
+
+Space.arrayDelete = function (array, index) {
+  return array.slice(0,index).concat(array.slice(index+1))
 }
 
 Space.isXPath = function (key) {
@@ -66,15 +68,15 @@ Space.unionSingle = function(spaceA, spaceB) {
     return union
   spaceA.each(function (key, value) {
     if (value instanceof Space && spaceB._getValueByKey(key) && spaceB._getValueByKey(key) instanceof Space)
-      union._setPair(key, Space.unionSingle(value, spaceB._getValueByKey(key)))
+      union._setTuple(key, Space.unionSingle(value, spaceB._getValueByKey(key)))
     if (value === spaceB._getValueByKey(key))
-      union._setPair(key, value)
+      union._setTuple(key, value)
   })
   return union
 }
 
 Space.prototype.append = function (key, value) {
-  this._setPair(key, value)
+  this._setTuple(key, value)
   this.trigger('append', key, value)
   this.trigger('change')
   return this
@@ -85,8 +87,7 @@ Space.prototype.append = function (key, value) {
  * @return this
  */
 Space.prototype._clear = function () {
-  this._clearKeys()
-  this._clearValues()
+  this._tuples = []
   return this
 }
 
@@ -105,14 +106,6 @@ Space.prototype.clear = function (space) {
   return this
 }
 
-Space.prototype._clearKeys = function () {
-  this._keys = []
-}
-
-Space.prototype._clearValues = function () {
-  this._values = {}
-}
-
 /**
  * Returns a deep copied space.
  * @return {Space}
@@ -122,7 +115,7 @@ Space.prototype.clone = function () {
 }
 
 Space.prototype.create = function (key, value) {
-  this._setPair(key, value)
+  this._setTuple(key, value)
   this.trigger('create', key, value)
   this.trigger('change')
   return this
@@ -130,11 +123,10 @@ Space.prototype.create = function (key, value) {
 
 Space.prototype._delete = function (key) {
   if (!key.toString().match(/ /)) {
-    var index = this._getIndexByKey(key)
+    var index = this.indexOf(key)
     if (index === -1)
       return 0
-    this._deleteKeyByIndex(index)
-    this._deleteValueByKey(key)
+    this._deleteTuple(index)
     return 1
   }
   // Get parent
@@ -153,12 +145,8 @@ Space.prototype.delete = function (key) {
   return this
 }
 
-Space.prototype._deleteKeyByIndex = function (index) {
-  this._keys.splice(index, 1)
-}
-
-Space.prototype._deleteValueByKey = function (key) {
-  delete this._values[key]
+Space.prototype._deleteTuple = function (index) {
+  this._tuples.splice(index, 1)
 }
 
 /**
@@ -184,31 +172,31 @@ Space.prototype.diff = function (space) {
 
     // Case: Deleted
     if (typeof spaceValue === 'undefined') {
-      diff._setPair(key, '')
+      diff._setTuple(key, '')
       return true
     }
     // Different Types
     if (typeof(this._getValueByKey(key)) !== typeof(spaceValue)) {
       if (typeof spaceValue === 'object')
-        diff._setPair(key, new Space(spaceValue))
+        diff._setTuple(key, new Space(spaceValue))
       
       // We treat a spaceValue of 1 equal to '1'
       else if (this._getValueByKey(key) == spaceValue)
         return true
       else
-        diff._setPair(key, spaceValue)
+        diff._setTuple(key, spaceValue)
       return true
     }
     // Strings, floats, etc
     if (typeof(this._getValueByKey(key)) !== 'object') {
       if (this._getValueByKey(key) != spaceValue)
-        diff._setPair(key, spaceValue)
+        diff._setTuple(key, spaceValue)
       return true
     }
     // Both are Objects
     var sub_diff = this._getValueByKey(key).diff(spaceValue)
     if (sub_diff.length())
-      diff._setPair(key, sub_diff)
+      diff._setTuple(key, sub_diff)
   })
 
   // Leftovers are Additions
@@ -217,13 +205,13 @@ Space.prototype.diff = function (space) {
     if (me.has(key))
       return true
     if (typeof value !== 'object') {
-      diff._setPair(key, value)
+      diff._setTuple(key, value)
       return true
     }
     else if (value instanceof Space)
-      diff._setPair(key, new Space(value))
+      diff._setTuple(key, new Space(value))
     else
-      diff._setPair(key, new Space(space))
+      diff._setTuple(key, new Space(space))
   })
   return diff
 }
@@ -244,7 +232,7 @@ Space.prototype.diffOrder = function (space) {
     var childDiff = me._getValueByKey(key).diffOrder(value)
     if (childDiff.isEmpty())
       return true
-    diff._setPair(key, childDiff)
+    diff._setTuple(key, childDiff)
   })
   
   // Parent hasnt changed
@@ -253,7 +241,7 @@ Space.prototype.diffOrder = function (space) {
   // Parent has changed
   space.each(function (key, value) {
     if (!diff.has(key))
-      diff._setPair(key, new Space())
+      diff._setTuple(key, new Space())
   })
   return diff
 }
@@ -288,9 +276,9 @@ Space.prototype.find = function (keyTest, valueTest) {
 
 Space.prototype.every = function (fn) {
   this.each(function (key, value) {
+    fn.call(this, key, value)
     if (value instanceof Space)
       value.every(fn)
-    fn.call(this, key, value)    
   })
   return this
 }
@@ -326,11 +314,14 @@ Space.prototype._getValueByIndex = function (index) {
 }
 
 Space.prototype._getValueByKey = function (key) {
-  return this._values[key]
-}
-
-Space.prototype._getIndexByKey = function (key) {
-  return this.getKeys().indexOf(key)
+  var result
+  this._tuples.forEach(function (tuple, index) {
+    if (tuple[0] === key) {
+      result = tuple[1]
+      return false
+    }
+  })
+  return result
 }
 
 Space.prototype._getKeyByIndex = function (index) {
@@ -341,9 +332,12 @@ Space.prototype._getKeyByIndex = function (index) {
 }
 
 Space.prototype.getKeys = function () {
-  return this._keys
+  var keys = []
+  this._tuples.forEach(function (tuple, index) {
+    keys.push(tuple[0])
+  })
+  return keys
 }
-
 
 /**
  * Search the space for a given path (xpath).
@@ -388,7 +382,7 @@ Space.prototype._getValueBySpace = function (space) {
     
     // If the request is a leaf or empty space, set
     if (!(space._getValueByKey(key) instanceof Space) || !space._getValueByKey(key).length()) {
-      result._setPair(key, value)
+      result._setTuple(key, value)
       return true
     }
     
@@ -397,7 +391,7 @@ Space.prototype._getValueBySpace = function (space) {
       return true
     
     // Now time to recurse
-    result._setPair(key, value._getValueBySpace(space._getValueByKey(key)))
+    result._setTuple(key, value._getValueBySpace(space._getValueByKey(key)))
   })
   return result 
 }
@@ -492,8 +486,8 @@ Space.prototype.has = function (key) {
   return this._getValueByKey(key) !== undefined
 }
 
-Space.prototype._insertKey = function (index, key) {
-  this._keys.splice(index, 0, key)
+Space.prototype.indexOf = function (key) {
+  return this.getKeys().indexOf(key)
 }
 
 Space.prototype.isEmpty = function () {
@@ -544,7 +538,7 @@ Space.prototype.length = function () {
  * @return {string}
  */
 Space.prototype.next = function (key) {
-  var index = this._getIndexByKey(key)
+  var index = this.indexOf(key)
   var next = index + 1
   return this._getKeyByIndex(next)
 }
@@ -584,7 +578,7 @@ Space.prototype._parse = function (properties) {
   if (properties instanceof Space) {
     var me = this
     properties.each(function (key, value) {
-      me._setPair(key, value)
+      me._setTuple(key, value)
     })
     return this
   }
@@ -597,9 +591,9 @@ Space.prototype._parse = function (properties) {
       continue
     var value = properties[key]
     if (typeof value === 'object')
-      this._setPair(key, new Space(value))
+      this._setTuple(key, new Space(value))
     else
-      this._setPair(key, value)
+      this._setTuple(key, value)
   }
 }
 
@@ -637,9 +631,9 @@ Space.prototype._parseFromString = function (string) {
   for (var i in spaces) {
     var space = spaces[i]
     if (matches = space.match(/^([^ ]+)(\n|$)/)) // Space
-      this._setPair(matches[1], new Space(space.substr(matches[1].length).replace(/\n /g, '\n')))
+      this._setTuple(matches[1], new Space(space.substr(matches[1].length).replace(/\n /g, '\n')))
     else if (matches = space.match(/^([^ ]+) /)) // Leaf
-      this._setPair(matches[1], space.substr(matches[1].length + 1).replace(/^\n /, '').replace(/\n /g, '\n') )
+      this._setTuple(matches[1], space.substr(matches[1].length + 1).replace(/^\n /, '').replace(/\n /g, '\n') )
   }
   return this
 }
@@ -662,13 +656,13 @@ Space.prototype._patch = function (patch) {
       if (patchValue === '')
         me._delete(key)
       else
-        me._setPair(key, patchValue)
+        me._setTuple(key, patchValue)
       return true
     }
     
     // If patch value is an int, doesnt matter what type subject is.
     if (typeof patchValue === 'number') {
-      me._setPair(key, patchValue)
+      me._setTuple(key, patchValue)
       return true
     }
     
@@ -685,7 +679,7 @@ Space.prototype._patch = function (patch) {
     }
     
     // Final case. Do a deep copy of space.
-    me._setPair(key, new Space(patchValue))
+    me._setTuple(key, new Space(patchValue))
     
   })
 
@@ -706,17 +700,17 @@ Space.prototype.patch = function (patch) {
  * @return {this}
  */
 Space.prototype._patchOrder = function (space) {
-  
+
   if (!(space instanceof Space))
     space = new Space(space)
 
   var me = this
-  me._clearKeys()
-  var i = 0
+  var copy = this.clone()
+  me._clear()
   space.each(function (key, value) {
-    me._setKey(i, key)
-    i++
-    if (value instanceof Space && value.length() && me._getValueByKey(key) instanceof Space)
+    me._setTuple(key, copy.get(key))
+    // Recurse
+    if (value instanceof Space && value.length() && copy._getValueByKey(key) instanceof Space)
       me._getValueByKey(key)._patchOrder(value)
   })
   return this
@@ -747,7 +741,7 @@ Space.prototype.pop = function () {
  * @return {string}
  */
 Space.prototype.prev = function (name) {
-  var index = this._getIndexByKey(name)
+  var index = this.indexOf(name)
   var prev = index - 1
   return this._getKeyByIndex(prev)
 }
@@ -757,28 +751,18 @@ Space.prototype.push = function (value) {
   while (this.get(i.toString())) {
     i++
   }
-  this._setPair(i.toString(), value)
+  this._setTuple(i.toString(), value)
   return this
 }
 
 Space.prototype._rename = function (oldName, newName) {
-  var index = this._getIndexByKey(oldName)
-  this._setKey(index, newName)
-  this._setValue(newName, this._getValueByKey(oldName), index)
-  this._deleteValueByKey(oldName)
+  var index = this.indexOf(oldName)
+  this._setTuple(newName, this._getValueByKey(oldName), index, 1)
   return this
 }
 
 Space.prototype.rename = function (oldName, newName) {
-  var branch = Space.pathBranch(oldName)
-  var leaf = Space.pathLeaf(oldName)
-  var newLeaf = newName
-  var space = this
-  if (branch) {
-    space = this.get(branch)
-    newLeaf = newName.substr(branch.length + 1)
-  }
-  space._rename(leaf, newLeaf)
+  this._rename(oldName, newName)
   if (oldName !== newName)
     this.trigger('rename', oldName, newName)
   this.trigger('change')
@@ -789,7 +773,7 @@ Space.prototype.set = function (key, value, index) {
   if (Space.isXPath(key.toString()))
     this._setByXPath(key, value)
   else
-    this._setPair(key, value, index)
+    this._setTuple(key, value, index)
   this.trigger('set', key, value, index)
   this.trigger('change')
   return this
@@ -811,38 +795,36 @@ Space.prototype._setByXPath = function (key, value) {
   var index
   for (var i = 0; i < generations.length; i++) {
     currentKey = generations[i]
-    if (!context.has(currentKey)) {
-      index = context.length()
-      context._setKey(index, currentKey)
-    } else {
-      index = context._getIndexByKey(currentKey)
+    // If path is already set, continue
+    if (context._getValueByKey(currentKey) instanceof Space) {
+      context = context.get(currentKey)
+      continue
     }
       
+    var newValue
     // Leaf
     if (i === (generations.length - 1))
-      context._setValue(currentKey, value, index)
-    else if (!(context._getValueByKey(currentKey) instanceof Space))
-      context._setValue(currentKey, new Space(), index)
+      newValue = value
+    else
+      newValue = new Space()
+    
+    // update tuple
+    if (context.has(currentKey)) {
+      var index = this.indexOf(currentKey)
+      context._setTuple(currentKey, newValue, index, 1)
+    } else
+      context._setTuple(currentKey, newValue)
     context = context.get(currentKey)
   }
   return this
 }
 
-Space.prototype._setKey = function (index, key) {
-  this._keys[index] = key
-}
-
-Space.prototype._setPair = function (key, value, index) {
-  if (index === undefined) {
-    this._keys.push(key)
-    index = this.length() - 1
-  } else
-    this._insertKey(index, key)
-  this._setValue(key, value, index)
-}
-
-Space.prototype._setValue = function (key, value, index) {
-  this._values[key] = value
+Space.prototype._setTuple = function (key, value, index, update) {
+  update = (update ? 1 : 0)
+  if (index === undefined)
+    this._tuples.push([key, value])
+  else
+    this._tuples.splice(index, update, [key, value])
 }
 
 Space.prototype.shift = function () {
