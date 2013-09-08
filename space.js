@@ -762,10 +762,10 @@ Space.prototype.push = function (value) {
 }
 
 Space.prototype._rename = function (oldName, newName) {
-  this._setValue(newName, this._getValueByKey(oldName))
-  this._deleteValueByKey(oldName)
   var index = this._getIndexByKey(oldName)
   this._setKey(index, newName)
+  this._setValue(newName, this._getValueByKey(oldName), index)
+  this._deleteValueByKey(oldName)
   return this
 }
 
@@ -808,15 +808,21 @@ Space.prototype._setByXPath = function (key, value) {
   var generations = key.toString().split(/ /g)
   var context = this
   var currentKey
+  var index
   for (var i = 0; i < generations.length; i++) {
     currentKey = generations[i]
-    if (!context.has(currentKey))
-      context._setKey(context.length(), currentKey)
+    if (!context.has(currentKey)) {
+      index = context.length()
+      context._setKey(index, currentKey)
+    } else {
+      index = context._getIndexByKey(currentKey)
+    }
+      
     // Leaf
     if (i === (generations.length - 1))
-      context._setValue(currentKey, value)
+      context._setValue(currentKey, value, index)
     else if (!(context._getValueByKey(currentKey) instanceof Space))
-      context._setValue(currentKey, new Space())
+      context._setValue(currentKey, new Space(), index)
     context = context.get(currentKey)
   }
   return this
@@ -827,14 +833,15 @@ Space.prototype._setKey = function (index, key) {
 }
 
 Space.prototype._setPair = function (key, value, index) {
-  this._values[key] = value
-  if (index === undefined)
+  if (index === undefined) {
     this._keys.push(key)
-  else
+    index = this.length() - 1
+  } else
     this._insertKey(index, key)
+  this._setValue(key, value, index)
 }
 
-Space.prototype._setValue = function (key, value) {
+Space.prototype._setValue = function (key, value, index) {
   this._values[key] = value
 }
 

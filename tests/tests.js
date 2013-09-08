@@ -70,6 +70,11 @@ test('append', function() {
   a.set('foo2', 'bar')
   equal(a.get('foo'), 'bar')
   equal(count, 1)
+  
+  a.append('foo', 'two')
+  console.log(a.toString())
+  equal(a.length(), 4)
+  
 })
 
 
@@ -994,7 +999,6 @@ test('union', function() {
   
   
 })
-
 
 test('url methods', function() {
 
