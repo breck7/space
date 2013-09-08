@@ -787,7 +787,7 @@ Space.prototype.rename = function (oldName, newName) {
 
 Space.prototype.set = function (key, value, index) {
   if (Space.isXPath(key.toString()))
-    this._setByXPath(key, value, index)
+    this._setByXPath(key, value)
   else
     this._setPair(key, value, index)
   this.trigger('set', key, value, index)
@@ -802,20 +802,15 @@ Space.prototype.set = function (key, value, index) {
  * @param {int} Optional index to insert at
  * @return The matching value
  */
-Space.prototype._setByXPath = function (key, value, index) {
+Space.prototype._setByXPath = function (key, value) {
   if (!key)
     return null
   var steps = key.toString().split(/ /g)
   var context = this
   var step
   while (step = steps.shift()) {
-    var newValue
-    if (!context.has(step)) {
-      if (typeof index === 'number')
-        context._insertKey(index, step)
-      else
-        context._setKey(context.length(), step)
-    }
+    if (!context.has(step))
+      context._setKey(context.length(), step)
     // Leaf
     if (!steps.length)
       context._setValue(step, value)
