@@ -251,10 +251,9 @@ Space.prototype.diffOrder = function (space) {
   if (space.tableOfContents() === this.tableOfContents())
     return diff
   // Parent has changed
-  diff._setKeys(space.getKeys())
   space.each(function (key, value) {
     if (!diff.has(key))
-      diff._setValue(key, new Space())
+      diff._setPair(key, new Space())
   })
   return diff
 }
@@ -584,9 +583,8 @@ Space.prototype._parse = function (properties) {
   // Load from Space object
   if (properties instanceof Space) {
     var me = this
-    me._setKeys(properties.getKeys())
     properties.each(function (key, value) {
-      me._setValue(key, value)
+      me._setPair(key, value)
     })
     return this
   }
@@ -711,20 +709,13 @@ Space.prototype._patchOrder = function (space) {
   
   if (!(space instanceof Space))
     space = new Space(space)
-  
-  // make sure space has all keys
-  var count = this.length()
+
   var me = this
+  me._clearKeys()
+  var i = 0
   space.each(function (key, value) {
-    if (!me.has(key))
-      return false
-    count--
-  })
-  if (count === 0) {
-    // Reorder this level.
-    this._setKeys(space.getKeys())
-  }
-  space.each(function (key, value) {
+    me._setKey(i, key)
+    i++
     if (value instanceof Space && value.length() && me._getValueByKey(key) instanceof Space)
       me._getValueByKey(key)._patchOrder(value)
   })
@@ -837,10 +828,6 @@ Space.prototype._setByXPath = function (key, value, index) {
 
 Space.prototype._setKey = function (index, key) {
   this._keys[index] = key
-}
-
-Space.prototype._setKeys = function (arr) {
-  this._keys = arr
 }
 
 Space.prototype._setPair = function (key, value, index) {
