@@ -755,7 +755,7 @@ Space.prototype.push = function (value) {
 
 Space.prototype._rename = function (oldName, newName) {
   var index = this.indexOf(oldName)
-  this._setTuple(newName, this._getValueByKey(oldName), index, 1)
+  this._setTuple(newName, this._getValueByKey(oldName), index, true)
   return this
 }
 
@@ -771,7 +771,7 @@ Space.prototype.set = function (key, value, index) {
   if (Space.isXPath(key.toString()))
     this._setByXPath(key, value)
   else
-    this._setTuple(key, value, index)
+    this._setTuple(key, value, index, this.has(key))
   this.trigger('set', key, value, index)
   this.trigger('change')
   return this
@@ -809,7 +809,7 @@ Space.prototype._setByXPath = function (key, value) {
     // update tuple
     if (context.has(currentKey)) {
       var index = this.indexOf(currentKey)
-      context._setTuple(currentKey, newValue, index, 1)
+      context._setTuple(currentKey, newValue, index, true)
     } else
       context._setTuple(currentKey, newValue)
     context = context.get(currentKey)
@@ -818,11 +818,12 @@ Space.prototype._setByXPath = function (key, value) {
 }
 
 Space.prototype._setTuple = function (key, value, index, update) {
-  update = (update ? 1 : 0)
   if (index === undefined)
     this._tuples.push([key, value])
+  else if (update)
+    this._tuples.splice(index, 1, [key, value])
   else
-    this._tuples.splice(index, update, [key, value])
+    this._tuples.splice(index, 0, [key, value])
 }
 
 Space.prototype.shift = function () {
