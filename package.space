@@ -1,5 +1,5 @@
 name space
-version 0.2.13
+version 0.3.0
 description A lightweight language for objects
 main ./space.js
 scripts
@@ -10,5 +10,6 @@ repository
 keywords space json xml
 devDependencies
  qunit ~0.5.1
-author Breck Yunits, Ben Zulauf
+author Breck Yunits
+contributors Ben Zulauf
 license Public Domain

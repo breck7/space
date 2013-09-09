@@ -106,7 +106,7 @@ We aim to have a final 1.0 release of Space by the end of 2013.
 Technical Definition
 --------------------
 
-Space is a whitespace encoding for associative arrays.
+Space is a whitespace encoding for a nested array of 2-tuples.
 
 A space character separates a key from its value, a new line separates key/value pairs, and a new line
 plus space(s) indicates nesting.
