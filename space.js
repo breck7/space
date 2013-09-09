@@ -138,7 +138,7 @@ Space.prototype._delete = function (key) {
   return 0
 }
 
-Space.prototype.delete = function (key) {
+Space.prototype['delete'] = function (key) {
   if (this._delete(key))
     this.trigger('delete', key)
   this.trigger('change')
