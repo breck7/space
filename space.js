@@ -838,6 +838,11 @@ Space.prototype.shift = function () {
   return result
 }
 
+Space.prototype.sort = function (fn) {
+  this._tuples = this._tuples.sort(fn)
+  return this
+}
+
 /**
  * For a space object like this:
  * name John

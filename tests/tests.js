@@ -908,6 +908,15 @@ test('shift', function() {
   
 })
 
+test('sort', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  equal(a.tableOfContents(), 'john susy bob')
+  a.sort(function (a, b) { return b[0] < a[0] })
+  equal(a.tableOfContents(), 'bob john susy')
+  
+})
+
 test('toJavascript', function() {
 
   var a = new Space("hello world")
