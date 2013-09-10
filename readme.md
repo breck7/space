@@ -23,7 +23,7 @@ Can be written in Space like this:
 Try It Now
 ----------
 
-http://space.nudgepad.com
+http://spaceful.org
 
 Installing
 ----------
