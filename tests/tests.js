@@ -315,6 +315,8 @@ width 56px'
   var value = new Space(spaceWithDupe)
   // When turning a string into a Space object and given a duplicate key, last item should win
   equal(value.get('height'), '50px')
+  
+  equal(value.length(), 3)
 
 })
 
