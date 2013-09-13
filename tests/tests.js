@@ -733,6 +733,12 @@ test('patch', function() {
   var patch = new Space('meta\n content')
   space.patch(patch)
   equal(space.get('meta type'), 'meta', 'patch okay')
+  
+  var a = new Space('hello world')
+  ok(a.patch(), 'If nothing passed dont error.')
+  ok(a.patch(''), 'If nothing passed dont error.')
+  ok(a.patch(false), 'If nothing passed dont error.')
+  equal(a.toString(), 'hello world\n')
 })
 
 test('patch performance test', function() {
