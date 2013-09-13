@@ -1,7 +1,7 @@
-function Space(properties) {
+function Space(content) {
   this._tuples = []  
   this.events = {}
-  this._load(properties)
+  this._load(content)
   return this
 }
 
@@ -530,64 +530,28 @@ Space.prototype.length = function () {
   return this.getKeys().length
 }
 
-/**
- * Return the next key in the Space, given a key.
- * @param {string}
- * @return {string}
- */
-Space.prototype.next = function (key) {
-  var index = this.indexOf(key)
-  var next = index + 1
-  return this._getKeyByIndex(next)
-}
-
-Space.prototype.off = function (eventName, fn) {
-  if (!this.events[eventName])
-    return true
-  for (var i in this.events[eventName]) {
-    if (this.events[eventName][i] === fn)
-      this.events[eventName].splice(i, 1)
-  }
-}
-
-Space.prototype._objectCount = function () {
-  var count = 0
-  this.each(function (key, value) {
-    if (value instanceof Space)
-      count += 1 + value._objectCount()
-  })
-  return count
-}
-
-Space.prototype.on = function (eventName, fn) {
-  
-  if (!this.events[eventName])
-    this.events[eventName] = []
-  this.events[eventName].push(fn)
-}
-
-Space.prototype._load = function (properties) {
+Space.prototype._load = function (content) {
   
   // Load from string
-  if (typeof properties === 'string')
-    return this._loadFromString(properties)
+  if (typeof content === 'string')
+    return this._loadFromString(content)
   
   // Load from Space object
-  if (properties instanceof Space) {
+  if (content instanceof Space) {
     var me = this
-    properties.each(function (key, value) {
+    content.each(function (key, value) {
       me._setTuple(key, value)
     })
     return this
   }
   
   // Load from object
-  for (var key in properties) {
+  for (var key in content) {
     // In case hasOwnProperty has been overwritten we
     // call the original
-    if (!Object.prototype.hasOwnProperty.call(properties, key))
+    if (!Object.prototype.hasOwnProperty.call(content, key))
       continue
-    var value = properties[key]
+    var value = content[key]
     if (typeof value === 'object')
       this._setTuple(key, new Space(value))
     else
@@ -634,6 +598,42 @@ Space.prototype._loadFromString = function (string) {
       this._setTuple(matches[1], space.substr(matches[1].length + 1).replace(/^\n /, '').replace(/\n /g, '\n') )
   }
   return this
+}
+
+/**
+ * Return the next key in the Space, given a key.
+ * @param {string}
+ * @return {string}
+ */
+Space.prototype.next = function (key) {
+  var index = this.indexOf(key)
+  var next = index + 1
+  return this._getKeyByIndex(next)
+}
+
+Space.prototype.off = function (eventName, fn) {
+  if (!this.events[eventName])
+    return true
+  for (var i in this.events[eventName]) {
+    if (this.events[eventName][i] === fn)
+      this.events[eventName].splice(i, 1)
+  }
+}
+
+Space.prototype._objectCount = function () {
+  var count = 0
+  this.each(function (key, value) {
+    if (value instanceof Space)
+      count += 1 + value._objectCount()
+  })
+  return count
+}
+
+Space.prototype.on = function (eventName, fn) {
+  
+  if (!this.events[eventName])
+    this.events[eventName] = []
+  this.events[eventName].push(fn)
 }
 
 /**
@@ -756,6 +756,14 @@ Space.prototype.push = function (value) {
 Space.prototype._rename = function (oldName, newName) {
   var index = this.indexOf(oldName)
   this._setTuple(newName, this._getValueByKey(oldName), index, true)
+  return this
+}
+
+Space.prototype.reload = function (content) {
+  // todo, don't trigger patch if no change
+  this._tuples = []  
+  this._load(content)
+  this.trigger('reload')
   return this
 }
 

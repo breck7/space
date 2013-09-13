@@ -829,6 +829,20 @@ test('query', function() {
   equal(result.get('user domains test.test.com pages home block1 content'), 'Hello world')
 })
 
+test('reload', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6')
+  ok(a.reload())
+  equal(a.length(), 0, 'empty reload cleared object')
+  var count = 0
+  a.on('reload', function () {count++})
+  a.reload('john 1')
+  a.reload('john 2')
+  equal(a.length(), 1)
+  equal(a.get('john'), '2')
+  equal(count, 2)
+})
+
 test('rename', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6')
