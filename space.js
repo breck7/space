@@ -1,7 +1,7 @@
 function Space(properties) {
   this._tuples = []  
   this.events = {}
-  this._parse(properties)
+  this._load(properties)
   return this
 }
 
@@ -101,7 +101,7 @@ Space.prototype.clear = function (space) {
   this._clear()
   this.trigger('clear')
   if (space)
-    this._parse(space)
+    this._load(space)
   this.trigger('change')
   return this
 }
@@ -566,11 +566,11 @@ Space.prototype.on = function (eventName, fn) {
   this.events[eventName].push(fn)
 }
 
-Space.prototype._parse = function (properties) {
+Space.prototype._load = function (properties) {
   
   // Load from string
   if (typeof properties === 'string')
-    return this._parseFromString(properties)
+    return this._loadFromString(properties)
   
   // Load from Space object
   if (properties instanceof Space) {
@@ -600,7 +600,7 @@ Space.prototype._parse = function (properties) {
  * @param {string}
  * @return {Space}
  */
-Space.prototype._parseFromString = function (string) {
+Space.prototype._loadFromString = function (string) {
   
   // Space always start on a key. Eliminate whitespace at beginning of string
   string = string.replace(/^[\n ]*/, '')
