@@ -492,12 +492,6 @@ test('_getValueByIndex', function() {
   equal(value._getValueByIndex(-1), 'friend')
 })
 
-test('indexOf', function () {
-  space = new Space('hello world')
-  equal(space.indexOf('hello'), 0)
-  equal(space.indexOf('hello2'), -1)
-})
-
 test('getTokens', function() {
 
   var value = new Space('hello world')
@@ -564,6 +558,17 @@ test('html dsl', function () {
   equal(page, '<h1>hello world</h1><h1>hello world</h1>')
 })
 
+test('indexOf', function () {
+  space = new Space('hello world')
+  equal(space.indexOf('hello'), 0)
+  equal(space.indexOf('hello2'), -1)
+})
+
+test('insert', function () {
+  space = new Space('hello world')
+  space.insert('hi', 'mom', 0)
+  equal(space.indexOf('hi'), 0)
+})
 
 test('isEmpty', function() {
 
@@ -861,10 +866,10 @@ test('reorder', function() {
   var a = new Space('hello world\n')
   a.set('hi', 'mom')
   equal(a.tableOfContents(), 'hello hi', 'order correct')
-  a.set('yo', 'pal', 0)
+  a.insert('yo', 'pal', 0)
   equal(a.tableOfContents(), 'yo hello hi', 'order correct')
   
-  a.set('hola', 'pal', 2)
+  a.insert('hola', 'pal', 2)
   equal(a.tableOfContents(), 'yo hello hola hi', 'order correct')
   
   a.patchOrder('hello\nhi\nhola\nyo')
@@ -904,10 +909,10 @@ test('set', function() {
   var a = new Space('hello world\n')
   a.set('hi', 'mom')
   equal(a.tableOfContents(), 'hello hi', 'order correct')
-  a.set('yo', 'pal', 0)
+  a.insert('yo', 'pal', 0)
   equal(a.tableOfContents(), 'yo hello hi', 'order correct')
   
-  a.set('hola', 'pal', 2)
+  a.insert('hola', 'pal', 2)
   equal(a.tableOfContents(), 'yo hello hola hi', 'order correct')
   
   var c = new Space()

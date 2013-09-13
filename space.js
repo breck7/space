@@ -488,6 +488,11 @@ Space.prototype.indexOf = function (key) {
   return this.getKeys().indexOf(key)
 }
 
+Space.prototype.insert = function (key, value, index) {
+  this._setTuple(key, value, index)
+  return this
+}
+
 Space.prototype.isEmpty = function () {
   return this.length() === 0
 }
@@ -778,6 +783,8 @@ Space.prototype.rename = function (oldName, newName) {
 Space.prototype.set = function (key, value, index) {
   if (Space.isXPath(key.toString()))
     this._setByXPath(key, value)
+  else if (typeof index === 'number')
+    this._setTuple(key, value, index, true)
   else if (this.has(key))
     this._setTuple(key, value, this.indexOf(key), true)
   else
@@ -827,10 +834,10 @@ Space.prototype._setByXPath = function (key, value) {
   return this
 }
 
-Space.prototype._setTuple = function (key, value, index, update) {
+Space.prototype._setTuple = function (key, value, index, overwrite) {
   if (index === undefined)
     this._tuples.push([key, value])
-  else if (update)
+  else if (overwrite)
     this._tuples.splice(index, 1, [key, value])
   else
     this._tuples.splice(index, 0, [key, value])
