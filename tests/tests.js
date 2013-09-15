@@ -944,6 +944,13 @@ test('sort', function() {
   
 })
 
+test('toBinary', function() {
+
+  var a = new Space("ABC\n")
+  equal(a.toBinary(), '-|-----|-|----|--|----||----|-|-')
+
+})
+
 test('toJavascript', function() {
 
   var a = new Space("hello world")

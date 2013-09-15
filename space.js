@@ -872,6 +872,19 @@ Space.prototype.tableOfContents = function () {
   return this.getKeys().join(' ')
 }
 
+Space.prototype.toBinary = function () {
+  var binary = ''
+  var str = this.toString()
+  for (var i = 0; i < str.length; i ++) {
+    var bits = parseFloat(str.substr(i, 1).charCodeAt(0)).toString(2)
+    while (bits.length < 8) {
+      bits = '0' + bits
+    }
+    binary += bits
+  }
+  return binary.replace(/0/g, '-').replace(/1/g, '|')
+}
+
 /**
  * Return executable javascript code.
  * @return {string}
