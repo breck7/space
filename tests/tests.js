@@ -482,6 +482,15 @@ test('get', function() {
 
 })
 
+test('getByIndex', function() {
+  var space = new Space()
+  space.set('body header h1 title a', 'hello')
+  space.set('body footer a', 'hello')
+  space.set('body footer li', 'world')
+  equal(space.getByIndex('0 1 1'), 'world')
+
+})
+
 test('_getValueByIndex', function() {
 
   var value = new Space('hello world\nhow are you\nhola friend')

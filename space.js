@@ -302,6 +302,15 @@ Space.prototype.get = function (query) {
   return null
 }
 
+Space.prototype.getByIndex = function (query) {
+  var parts = query.split(/ /g)
+  var first = parseFloat(parts.shift())
+  if (parts.length === 0)
+    return this._getValueByIndex(first)
+  else
+    return this._getValueByIndex(first).getByIndex(parts.join(' '))
+}
+
 /**
  * @param {int}
  * @return The matching value
