@@ -71,8 +71,6 @@ test('append', function() {
   equal(count, 1)
   
   a.append('foo', 'two')
-  console.log(a._tuples)
-  console.log(a.toString())
   equal(a.length(), 4)
   
 })
@@ -488,6 +486,10 @@ test('getByIndex', function() {
   space.set('body footer a', 'hello')
   space.set('body footer li', 'world')
   equal(space.getByIndex('0 1 1'), 'world')
+  
+  var space = new Space($('#getByIndex').text())
+  equal(space.getByIndex('1 2 0'), 'main')
+  
 
 })
 

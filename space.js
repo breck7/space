@@ -316,8 +316,12 @@ Space.prototype.getByIndex = function (query) {
  * @return The matching value
  */
 Space.prototype._getValueByIndex = function (index) {
-  var key = this._getKeyByIndex(index)
-  return this._getValueByKey(key)
+  // Passing -1 gets the last item, et cetera
+  if (index < 0)
+    index = this.length() + index
+  if (this._tuples[index])
+    return this._tuples[index][1]
+  return undefined
 }
 
 Space.prototype._getValueByKey = function (key) {
