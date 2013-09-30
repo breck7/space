@@ -929,6 +929,16 @@ Space.prototype.toObject = function () {
   return obj
 }
 
+Space.prototype.toQueryString = function () {
+  var string = ''
+  var first = ''
+  this.each(function (key, value) {
+    string += first + encodeURIComponent(key) + '=' + encodeURIComponent(value)
+    first = '&'
+  })
+  return string
+}
+
 /**
  * @return {string}
  */

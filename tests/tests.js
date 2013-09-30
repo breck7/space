@@ -1001,6 +1001,17 @@ test('toObject', function() {
 
 })
 
+test('toQueryString', function() {
+
+  var a = new Space("name Breck")
+  equal(a.toQueryString(), 'name=Breck')
+  a.set('city', 'Brockton')
+  equal(a.toQueryString(), 'name=Breck&city=Brockton')
+  a.set('city', 'Brockton, MA')
+  equal(a.toQueryString(), 'name=Breck&city=Brockton%2C%20MA')
+
+})
+
 test('toString', function() {
 
   var value = new Space('hello world')
