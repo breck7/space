@@ -902,8 +902,11 @@ Space.prototype.toBinary = function () {
  * Return executable javascript code.
  * @return {string}
  */
-Space.prototype.toJavascript = function () {
-  return 'new Space(\'' + this.toString().replace(/\n/g, '\\n').replace(/\'/g, '\\\'') + '\')'
+Space.prototype.toJavascript = function (multiline) {
+  var str = 'new Space(\'' + this.toString().replace(/\n/g, '\\n').replace(/\'/g, '\\\'') + '\')'
+  if (multiline)
+    return str.replace(/\\n/g, "\\n\\\n")
+  return str
 }
 
 /**

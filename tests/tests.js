@@ -976,6 +976,9 @@ test('toJavascript', function() {
   var d = new Space('hello "world"')
   equal(d.toJavascript(), "new Space(\'hello \"world\"\\n\')")
 
+  var multiline = new Space('name John\nname John')
+  equal(multiline.toJavascript(true), "new Space(\'name John\\n\\\nname John\\n\\\n\')")
+
 })
 
 test('toJSON', function() {
