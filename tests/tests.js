@@ -560,6 +560,14 @@ test('hasOwnProperty bug', function () {
   ok(space)
 })
 
+test('__height', function () {
+  space = new Space('hello world')
+  equal(space.__height(), 1)
+  space = new Space('bio My name is\n John')
+  equal(space.__height(), 1)
+  equal(space.__height(true), 3)
+})
+
 test('html dsl', function () {
   var html = new Space('h1 hello world\nh1 hello world')
   var page = ''
@@ -1085,4 +1093,11 @@ test('url methods', function() {
   equal(a.toString(), b.toString(), 'toUrl worked')
 
 })
+
+test('__width', function () {
+  space = new Space('hello world')
+  equal(space.__width(), 1)
+  equal(space.__width(true), 11)
+})
+
 

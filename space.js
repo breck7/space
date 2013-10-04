@@ -497,6 +497,18 @@ Space.prototype.has = function (key) {
   return this._getValueByKey(key) !== undefined
 }
 
+Space.prototype.__height = function (includeValues) {
+  if (includeValues)
+    return this.toString().match(/\n/g).length
+  var count = 0
+  this.each(function (key, value) {
+    count++
+    if (value instanceof Space)
+      count += value.__height()
+  })
+  return count
+}
+
 Space.prototype.indexOf = function (key) {
   return this.getKeys().indexOf(key)
 }
@@ -996,6 +1008,26 @@ Space.prototype.trigger = function (eventName) {
   for (var i in this.events[eventName]) {
     this.events[eventName][i].apply(this, args.slice(1))
   }
+}
+
+Space.prototype.__width = function (includeValues) {
+  if (includeValues) {
+    var lines = this.toString().split(/\n/g)
+    var width = 0
+    lines.forEach(function (value, key) {
+      if (value.length > width)
+        width = value.length
+    })
+    return width
+  }
+  if (!this.length())
+    return 0
+  var max = 1
+  this.each(function (key, value) {
+    if (value instanceof Space && (value.__width() + 1) > max )
+      max = (value._width() + 1)
+  })
+  return max
 }
 
 // Export Space for use in Node.js
