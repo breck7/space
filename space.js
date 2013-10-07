@@ -302,6 +302,16 @@ Space.prototype.get = function (query) {
   return null
 }
 
+Space.prototype.getAll = function (query) {
+  var matches = new Space()
+  this.each(function (key, value) {
+    if (key !== query)
+      return true
+    matches.append(key, value)
+  })
+  return matches
+}
+
 Space.prototype.getByIndex = function (query) {
   var parts = query.split(/ /g)
   var first = parseFloat(parts.shift())

@@ -487,6 +487,18 @@ test('get', function() {
 
 })
 
+test('getAll', function() {
+
+  var value = new Space('hello world\nhello world')
+  ok(value.getAll('hello') instanceof Space)
+  equal(value.getAll('hello').length(), 2)
+  var each = ''
+  value.getAll('hello').each(function (k, v) {
+    each += 'a'
+  })
+  equal(each, 'aa')
+})
+
 test('getByIndex', function() {
   var space = new Space()
   space.set('body header h1 title a', 'hello')
