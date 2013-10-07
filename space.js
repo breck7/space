@@ -248,7 +248,7 @@ Space.prototype.diffOrder = function (space) {
 
 Space.prototype.each = function (fn) {
   for (var i in this._tuples) {
-    if (fn.call(this, this._tuples[i][0], this._tuples[i][1]) === false)
+    if (fn.call(this, this._tuples[i][0], this._tuples[i][1], i) === false)
       return this
   }
   return this

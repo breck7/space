@@ -338,6 +338,13 @@ test('each', function() {
       return false
   })
   equal(count, 1)
+  
+  var a = new Space('hello world\nhi world')
+  var i = 0
+  a.each(function (key, value, index) {
+    i = i + index
+  })
+  equal(i, 1, 'index worked')
 })
 
 test('events', function() {
