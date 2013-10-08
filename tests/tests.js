@@ -1042,6 +1042,11 @@ test('toQueryString', function() {
 
 })
 
+test('toShapes', function() {
+  var a = new Space($('#getByIndex').text())
+  equal(a.toShapes(), $('#shapes').text())
+})
+
 test('toString', function() {
 
   var value = new Space('hello world')

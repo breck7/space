@@ -956,10 +956,46 @@ Space.prototype.toQueryString = function () {
   return string
 }
 
+Space.prototype.toShapes = function (spaces) {
+  spaces = spaces || 0
+  var string = 'V\n'
+  // Iterate over each property
+  this.each(function (key, value) {
+    
+    // If property value is undefined
+    if (typeof value === 'undefined') {
+      string += '\n'
+      return true
+    }
+
+    // Set up the key part of the key/value pair
+    string += Space.strRepeat(' ', spaces) + 'O'
+    
+    // If the value is a space, concatenate it
+    if (value instanceof Space)
+      string += value.toShapes(spaces + 1)
+    
+    // If an object (other than class of space) snuck in there
+    else if (typeof value === 'object')
+      string += new Space(value).toShapes(spaces + 1)
+    
+    // dont put a blank string on a blank value.
+    else if (value.toString() === '')
+      string += ' \n'
+
+    // Plain string
+    else
+      string += '[]' + '\n'
+    
+  })
+
+  return string
+}
+
 /**
  * @return {string}
  */
-Space.prototype.toString =  function (spaces) {
+Space.prototype.toString = function (spaces) {
   spaces = spaces || 0
   var string = ''
   // Iterate over each property
