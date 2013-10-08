@@ -811,6 +811,14 @@ test('pop', function() {
   
 })
 
+test('prepend', function() {
+
+  var a = new Space('hello world')
+  a.prepend('foo', 'bar')
+  equal(a.toString(), 'foo bar\nhello world\n')
+
+})
+
 test('prev', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')

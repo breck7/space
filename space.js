@@ -761,6 +761,10 @@ Space.prototype.pop = function () {
   return result
 }
 
+Space.prototype.prepend = function (key, value) {
+  return this._setTuple(key, value, 0)
+}
+
 /**
  * Return the previous name in the Space, given a name.
  * @param {string}
