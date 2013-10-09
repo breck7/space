@@ -273,8 +273,8 @@ Space.prototype.find = function (keyTest, valueTest) {
 }
 
 Space.prototype.every = function (fn) {
-  this.each(function (key, value) {
-    fn.call(this, key, value)
+  this.each(function (key, value, index) {
+    fn.call(this, key, value, index)
     if (value instanceof Space)
       value.every(fn)
   })
@@ -1037,6 +1037,19 @@ Space.prototype.toString = function (spaces) {
 
 Space.prototype.toURL = function () {
   return encodeURIComponent(this.toString())
+}
+
+Space.prototype.__transpose = function (templateString) {
+  var result = ''
+  this.each(function (key, value) {
+    var template = new Space(templateString.toString())
+    template.every(function (k, xpath, index) {
+      if (value._getValueByKey(xpath))
+        this._setTuple(k, value._getValueByKey(xpath), index, true)
+    })
+    result += template.toString()
+  })
+  return new Space(result)
 }
 
 Space.prototype.trigger = function (eventName) {

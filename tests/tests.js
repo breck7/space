@@ -1077,6 +1077,14 @@ test('toString', function() {
   equal(e.toString(), 'z-index 0\n')
 })
 
+test('__transpose', function() {
+  
+  
+  var a = new Space($('#transposeData').text().trim())
+  var html = a.__transpose($('#transposeTemplate').text().trim())
+  equal(html.toString().trim(), $('#transposeExpected').text().trim())
+})
+
 test('union', function() {
 
   var a = new Space('maine me\nnew_york nyc\ncali ca')
