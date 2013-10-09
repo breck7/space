@@ -49,3 +49,72 @@ OV
   O[]
   O[]
 </script>
+
+<!-- Transpose Test -->
+
+<script type="text" id="transposeData">
+entry
+ name SimHighSchool
+ youtube http://www.youtube.com/watch?v=12345
+ description SimHighSchool lorem ipsum lorem ipsum lorem ipsum.
+ website http://simhighschool.com
+ leader John Doe
+ email johndoe@gmail.com
+ phone 123-123-1234
+ member Jill Smith jill@gmail.com
+ member Luke Johnson luke@gmail.com
+entry
+ name SimHighSchool2
+ youtube http://www.youtube.com/watch?v=123456
+ description SimHighSchool2 lorem ipsum lorem ipsum lorem ipsum.
+ website http://simhighschool2.com
+ leader John Doe
+ email johndoe@gmail.com
+ phone 123-123-1234
+ member Jill Smith jill@gmail.com
+ member Luke Johnson luke@gmail.com
+</script>
+<script type="text" id="transposeTemplate">
+h1 name
+p description
+p
+ a
+  href website
+  content website
+iframe
+ width 420
+ height 315
+ src youtube
+ frameborder 0
+ allowfullscreen
+</script>
+<script type="text" id="transposeExpected">
+h1 SimHighSchool
+p SimHighSchool lorem ipsum lorem ipsum lorem ipsum.
+p
+ a
+  href http://simhighschool.com
+  content http://simhighschool.com
+iframe
+ width 420
+ height 315
+ src http://www.youtube.com/watch?v=12345
+ frameborder 0
+ allowfullscreen
+h1 SimHighSchool2
+p SimHighSchool2 lorem ipsum lorem ipsum lorem ipsum.
+p
+ a
+  href http://simhighschool2.com
+  content http://simhighschool2.com
+iframe
+ width 420
+ height 315
+ src http://www.youtube.com/watch?v=123456
+ frameborder 0
+ allowfullscreen
+</script>
+
+<!-- End Transpose Test -->
+
+
