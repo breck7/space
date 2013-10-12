@@ -807,8 +807,6 @@ Space.prototype.rename = function (oldName, newName) {
 Space.prototype.set = function (key, value, index) {
   if (Space.isXPath(key.toString()))
     this._setByXPath(key, value)
-  else if (typeof index === 'number')
-    this._setTuple(key, value, index, true)
   else if (this.has(key))
     this._setTuple(key, value, this.indexOf(key), true)
   else
