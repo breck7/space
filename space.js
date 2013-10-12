@@ -288,18 +288,7 @@ Space.prototype.every = function (fn) {
  * @return The matching value
  */
 Space.prototype.get = function (query) {
-  switch (typeof query) {
-    case "string":
-      return this._getValueByString(query)
-    break
-    case "object":
-      return this._getValueBySpace(query)
-    break
-    case "number":
-      return this._getValueByIndex(query)
-    break
-  }
-  return null
+  return this._getValueByString(query)
 }
 
 Space.prototype.getAll = function (query) {
@@ -312,13 +301,21 @@ Space.prototype.getAll = function (query) {
   return matches
 }
 
-Space.prototype.getByIndex = function (query) {
+Space.prototype.getByIndex = function (index) {
+  return this._getValueByIndex(index)
+}
+
+Space.prototype.getByIndexPath = function (query) {
   var parts = query.split(/ /g)
   var first = parseFloat(parts.shift())
   if (parts.length === 0)
     return this._getValueByIndex(first)
   else
-    return this._getValueByIndex(first).getByIndex(parts.join(' '))
+    return this._getValueByIndex(first).getByIndexPath(parts.join(' '))
+}
+
+Space.prototype.getBySpace = function (query) {
+  return this._getValueBySpace(query)
 }
 
 /**

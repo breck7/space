@@ -466,7 +466,7 @@ test('find', function() {
 test('first', function() {
 
   var value = new Space('hello world\nhi mom')
-  equal(value.get(0), 'world')
+  equal(value.getByIndex(0), 'world')
 })
 
 
@@ -499,15 +499,15 @@ test('getAll', function() {
   equal(each, 'aa')
 })
 
-test('getByIndex', function() {
+test('getByIndexPath', function() {
   var space = new Space()
   space.set('body header h1 title a', 'hello')
   space.set('body footer a', 'hello')
   space.set('body footer li', 'world')
-  equal(space.getByIndex('0 1 1'), 'world')
+  equal(space.getByIndexPath('0 1 1'), 'world')
   
-  var space = new Space($('#getByIndex').text())
-  equal(space.getByIndex('1 2 0'), 'main')
+  var space = new Space($('#getByIndexPath').text())
+  equal(space.getByIndexPath('1 2 0'), 'main')
   
 
 })
@@ -630,7 +630,7 @@ test('key count', function() {
 test('last', function() {
 
   var value = new Space('hello world\nhi mom')
-  equal(value.get(-1), 'mom')
+  equal(value.getByIndex(-1), 'mom')
 })
 
 test('loadFromString', function() {
@@ -864,7 +864,7 @@ test('query', function() {
       content Hello world\n')
 
   var query = new Space('user\n name\n domains\n  test.test.com\n   pages\n    home\n     block1')
-  var result = string.get(query)
+  var result = string.getBySpace(query)
   ok(result instanceof Space, 'Retrieve returns a space')
   equal(result.length(), 1, '1 root node')
   equal(result.get('user name'), 'Aristotle', 'Name retrieved successfully')
@@ -1043,7 +1043,7 @@ test('toQueryString', function() {
 })
 
 test('toShapes', function() {
-  var a = new Space($('#getByIndex').text())
+  var a = new Space($('#getByIndexPath').text())
   equal(a.toShapes(), $('#shapes').text())
 })
 
