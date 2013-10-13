@@ -1056,6 +1056,11 @@ Space.prototype.trigger = function (eventName) {
   }
 }
 
+Space.prototype.update = function (index, key, value) {
+  this._setTuple(key, value, index, true)
+  return this
+}
+
 // Export Space for use in Node.js
 if (typeof exports != 'undefined')
   module.exports = Space;

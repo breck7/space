@@ -1117,6 +1117,12 @@ test('union', function() {
   
 })
 
+test('update', function () {
+  var a = new Space('hello world')
+  a.update(0, 'hi', 'mom')
+  equal(a.toString(), 'hi mom\n')
+})
+
 test('url methods', function() {
 
   var a = new Space('maine me\nnew_york nyc\ncali ca')
