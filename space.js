@@ -1019,7 +1019,7 @@ Space.prototype.toString = function (spaces) {
     
     // multiline string
     else if (value.toString().match(/\n/))
-      string += ' \n' + Space.strRepeat(' ', spaces + 1) + value.toString().replace(/\n/g, '\n' + Space.strRepeat(' ', spaces + 1)) + '\n'
+      string += ' ' + value.toString().replace(/\n/g, '\n' + Space.strRepeat(' ', spaces + 1)) + '\n'
     
     // Plain string
     else
