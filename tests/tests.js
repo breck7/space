@@ -1156,3 +1156,7 @@ test('url methods', function() {
 
 })
 
+test('version', function () {
+  ok(Space.version)
+})
+

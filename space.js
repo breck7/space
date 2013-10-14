@@ -5,6 +5,8 @@ function Space(content) {
   return this
 }
 
+Space.version = '0.5.1'
+
 Space.arrayDelete = function (array, index) {
   return array.slice(0,index).concat(array.slice(index+1))
 }
