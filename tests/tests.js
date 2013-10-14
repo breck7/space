@@ -667,6 +667,26 @@ test('multiline', function () {
   var a = new Space('my \n \n multiline\n string')
   equal(a.get('my'), '\nmultiline\nstring')
   
+  var b = new Space('brave new\n world')
+  equal(b.get('brave'), 'new\nworld', 'ml value correct')
+  equal(b.toString(), 'brave new\n world\n', 'multiline does not begin with nl')
+  
+  var c = new Space('brave \n new\n world')
+  equal(c.get('brave'), '\nnew\nworld', 'ml begin with nl value correct')
+  equal(c.toString(), 'brave \nnew\n world\n', 'multiline begins with nl')
+  
+  var d = new Space('brave \n\nnew\n world')
+  equal(d.get('brave'), '\n\nnew\nworld', 'ml begin with 2 nl value correct')
+  equal(c.toString(), 'brave \n\nnew\n world\n', 'multiline begins with 2 nl')
+  
+  var e = new Space('brave new\n world\n')
+  equal(e.get('brave'), 'new\nworld\n', 'ml value end with nl correct')
+  equal(e.toString(), 'brave new\n world\n \n', 'multiline ends with a nl')
+  
+  var f = new Space('brave new\n world\n\n')
+  equal(f.get('brave'), 'new\nworld\n\n', 'ml value end with 2 nl correct')
+  equal(f.toString(), 'brave new\n world\n \n \n', 'multiline ends with 2 nl')
+  
 })
 
 test('next', function() {
