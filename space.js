@@ -598,7 +598,7 @@ Space.prototype._loadFromString = function (string) {
   string = string.replace(/\n\r/g, '\n').replace(/\r\n/g, '\n')
   
   /** Eliminate newlines at end of string.*/
-  string = string.replace(/\n[\n ]*$/, '')
+//  string = string.replace(/\n[\n ]*$/, '')
   
   /** Space doesn't have useless lines*/
   string = string.replace(/\n\n+/, '\n')
@@ -620,7 +620,7 @@ Space.prototype._loadFromString = function (string) {
     if (matches = space.match(/^([^ ]+)(\n|$)/)) // Space
       this._setTuple(matches[1], new Space(space.substr(matches[1].length).replace(/\n /g, '\n')))
     else if (matches = space.match(/^([^ ]+) /)) // Leaf
-      this._setTuple(matches[1], space.substr(matches[1].length + 1).replace(/^\n /, '').replace(/\n /g, '\n') )
+      this._setTuple(matches[1], space.substr(matches[1].length + 1).replace(/\n /g, '\n') )
   }
   return this
 }
@@ -1019,7 +1019,7 @@ Space.prototype.toString = function (spaces) {
     
     // multiline string
     else if (value.toString().match(/\n/))
-      string += ' \n' + Space.strRepeat(' ', spaces + 1) + value.toString().replace(/\n/g, '\n' + Space.strRepeat(' ', spaces + 1)) + '\n'
+      string += ' ' + value.toString().replace(/\n/g, '\n' + Space.strRepeat(' ', spaces + 1)) + '\n'
     
     // Plain string
     else

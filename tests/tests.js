@@ -542,14 +542,14 @@ test('getTokens', function() {
   
   var value =     new Space()
   value.set('multi', 'line1\nline2')
-  equal(value.getTokens(), 'KKKKKSVEVVVVVVEVVVVV')
+  equal(value.getTokens(), 'KKKKKSVVVVVVEVVVVV')
   
 })
 
 test('getTokensConcise', function() {
   var value =     new Space()
   value.set('multi', 'line1\nline2')
-  equal(value.getTokensConcise(), 'KSVEVEV')
+  equal(value.getTokensConcise(), 'KSVEV')
   
   var value =     new Space('a\n a1 hi\n a2 yo\n')
   equal(value.getTokensConcise(), 'KNKSVNKSV')
@@ -637,10 +637,10 @@ test('loadFromString', function() {
 
   a = new Space('text \n this is a string\n and more')
 
-  equal(a.get('text'), 'this is a string\nand more')
+  equal(a.get('text'), '\nthis is a string\nand more')
 
   b = new Space('a\n text \n  this is a string\n  and more')
-  equal(b.get('a text'), 'this is a string\nand more')
+  equal(b.get('a text'), '\nthis is a string\nand more')
   equal(b.toString(), 'a\n text \n  this is a string\n  and more\n')
 
   var string = 'first_name John\nlast_name Doe\nchildren\n 1\n  first_name Joe\n  last_name Doe\n  children\n   1\n    first_name Joe Jr.\n    last_name Doe\n    age 12\ncolors\n blue\n red\nbio \n Hello this is\n my multline\n biography\n \n Theres a blank line in there as well\n \n \n Two blank lines above this one.\ncode <p></p>\n'
@@ -662,10 +662,34 @@ test('multiline', function () {
   var a = new Space('my multiline\n string')
   equal(a.get('my'), 'multiline\nstring')
   
-  // If you have a SPACE\n to start a multiline string, we
-  // effectively ignore that first newline
   var a = new Space('my \n \n multiline\n string')
-  equal(a.get('my'), '\nmultiline\nstring')
+  equal(a.get('my'), '\n\nmultiline\nstring')
+  
+  var b = new Space('brave new\n world')
+  equal(b.get('brave'), 'new\nworld', 'ml value correct')
+  equal(b.toString(), 'brave new\n world\n', 'multiline does not begin with nl')
+  
+  var c = new Space('brave \n new\n world')
+  equal(c.get('brave'), '\nnew\nworld', 'ml begin with nl value correct')
+  equal(c.toString(), 'brave \n new\n world\n', 'multiline begins with nl')
+  
+  var d = new Space('brave \n \n new\n world')
+  equal(d.get('brave'), '\n\nnew\nworld', 'ml begin with 2 nl value correct')
+  equal(d.toString(), 'brave \n \n new\n world\n', 'multiline begins with 2 nl')
+  
+  var e = new Space('brave new\n world\n ')
+  equal(e.get('brave'), 'new\nworld\n', 'ml value end with nl correct')
+  equal(e.toString(), 'brave new\n world\n \n', 'multiline ends with a nl')
+  
+  var f = new Space('brave new\n world\n \n ')
+  equal(f.get('brave'), 'new\nworld\n\n', 'ml value end with 2 nl correct')
+  equal(f.toString(), 'brave new\n world\n \n \n', 'multiline ends with 2 nl')
+  
+  
+  var g = new Space()
+  g.set('brave', '\nnew\nworld\n\n')
+  equal(g.get('brave'), '\nnew\nworld\n\n', 'set ml works')
+  equal(g.toString(), 'brave \n new\n world\n \n \n', 'set ml works')
   
 })
 
@@ -1060,16 +1084,16 @@ test('toString', function() {
 
   a.set('multiline', 'hello\nworld')
 
-  equal(a.toString(), 'john\n age 5\nmultiline \n hello\n world\n')
+  equal(a.toString(), 'john\n age 5\nmultiline hello\n world\n')
 
   a.set('other', 'foobar')
 
-  equal(a.toString(), 'john\n age 5\nmultiline \n hello\n world\nother foobar\n')
+  equal(a.toString(), 'john\n age 5\nmultiline hello\n world\nother foobar\n')
 
   b = new Space('a\n text \n  this is a multline string\n  and more')
   equal(b.toString(), 'a\n text \n  this is a multline string\n  and more\n')
   a.set('even_more', b)
-  equal(a.toString(), 'john\n age 5\nmultiline \n hello\n world\nother foobar\neven_more\n a\n  text \n   this is a multline string\n   and more\n')
+  equal(a.toString(), 'john\n age 5\nmultiline hello\n world\nother foobar\neven_more\n a\n  text \n   this is a multline string\n   and more\n')
   
   
   var e = new Space('z-index 0')
