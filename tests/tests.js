@@ -675,15 +675,15 @@ test('multiline', function () {
   equal(c.get('brave'), '\nnew\nworld', 'ml begin with nl value correct')
   equal(c.toString(), 'brave \nnew\n world\n', 'multiline begins with nl')
   
-  var d = new Space('brave \n\nnew\n world')
+  var d = new Space('brave \n \n new\n world')
   equal(d.get('brave'), '\n\nnew\nworld', 'ml begin with 2 nl value correct')
   equal(c.toString(), 'brave \n\nnew\n world\n', 'multiline begins with 2 nl')
   
-  var e = new Space('brave new\n world\n')
+  var e = new Space('brave new\n world\n ')
   equal(e.get('brave'), 'new\nworld\n', 'ml value end with nl correct')
   equal(e.toString(), 'brave new\n world\n \n', 'multiline ends with a nl')
   
-  var f = new Space('brave new\n world\n\n')
+  var f = new Space('brave new\n world\n \n ')
   equal(f.get('brave'), 'new\nworld\n\n', 'ml value end with 2 nl correct')
   equal(f.toString(), 'brave new\n world\n \n \n', 'multiline ends with 2 nl')
   
