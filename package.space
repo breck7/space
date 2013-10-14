@@ -1,5 +1,5 @@
 name space
-version 0.4.1
+version 0.5.0
 description A lightweight language for objects
 main ./space.js
 scripts
