@@ -849,7 +849,7 @@ Space.prototype._setByXPath = function (key, value) {
     
     // update tuple
     if (context.has(currentKey)) {
-      var index = this.indexOf(currentKey)
+      var index = context.indexOf(currentKey)
       context._setTuple(currentKey, newValue, index, true)
     } else
       context._setTuple(currentKey, newValue)

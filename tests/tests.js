@@ -982,6 +982,13 @@ test('set', function() {
   c.set('yo', new Space('hello world'))
   // should these be equal?
   notEqual(c.get('hi'), c.get('yo'))
+  
+  var a = new Space()
+  a.set('meta x', 123)
+  a.set('meta y', 1235)
+  a.set('meta c', 435)
+  a.set('meta x', 1235123)
+  equal(a.get('meta c'), 435)
 
 })
 
