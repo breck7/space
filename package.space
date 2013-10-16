@@ -12,4 +12,4 @@ devDependencies
  qunit ~0.5.1
 author Breck Yunits
 contributors Ben Zulauf
-license Public Domain
+license MIT
