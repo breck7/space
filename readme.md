@@ -44,7 +44,6 @@ Using
     // Printing the object
     console.log(person.toString())
     
-    
 
 Examples
 --------
@@ -90,26 +89,12 @@ Working with the above stats example:
     // Returns 110
     stats.set('about uniques', 500)
 
+Community
+---------
 
-Uses
-----
+- Email List: <a href="https://groups.google.com/forum/#!forum/spacedev">spacedev@googlegroups.com</a>
+- Freenode: #space-dev
 
-Space is a great encoding anytime you have objects that you want to be human readable and writeable.
-
-Pretty much anywhere JSON or XML is currently used, Space may be helpful.
-
-Release Schedule
-----------------
-
-We aim to have a final 1.0 release of Space by the end of 2013.
-
-Technical Definition
---------------------
-
-Space is a whitespace encoding for a nested array of 2-tuples.
-
-A space character separates a key from its value, a new line separates key/value pairs, and a new line
-plus space(s) indicates nesting.
 
 Build Status
 ------------
