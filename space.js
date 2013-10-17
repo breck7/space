@@ -290,7 +290,7 @@ Space.prototype.every = function (fn) {
  * @return The matching value
  */
 Space.prototype.get = function (query) {
-  return this._getValueByString(query)
+  return this._getValueByString(query.toString())
 }
 
 Space.prototype.getAll = function (query) {
@@ -807,7 +807,8 @@ Space.prototype.rename = function (oldName, newName) {
 }
 
 Space.prototype.set = function (key, value, index) {
-  if (Space.isXPath(key.toString()))
+  key = key.toString()
+  if (Space.isXPath(key))
     this._setByXPath(key, value)
   else if (this.has(key))
     this._setTuple(key, value, this.indexOf(key), true)

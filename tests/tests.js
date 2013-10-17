@@ -474,6 +474,8 @@ test('get', function() {
 
   var value = new Space('hello world')
   equal(value.get('hello'), 'world')
+  value.set('2', 'hi')
+  equal(value.get(2), 'hi')
   
   // get non existant value
   
@@ -483,6 +485,7 @@ test('get', function() {
   
   var value = new Space().get('some')
   strictEqual(value, undefined)
+  
   
 
 })
@@ -953,6 +956,10 @@ test('set', function() {
   var value = new Space('hello world')
   equal(value.get('hello'), 'world')
   ok(value.set('hello', 'mom') instanceof Space, 'set should return instance so we can chain it')
+  
+  var byint = new Space()
+  byint.set(2, 'hi')
+  equal(byint.get(2), 'hi')
   
   var blah = new Space()
   value.set('boom', '')
