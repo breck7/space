@@ -860,6 +860,7 @@ Space.prototype._setByXPath = function (key, value) {
 }
 
 Space.prototype._setTuple = function (key, value, index, overwrite) {
+  key = key.toString()
   if (index === undefined)
     this._tuples.push([key, value])
   else if (overwrite)
