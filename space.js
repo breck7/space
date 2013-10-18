@@ -819,6 +819,16 @@ Space.prototype.set = function (key, value, index) {
   return this
 }
 
+Space.prototype.setByIndexPath = function (query, value) {
+  var branch = Space.pathBranch(query)
+  var space = this.getByIndexPath(branch)
+  if (!space)
+    return this
+  var key = parseFloat(Space.pathLeaf(query))
+  space.update(key, space._getKeyByIndex(key), value)
+  return this
+}
+
 /**
  * Search the space for a given path (xpath).
  * @param {string}

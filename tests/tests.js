@@ -999,6 +999,16 @@ test('set', function() {
 
 })
 
+test('setByIndexPath', function() {
+  var space = new Space()
+  space.set('body header h1 title a', 'hello')
+  space.set('body footer a', 'hello')
+  space.set('body footer li', 'world')
+  space.setByIndexPath('0 1 1', 'mom')
+  equal(space.getByIndexPath('0 1 1'), 'mom')
+
+})
+
 test('shift', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
