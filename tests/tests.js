@@ -119,6 +119,15 @@ test('clone', function() {
 
 })
 
+test('concat', function() {
+  var a = new Space('hello world')
+  var b = new Space('hi mom')
+  a.concat(b)
+  equal(a.get('hi'), 'mom')
+  
+})
+
+
 test('create', function() {
   var a = new Space('hello world')
   var count = 0

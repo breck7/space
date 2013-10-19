@@ -116,6 +116,16 @@ Space.prototype.clone = function () {
   return new Space(this.toString())
 }
 
+Space.prototype.concat = function (b) {
+  if (typeof b === 'string')
+    b = new Space(b)
+  var a = this
+  b.each(function (key, value) {
+    a.append(key, value)
+  })
+  return this
+}
+
 Space.prototype.create = function (key, value) {
   this._setTuple(key, value)
   this.trigger('create', key, value)
