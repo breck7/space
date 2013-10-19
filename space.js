@@ -820,6 +820,11 @@ Space.prototype.set = function (key, value, index) {
 }
 
 Space.prototype.setByIndexPath = function (query, value) {
+  if (!Space.isXPath(query)) {
+    var i = parseFloat(query)
+    this.update(i, this._getKeyByIndex(i), value)
+    return this
+  }
   var branch = Space.pathBranch(query)
   var space = this.getByIndexPath(branch)
   if (!space)

@@ -1006,6 +1006,10 @@ test('setByIndexPath', function() {
   space.set('body footer li', 'world')
   space.setByIndexPath('0 1 1', 'mom')
   equal(space.getByIndexPath('0 1 1'), 'mom')
+  
+  var s = new Space('h1 hello world')
+  s.setByIndexPath('0', 'mom')
+  equal(s.get('h1'), 'mom')
 
 })
 
