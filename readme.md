@@ -89,6 +89,11 @@ Working with the above stats example:
     // Returns 110
     stats.set('about uniques', 500)
 
+Libraries for Other Languages
+-----------------------------
+
+- Python: <a href="https://github.com/jyxt/spacepython">https://github.com/jyxt/spacepython</a>
+
 Community
 ---------
 
