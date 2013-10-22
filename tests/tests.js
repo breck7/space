@@ -461,6 +461,17 @@ domains\n\
   
 })
 
+test('filter', function() {
+  var value = new Space($('#FilterTest').text())
+  var c = 0
+  value.filter(function (key, value) {
+    return parseFloat(value.get('age')) > 22
+  }).each(function () {
+    c++
+  })
+  equal(c, 1, 'filter worked')
+})
+
 test('find', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')

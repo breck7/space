@@ -266,6 +266,15 @@ Space.prototype.each = function (fn) {
   return this
 }
 
+Space.prototype.filter = function (fn) {
+  var result = new Space()
+  for (var i in this._pairs) {
+    if (fn.call(this, this._pairs[i][0], this._pairs[i][1], i) === true)
+      result.append(this._pairs[i][0], this._pairs[i][1])
+  }
+  return result
+}
+
 Space.prototype.find = function (keyTest, valueTest) {
   // for now assume string test
   // search this one
