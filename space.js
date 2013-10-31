@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.5.4'
+Space.version = '0.5.10'
 
 Space.arrayDelete = function (array, index) {
   return array.slice(0,index).concat(array.slice(index+1))
@@ -947,6 +947,61 @@ Space.prototype.toBinary = function () {
     binary += bits
   }
   return binary.replace(/0/g, '-').replace(/1/g, '|')
+}
+
+Space.prototype.toBinaryMatrixString = function () {
+  var str = ''
+  var matrix = this.toDecimalMatrix()
+  matrix.forEach(function (row, i) {
+    row.forEach(function (c, j) {
+      var bits = c.toString(2)
+      while (bits.length < 8) {
+        bits = '0' + bits
+      }
+      str += bits
+    })
+    str += '\n'
+  })
+  return str
+}
+
+Space.prototype.toDecimalMatrix = function () {
+  var width = this.__width()
+  var lines = this.toString().replace(/\n$/,'').split(/\n/g)
+  var matrix = []
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i]
+    var row = []
+    var length = line.length
+    for (var c = 0; c < width; c++) {
+      if (c < length)
+        row.push(line.substr(c, 1).charCodeAt(0))
+      else
+        row.push(0)
+    }
+    matrix.push(row)
+  }
+  return matrix
+}
+
+Space.prototype.toDecimalMatrixString = function () {
+  var str = ''
+  var matrix = this.toDecimalMatrix()
+  matrix.forEach(function (row, i) {
+    var first = ''
+    row.forEach(function (c, j) {
+      str = str + first
+      if (c < 10)
+        str += '00' + c
+      else if (c > 9 && c < 100)
+        str += '0' + c
+      else
+        str += c
+      first = ' '
+    })
+    str += '\n'
+  })
+  return str
 }
 
 /**

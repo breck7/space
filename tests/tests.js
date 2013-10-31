@@ -1066,6 +1066,28 @@ test('toBinary', function() {
 
 })
 
+test('toBinaryMatrixString', function() {
+
+  var a = new Space("A")
+  equal(a.toBinaryMatrixString(), '01000001\n')
+
+})
+
+test('toDecimalMatrix', function() {
+
+  var a = new Space("A")
+  var matrix = a.toDecimalMatrix()
+  equal(matrix[0][0], 65)
+
+})
+
+test('toDecimalMatrixString', function() {
+
+  var a = new Space("A")
+  equal(a.toDecimalMatrixString(), '065\n')
+
+})
+
 test('toJavascript', function() {
 
   var a = new Space("hello world")
