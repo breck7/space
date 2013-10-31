@@ -525,6 +525,10 @@ Space.prototype.has = function (key) {
   return this._getValueByKey(key) !== undefined
 }
 
+Space.prototype.__height = function () {
+  return this.toString().match(/\n/g).length
+}
+
 Space.prototype.indexOf = function (key) {
   return this.getKeys().indexOf(key)
 }
@@ -1097,6 +1101,16 @@ Space.prototype.trigger = function (eventName) {
 Space.prototype.update = function (index, key, value) {
   this._setPair(key, value, index, true)
   return this
+}
+
+Space.prototype.__width = function () {
+  var lines = this.toString().split(/\n/g)
+  var width = 0
+  lines.forEach(function (str, key) {
+    if (str.length > width)
+      width = str.length
+  })
+  return width
 }
 
 // Export Space for use in Node.js
