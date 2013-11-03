@@ -38,7 +38,7 @@ Space.pathLeaf = function (xpath) {
 Space.strRepeat = function (string, count) {
   var str = ''
   for (var i = 0; i < count; i++) {
-    str += ' '
+    str += string
   }
   return str
 }
