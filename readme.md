@@ -93,6 +93,7 @@ Libraries for Other Languages
 -----------------------------
 
 - Python: <a href="https://github.com/jyxt/spacepython">https://github.com/jyxt/spacepython</a>
+- Ruby: <a href="https://github.com/fruchtose/space_object">https://github.com/fruchtose/space_object</a>
 
 Community
 ---------
