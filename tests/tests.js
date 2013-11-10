@@ -519,8 +519,6 @@ test('get', function() {
   
   var value = new Space().get('some')
   strictEqual(value, undefined)
-  
-  
 
 })
 
@@ -557,6 +555,15 @@ test('_getValueByIndex', function() {
   equal(value._getValueByIndex(2), 'friend')
   equal(value._getValueByIndex(3), undefined)
   equal(value._getValueByIndex(-1), 'friend')
+})
+
+test('getCud', function () {
+  
+  var A = new Space('name John\nage 25\nstate California')
+  var B = new Space('name John\nage 22\nhometown Brockton')
+  var diff = A.getCud(B)
+  equal(diff.toString(), 'created\n hometown Brockton\nupdated\n age 22\ndeleted\n state\n')
+  
 })
 
 test('getTokens', function() {

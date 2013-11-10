@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.5.11'
+Space.version = '0.5.12'
 
 Space.arrayDelete = function (array, index) {
   return array.slice(0,index).concat(array.slice(index+1))
@@ -360,6 +360,50 @@ Space.prototype.getByIndexPath = function (query) {
 Space.prototype.getBySpace = function (query) {
   return this._getValueBySpace(query)
 }
+
+/**
+ * Returns a space object listing the pairs that
+ * were created, updated, or deleted.
+ *
+ * ie: if object A is:
+ *
+ * name John
+ * age 25
+ * state California
+ *
+ * And object B is:
+ *
+ * name John
+ * age 22
+ * hometown Brockton
+ *
+ * Then A.getCud(B) would be:
+ *
+ * created
+ *  hometown Brockton
+ * updated
+ *  age 22
+ * deleted
+ *  state
+ */
+Space.prototype.getCud = function (space) {
+  var diff = new Space('created\nupdated\ndeleted\n')
+  if (!(space instanceof Space))
+    space = new Space(space)
+  var subject = this
+  space.each(function (key, value) {
+    if (subject.get(key) === undefined)
+      diff.set('created ' + key, value)
+    else if (subject.get(key) !== value)
+      diff.set('updated ' + key, value)
+  })
+  this.each(function (key, value) {
+    if (space.get(key) === undefined)
+      diff.set('deleted ' + key, new Space())
+  })
+  return diff
+}
+
 
 /**
  * @param {int}
