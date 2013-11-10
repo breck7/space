@@ -487,8 +487,22 @@ test('first', function() {
 
   var value = new Space('hello world\nhi mom')
   equal(value.getByIndex(0), 'world')
+  
+  var value = new Space('hello world\nhi mom')
+  equal(value.first().toString(), 'hello world\n')
+  
 })
 
+test('firstKey', function() {
+  var value = new Space('hello world\nhi mom')
+  equal(value.firstKey(), 'hello')
+  
+})
+
+test('firstValue', function() {
+  var value = new Space('hello world\nhi mom')
+  equal(value.firstValue(), 'world')
+})
 
 test('get', function() {
 

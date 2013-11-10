@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.5.10'
+Space.version = '0.5.11'
 
 Space.arrayDelete = function (array, index) {
   return array.slice(0,index).concat(array.slice(index+1))
@@ -291,6 +291,28 @@ Space.prototype.find = function (keyTest, valueTest) {
       })
   })
   return matches
+}
+
+/**
+ * Return the first key/value pair as a space object.
+ */
+Space.prototype.first = function () {
+  if (!this.length())
+    return new Space()
+  var result = new Space().set(this._pairs[0][0], this._pairs[0][1])
+  return result
+}
+
+Space.prototype.firstKey = function () {
+  if (!this.length())
+    return null
+  return this._pairs[0][0]
+}
+
+Space.prototype.firstValue = function () {
+  if (!this.length())
+    return null
+  return this._pairs[0][1]
 }
 
 Space.prototype.every = function (fn) {
