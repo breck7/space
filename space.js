@@ -1071,6 +1071,17 @@ Space.prototype.toDecimalMatrixString = function () {
 }
 
 /**
+ */
+Space.prototype.toggle = function (key, value1, value2) {
+  var current = this.get(key)
+  if (current === value1)
+    this.set(key, value2)
+  else
+    this.set(key, value1)
+  return this
+}
+
+/**
  * Return executable javascript code.
  * @return {string}
  */

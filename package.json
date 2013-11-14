@@ -1,6 +1,6 @@
 {
   "name": "space",
-  "version": "0.5.12",
+  "version": "0.5.15",
   "description": "A lightweight language for objects",
   "main": "./space.js",
   "bin": {
@@ -13,17 +13,12 @@
     "type": "git",
     "url": "git://github.com/nudgepad/space"
   },
-  "keywords": [
-    "space",
-    "arrays",
-    "json",
-    "xml"
-  ],
+  "keywords": "space",
   "devDependencies": {
     "qunit": "~0.5.1",
     "mime": ">=0.0.1"
   },
   "author": "Breck Yunits",
-  "contributors" : "Ben Zulauf",
+  "contributors": "Ben Zulauf",
   "license": "MIT"
 }

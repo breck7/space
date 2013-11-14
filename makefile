@@ -17,4 +17,7 @@ testnode:
 testfs:
 	mocha spacefs/tests/test.js
 
+version:
+	node version.js
+
 .PHONY: test install testmin

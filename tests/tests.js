@@ -1109,6 +1109,17 @@ test('toDecimalMatrixString', function() {
 
 })
 
+test('toggle', function() {
+
+  var a = new Space('on true')
+  a.toggle('on', 'true', 'false')
+  equal(a.get('on'), 'false')
+  a.toggle('on', 'true', 'false')
+  equal(a.get('on'), 'true')
+
+})
+
+
 test('toJavascript', function() {
 
   var a = new Space("hello world")
