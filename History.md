@@ -1,3 +1,8 @@
+0.6.0 / 2013-11-14
+==================
+- renamed all occurrences of key/Key to type/Types. BREAKING CHANGE!
+- updated version.js to support passing a v#.
+
 0.5.15 / 2013-11-13
 ===================
 - ran beautify
