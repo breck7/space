@@ -50,11 +50,11 @@ SpaceFS.folderToSpace = function (path, options) {
 SpaceFS.spaceToFolder = function (destination, space) {
   if (!fs.existsSync(destination))
     fs.mkdirSync(destination)
-  space.each(function (key, value) {
-    var path = destination + '/' + key
+  space.each(function (type, value) {
+    var path = destination + '/' + type
     if (value instanceof Space)
       SpaceFS.spaceToFolder(path, value)
-    else if (SpaceFS.isText(key))
+    else if (SpaceFS.isText(type))
       fs.writeFileSync(path, value, 'utf8')
     else
       fs.writeFileSync(path, value, 'base64')

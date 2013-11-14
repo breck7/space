@@ -4,8 +4,8 @@ test('Space', function() {
   ok(Space, 'Space class should exist')
   ok(new Space() instanceof Space, 'Space should return a space')
   var space = new Space('hello world')
-  equal(space.length(), 1, 'keys array should have 1 property')
-  equal(space.indexOf('hello'), 0, 'keys array should be correct')
+  equal(space.length(), 1, 'types array should have 1 property')
+  equal(space.indexOf('hello'), 0, 'types array should be correct')
   equal(space.get('hello'), 'world', 'Properties should be accessible')
   equal(typeof space.get('hello'), 'string', 'Leafs should be strings')
 
@@ -72,7 +72,7 @@ domains\n\
 test('append', function() {
   var a = new Space('hello world')
   var count = 0
-  a.on('append', function(key, value) {
+  a.on('append', function(type, value) {
     count++
   })
   a.append('foo', 'bar')
@@ -141,7 +141,7 @@ test('concat', function() {
 test('create', function() {
   var a = new Space('hello world')
   var count = 0
-  a.on('create', function(key, value) {
+  a.on('create', function(type, value) {
     count++
   })
   a.create('foo', 'bar')
@@ -308,7 +308,7 @@ test('diffOrder', function() {
 
 })
 
-test('diff between a blank key/value and empty object', function() {
+test('diff between a blank type/value and empty object', function() {
 
   var a = new Space('hi ')
   var b = new Space('hi\n')
@@ -318,19 +318,19 @@ test('diff between a blank key/value and empty object', function() {
   equal(typeof b.get('hi'), 'object')
   notStrictEqual(a.get('hi'), b.get('hi'))
 
-  equal(a.toString(), 'hi \n', 'a should be a key with empty string value')
+  equal(a.toString(), 'hi \n', 'a should be a type with empty string value')
   equal(b.toString(), 'hi\n')
 
 })
 
-test('duplicate key', function() {
+test('duplicate type', function() {
 
   var spaceWithDupe = 'height 45px\n\
 height 50px\n\
 width 56px'
 
   var value = new Space(spaceWithDupe)
-  // When turning a string into a Space object and given a duplicate key, last item should win
+  // When turning a string into a Space object and given a duplicate type, last item should win
   equal(value.get('height'), '50px')
 
   equal(value.length(), 3)
@@ -341,8 +341,8 @@ test('each', function() {
 
   var value = new Space('hello world\nhi mom')
   var string = ''
-  equal(value.each(function(key, value) {
-    string += key.toUpperCase()
+  equal(value.each(function(type, value) {
+    string += type.toUpperCase()
     string += value.toUpperCase()
     string += this.length()
   }).length(), 2, 'test chaining')
@@ -351,16 +351,16 @@ test('each', function() {
   // test breaking
   var count = 0
   var value = new Space('hello world\nhi mom')
-  value.each(function(key, value) {
+  value.each(function(type, value) {
     count++
-    if (key === 'hello')
+    if (type === 'hello')
       return false
   })
   equal(count, 1)
 
   var a = new Space('hello world\nhi world')
   var i = 0
-  a.each(function(key, value, index) {
+  a.each(function(type, value, index) {
     i = i + index
   })
   equal(i, 1, 'index worked')
@@ -403,7 +403,7 @@ test('events', function() {
   var b = ''
   var c = ''
   var setCount = 0
-  a.on('set', function(key, value) {
+  a.on('set', function(type, value) {
     b = value
   })
   var changeCount = 0
@@ -413,7 +413,7 @@ test('events', function() {
   a.on('patch', function(patch) {
     c = patch
   })
-  a.on('set', function(key, value) {
+  a.on('set', function(type, value) {
     setCount++
   })
   a.set('hello', 'bob')
@@ -461,8 +461,8 @@ domains\n\
     block1\n\
      content Hello world\n')
   var i = 0
-  obj.every(function(key, value) {
-    this.rename(key, key.toUpperCase())
+  obj.every(function(type, value) {
+    this.rename(type, type.toUpperCase())
     i++
   })
 
@@ -474,7 +474,7 @@ domains\n\
 test('filter', function() {
   var value = new Space($('#FilterTest').text())
   var c = 0
-  value.filter(function(key, value) {
+  value.filter(function(type, value) {
     return parseFloat(value.get('age')) > 22
   }).each(function() {
     c++
@@ -503,9 +503,9 @@ test('first', function() {
 
 })
 
-test('firstKey', function() {
+test('firstType', function() {
   var value = new Space('hello world\nhi mom')
-  equal(value.firstKey(), 'hello')
+  equal(value.firstType(), 'hello')
 
 })
 
@@ -643,8 +643,8 @@ test('__height', function() {
 test('html dsl', function() {
   var html = new Space('h1 hello world\nh1 hello world')
   var page = ''
-  html.every(function(key, value) {
-    page += '<' + key + '>' + value + '</' + key + '>'
+  html.every(function(type, value) {
+    page += '<' + type + '>' + value + '</' + type + '>'
   })
   equal(page, '<h1>hello world</h1><h1>hello world</h1>')
 })
@@ -677,14 +677,14 @@ test('isASet', function() {
 
 })
 
-test('key count', function() {
+test('type count', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  equal(a._keyCount(), 6)
+  equal(a._typeCount(), 6)
   var b = new Space('')
-  equal(b._keyCount(), 0)
+  equal(b._typeCount(), 0)
   var c = new Space('hello world')
-  equal(c._keyCount(), 1)
+  equal(c._typeCount(), 1)
 })
 
 
@@ -785,8 +785,8 @@ test('object count', function() {
 test('order', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  var keys = a.tableOfContents()
-  equal(keys, 'john susy bob', 'order is preserved')
+  var types = a.tableOfContents()
+  equal(types, 'john susy bob', 'order is preserved')
 
 })
 
@@ -1001,7 +1001,7 @@ test('reorder', function() {
   equal(a.tableOfContents(), 'hello hi hola yo', 'order correct')
   a.patchOrder('yo\nhola\nhi\nhello')
   equal(a.tableOfContents(), 'yo hola hi hello', 'order correct')
-  equal(a.get('yo'), 'pal', 'keys okay')
+  equal(a.get('yo'), 'pal', 'types okay')
 
   // Recursive
   a = new Space('b\n content hi\n value foobar')
