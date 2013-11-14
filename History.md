@@ -1,6 +1,8 @@
 0.6.0 / 2013-11-14
 ==================
-- renamed all occurrences of key/Key to type/Types. BREAKING CHANGE!
+- BREAKING CHANGE: firstKey() is now firstType()
+- BREAKING CHANGE: getKeys() is now getTypes()
+- renamed all occurrences of key/Key to type/Types.
 - updated version.js to support passing a v#.
 
 0.5.15 / 2013-11-13
