@@ -8,4 +8,6 @@ var version = [v[0],v[1],parseFloat(v[2]) + 1].join('.')
 pack.set('version', version)
 fs.writeFileSync('package.space', pack.toString(), 'utf8')
 fs.writeFileSync('package.json', beautify(pack.toJSON(), { indent_size: 2 }), 'utf8')
+var js = fs.readFileSync('space.js', 'utf8').replace(/Space\.version.*/, "Space.version = '" + version + "'")
+fs.writeFileSync('space.js', js, 'utf8')
 

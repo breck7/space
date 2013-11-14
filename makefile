@@ -2,6 +2,9 @@ all:
 	java -jar ~/compiler.jar --js=space.js --js_output_file=space.min.js
 	open tests/min.html
 
+beautify:
+	js-beautify -f space.js -r -s 2
+
 install:
 	cd ..; sudo npm install -g space/; npm install space/
 
