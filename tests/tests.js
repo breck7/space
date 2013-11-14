@@ -8,28 +8,38 @@ test('Space', function() {
   equal(space.indexOf('hello'), 0, 'keys array should be correct')
   equal(space.get('hello'), 'world', 'Properties should be accessible')
   equal(typeof space.get('hello'), 'string', 'Leafs should be strings')
-  
+
   space.set('foo', 'bar')
   equal(space.get('foo'), 'bar', 'Spaces should be modifiable')
-  
+
   space = new Space('foobar\n one 1')
   equal(typeof space.get('foobar'), 'object', 'Spaces should be objects')
   ok(space.get('foobar') instanceof Space, 'Nested spaces should be spaces')
-  
+
   space = new Space('list\nsingle value')
   equal(space.length(), 2, 'Space should have 2 names')
   ok(space.get('list') instanceof Space, 'A name without a trailing space should be a space')
-  
+
   space = new Space('body')
   ok(space.get('body') instanceof Space, 'A name without a trailing space should be a space')
-  
-  space = new Space({foobar: 'hello'})
+
+  space = new Space({
+    foobar: 'hello'
+  })
   equal(space.get('foobar'), 'hello', 'Spaces can be created from object literals')
-  
-  space = new Space({foobar: new Space('hello world')})
+
+  space = new Space({
+    foobar: new Space('hello world')
+  })
   equal(space.get('foobar hello'), 'world', 'Spaces can be created from objects mixed with spaces')
 
-  space = new Space({foobar: {hello : { world : 'success'}}})
+  space = new Space({
+    foobar: {
+      hello: {
+        world: 'success'
+      }
+    }
+  })
   equal(space.get('foobar hello world'), 'success', 'Spaces can be created from deep objects')
 
   // test multline creation
@@ -62,17 +72,17 @@ domains\n\
 test('append', function() {
   var a = new Space('hello world')
   var count = 0
-  a.on('append', function (key, value) {
+  a.on('append', function(key, value) {
     count++
   })
   a.append('foo', 'bar')
   a.set('foo2', 'bar')
   equal(a.get('foo'), 'bar')
   equal(count, 1)
-  
+
   a.append('foo', 'two')
   equal(a.length(), 4)
-  
+
 })
 
 
@@ -81,12 +91,12 @@ test('clear', function() {
   equal(a.length(), 1)
   ok(a.clear() instanceof Space, 'clear should return this so its chainable')
   equal(a.length(), 0)
-  
+
   var a = new Space('hello world')
   a.clear('foo bar')
   ok(!a.get('hello'))
   equal(a.get('foo'), 'bar')
-  
+
 
 })
 
@@ -124,14 +134,14 @@ test('concat', function() {
   var b = new Space('hi mom')
   a.concat(b)
   equal(a.get('hi'), 'mom')
-  
+
 })
 
 
 test('create', function() {
   var a = new Space('hello world')
   var count = 0
-  a.on('create', function (key, value) {
+  a.on('create', function(key, value) {
     count++
   })
   a.create('foo', 'bar')
@@ -153,20 +163,20 @@ test('delete', function() {
   ok(a.get('earth north_america united_states california') instanceof Space)
   equal(a.get('earth north_america united_states california san_francisco'), 'mission', 'neighborhood is set')
   equal(a.get('earth north_america united_states california').length(), 1, 'length okay')
-  equal(a.length(), 1, 'length okay')  
+  equal(a.length(), 1, 'length okay')
   ok(a.delete('earth north_america united_states california san_francisco') instanceof Space, 'returns space')
   equal(a.get('earth north_america united_states california san_francisco'), undefined, 'neighborhood is gone')
-  
+
   var a = new Space('type meta\n')
   a.delete('content')
   equal(a.get('type'), 'meta', 'delete a non existing entry works')
-  
-  
+
+
   // #28
   var a = new Space()
   a.delete(2)
-  
-  
+
+
 })
 
 /*
@@ -178,9 +188,9 @@ test('dupes', function () {
 */
 
 test('diff of subclasses', function() {
-  
-  
-  function Page (space) {
+
+
+  function Page(space) {
 
     this.clear()
 
@@ -191,7 +201,7 @@ test('diff of subclasses', function() {
 
   Page.prototype = new Space()
 
-  function Block (id, space) {
+  function Block(id, space) {
 
     this.clear()
 
@@ -206,12 +216,12 @@ test('diff of subclasses', function() {
   var b = new Space('hello mom')
   var c = new Space('first John')
 
-  
+
   equal(a.diff(b).toString(), 'hello mom\n')
   ok(a.diff(c) instanceof Space, 'diff is a space')
   equal(a.diff(c).get('hello'), '')
   equal(a.diff(c).toString(), 'hello \nfirst John\n')
-  
+
   equal(a.diff(c).get('first'), 'John')
 
   a = new Space('hi 1')
@@ -225,8 +235,8 @@ test('diff of subclasses', function() {
   b = new Space()
   b.set('hi', 1)
   equal(a.diff(b), '')
-  
-  
+
+
   var d = new Space()
   var e = new Space('z-index 0')
   var patch = d.diff(e)
@@ -234,12 +244,12 @@ test('diff of subclasses', function() {
   e['z-index'] = 0
   var patch = d.diff(e)
   equal(patch.toString(), 'z-index 0\n')
-  
+
   var page = new Page('body\n b1\n  content hi')
-  
+
   var page4 = new Page()
   equal(page4.toString(), '', 'No properties in new instance')
-  
+
   var page2 = new Page('body\n b1\n  content hi')
   var block = new Block('foobar')
   var block2 = new Block('b2')
@@ -247,55 +257,55 @@ test('diff of subclasses', function() {
   ok(block instanceof Block, 'block is instance of Block')
   equal(block.id, 'foobar', 'id is set')
   equal(block2.id, 'b2', 'id is set')
-  
+
   var diff = block.diff(block2)
-  
+
   equal(diff.length(), 0, 'Difference between 2 spaces should not check privates.')
   var diff = block2.diff(block)
   equal(diff.length(), 0, 'Difference between 2 spaces should not check privates.')
-  
+
   ok(page instanceof Space, 'page is instance of Space')
   ok(page instanceof Space, 'page is instance of Page')
   ok(page.length(), 'page has 1 name/value')
-  
-  
+
+
   page.set('body foobar', block)
-  
-  
+
+
   page2.set('body foobar', block2)
   diff = page.diff(page2)
   equal(page.toString(), page2.toString(), 'Pages should be equal')
   equal(diff.length(), 0, 'Difference between 2 composites should not check privates in sub parts.')
-  
-  
+
+
   ok(page.get('body foobar') instanceof Block, 'block1 is instance of Block')
-  
+
   var page3 = new Page('body\n b1\n  content hibob')
-  
+
 
   diff = page3.diff(page2)
   ok(diff.get('body foobar') instanceof Space, 'block1 in page3 diff is instance of space')
   ok(!diff.get('body foobar id'), 'id did not get set')
-  
+
 })
 
 test('diffOrder', function() {
-  
-  
+
+
   // Recursive order diff
   var a = new Space('body\n content hello world\n value Hi\n')
   var b = new Space('body\n value Hi\n content hello world\n')
   equal(a.diffOrder(b).toString(), 'body\n value\n content\n', 'different')
-  
-  
-  
+
+
+
   var a = new Space('hi world\nhello bob\nhola dude\nyo man')
   var b = new Space('hi world\nhello bob\nhola dude\nyo man')
   var c = new Space('hi world\nhello bob\nyo man\nhola dude')
   equal(a.diffOrder(b).toString(), '', 'no diff')
   equal(a.diffOrder(c).toString(), 'hi\nhello\nyo\nhola\n', 'different')
-  
-  
+
+
 })
 
 test('diff between a blank key/value and empty object', function() {
@@ -307,7 +317,7 @@ test('diff between a blank key/value and empty object', function() {
   equal(typeof a.get('hi'), 'string')
   equal(typeof b.get('hi'), 'object')
   notStrictEqual(a.get('hi'), b.get('hi'))
-  
+
   equal(a.toString(), 'hi \n', 'a should be a key with empty string value')
   equal(b.toString(), 'hi\n')
 
@@ -315,14 +325,14 @@ test('diff between a blank key/value and empty object', function() {
 
 test('duplicate key', function() {
 
-var spaceWithDupe = 'height 45px\n\
+  var spaceWithDupe = 'height 45px\n\
 height 50px\n\
 width 56px'
 
   var value = new Space(spaceWithDupe)
   // When turning a string into a Space object and given a duplicate key, last item should win
   equal(value.get('height'), '50px')
-  
+
   equal(value.length(), 3)
 
 })
@@ -331,26 +341,26 @@ test('each', function() {
 
   var value = new Space('hello world\nhi mom')
   var string = ''
-  equal(value.each(function (key, value) {
+  equal(value.each(function(key, value) {
     string += key.toUpperCase()
     string += value.toUpperCase()
     string += this.length()
   }).length(), 2, 'test chaining')
   equal(string, 'HELLOWORLD2HIMOM2')
-  
+
   // test breaking
-  var count  = 0
+  var count = 0
   var value = new Space('hello world\nhi mom')
-  value.each(function (key, value) {
+  value.each(function(key, value) {
     count++
     if (key === 'hello')
       return false
   })
   equal(count, 1)
-  
+
   var a = new Space('hello world\nhi world')
   var i = 0
-  a.each(function (key, value, index) {
+  a.each(function(key, value, index) {
     i = i + index
   })
   equal(i, 1, 'index worked')
@@ -360,7 +370,7 @@ test('events', function() {
 
   var value = new Space('hello world\nhi mom')
   var result = ''
-  var popsMethod = function () {
+  var popsMethod = function() {
     result = 'pops'
   }
   value.on('change', popsMethod)
@@ -370,10 +380,10 @@ test('events', function() {
   value.off('change', popsMethod)
   value.set('hi', 'pop')
   equal(result, '')
-  
-  
+
+
   var count = 0
-  var inc = function () {
+  var inc = function() {
     count++
   }
   value.on('set', inc)
@@ -387,24 +397,24 @@ test('events', function() {
   value.rename('foo', 'foo2')
   value.clear()
   equal(count, 5)
-  
+
   // Event params
   var a = new Space('hello world')
   var b = ''
   var c = ''
   var setCount = 0
-  a.on('set', function (key, value) {
+  a.on('set', function(key, value) {
     b = value
   })
   var changeCount = 0
-  a.on('change', function () {
+  a.on('change', function() {
     changeCount++
   })
-  a.on('patch', function (patch) {
+  a.on('patch', function(patch) {
     c = patch
   })
-  a.on('set', function (key, value) {
-     setCount++
+  a.on('set', function(key, value) {
+    setCount++
   })
   a.set('hello', 'bob')
   a.patch('hi mom')
@@ -412,25 +422,25 @@ test('events', function() {
   equal(c, 'hi mom')
   equal(setCount, 1)
   equal(changeCount, 2)
-  
+
 })
 
 test('event bubbling', function() {
   var count = 0
   var cafe = new Space('name Haus\nmenu\n coffee\n  light\n   price 2.50\n  dark\n   price 3\n')
-  cafe.get('menu coffee light').on('change', function () {
+  cafe.get('menu coffee light').on('change', function() {
     count++
   })
-//  cafe.set('menu coffee light price', '5')
+  //  cafe.set('menu coffee light price', '5')
   cafe.get('menu coffee light').set('price', '6')
   equal(count, 1)
-  
+
 })
 
 test('every', function() {
-  
 
- var obj = new Space('user\n\
+
+  var obj = new Space('user\n\
 name Aristotle\n\
 admin false\n\
 stage\n\
@@ -451,22 +461,22 @@ domains\n\
     block1\n\
      content Hello world\n')
   var i = 0
-  obj.every(function (key, value) {
+  obj.every(function(key, value) {
     this.rename(key, key.toUpperCase())
     i++
   })
-    
+
   equal(i, 20)
   equal(obj.get('DOMAINS TEST.TEST.COM PAGES HOME SETTINGS').toString(), 'DATA\n TITLE Hello, World\n')
-  
+
 })
 
 test('filter', function() {
   var value = new Space($('#FilterTest').text())
   var c = 0
-  value.filter(function (key, value) {
+  value.filter(function(key, value) {
     return parseFloat(value.get('age')) > 22
-  }).each(function () {
+  }).each(function() {
     c++
   })
   equal(c, 1, 'filter worked')
@@ -475,10 +485,10 @@ test('filter', function() {
 test('find', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  
+
   equal(a.find('age', '5').length(), 1)
-//  equal(a.find('age', /(5|6)/).length(), 2)
-//  equal(a.find('age', function (value) {return value > 4}).length(), 3)
+  //  equal(a.find('age', /(5|6)/).length(), 2)
+  //  equal(a.find('age', function (value) {return value > 4}).length(), 3)
 
 })
 
@@ -487,16 +497,16 @@ test('first', function() {
 
   var value = new Space('hello world\nhi mom')
   equal(value.getByIndex(0), 'world')
-  
+
   var value = new Space('hello world\nhi mom')
   equal(value.first().toString(), 'hello world\n')
-  
+
 })
 
 test('firstKey', function() {
   var value = new Space('hello world\nhi mom')
   equal(value.firstKey(), 'hello')
-  
+
 })
 
 test('firstValue', function() {
@@ -510,13 +520,13 @@ test('get', function() {
   equal(value.get('hello'), 'world')
   value.set('2', 'hi')
   equal(value.get(2), 'hi')
-  
+
   // get non existant value
-  
+
   var value = new Space().get('some long path')
   strictEqual(value, undefined)
-  
-  
+
+
   var value = new Space().get('some')
   strictEqual(value, undefined)
 
@@ -528,7 +538,7 @@ test('getAll', function() {
   ok(value.getAll('hello') instanceof Space)
   equal(value.getAll('hello').length(), 2)
   var each = ''
-  value.getAll('hello').each(function (k, v) {
+  value.getAll('hello').each(function(k, v) {
     each += 'a'
   })
   equal(each, 'aa')
@@ -540,10 +550,10 @@ test('getByIndexPath', function() {
   space.set('body footer a', 'hello')
   space.set('body footer li', 'world')
   equal(space.getByIndexPath('0 1 1'), 'world')
-  
+
   var space = new Space($('#getByIndexPath').text())
   equal(space.getByIndexPath('1 2 0'), 'main')
-  
+
 
 })
 
@@ -557,48 +567,48 @@ test('_getValueByIndex', function() {
   equal(value._getValueByIndex(-1), 'friend')
 })
 
-test('getCud', function () {
-  
+test('getCud', function() {
+
   var A = new Space('name John\nage 25\nstate California')
   var B = new Space('name John\nage 22\nhometown Brockton')
   var diff = A.getCud(B)
   equal(diff.toString(), 'created\n hometown Brockton\nupdated\n age 22\ndeleted\n state\n')
-  
+
 })
 
 test('getTokens', function() {
 
   var value = new Space('hello world')
   equal('KKKKKSVVVVV', value.getTokens())
-  
+
   var value = new Space('hello mom')
   equal('KKKKKSVVV', value.getTokens())
-  
-  var value =     new Space('first Breck' + '\n' + 'last Yunits')
-  equal(value.getTokens(), 'KKKKKSVVVVV' + 'N'  + 'KKKKSVVVVVV')
-  
-  var value =     new Space('a\n a1 hi\n a2 yo\n')
+
+  var value = new Space('first Breck' + '\n' + 'last Yunits')
+  equal(value.getTokens(), 'KKKKKSVVVVV' + 'N' + 'KKKKSVVVVVV')
+
+  var value = new Space('a\n a1 hi\n a2 yo\n')
   equal(value.getTokens(), 'KNNKKSVVNNKKSVV')
-  
-  var value =     new Space('a\n a1 hi\n a2 yo\nyo hi')
+
+  var value = new Space('a\n a1 hi\n a2 yo\nyo hi')
   equal(value.getTokens(), 'KNNKKSVVNNKKSVVNKKSVV')
-  
-  
-  var value =     new Space()
+
+
+  var value = new Space()
   value.set('multi', 'line1\nline2')
   equal(value.getTokens(), 'KKKKKSVVVVVVEVVVVV')
-  
+
 })
 
 test('getTokensConcise', function() {
-  var value =     new Space()
+  var value = new Space()
   value.set('multi', 'line1\nline2')
   equal(value.getTokensConcise(), 'KSVEV')
-  
-  var value =     new Space('a\n a1 hi\n a2 yo\n')
+
+  var value = new Space('a\n a1 hi\n a2 yo\n')
   equal(value.getTokensConcise(), 'KNKSVNKSV')
-  
-  var value =     new Space('a\n a1 hi\n a2 yo\nyo hi')
+
+  var value = new Space('a\n a1 hi\n a2 yo\nyo hi')
   equal(value.getTokensConcise(), 'KNKSVNKSVNKSV')
 })
 
@@ -606,44 +616,46 @@ test('getTokensConcise', function() {
 test('get expecting a branch but hitting a leaf', function() {
   var value = new Space('posts leaf')
   equal(undefined, value.get('posts branch'))
-  
+
 })
 
 
-test('has', function () {
+test('has', function() {
   space = new Space('hello world')
   equal(space.has('hello'), true)
   equal(space.has('world'), false)
 })
 
-test('hasOwnProperty bug', function () {
-  var foo = { bar : foo}
+test('hasOwnProperty bug', function() {
+  var foo = {
+    bar: foo
+  }
   foo.hasOwnProperty = null
   space = new Space(foo)
   ok(space)
 })
 
-test('__height', function () {
+test('__height', function() {
   space = new Space('hello world')
   equal(space.__height(), 1)
 })
 
-test('html dsl', function () {
+test('html dsl', function() {
   var html = new Space('h1 hello world\nh1 hello world')
   var page = ''
-  html.every(function (key, value) {
+  html.every(function(key, value) {
     page += '<' + key + '>' + value + '</' + key + '>'
   })
   equal(page, '<h1>hello world</h1><h1>hello world</h1>')
 })
 
-test('indexOf', function () {
+test('indexOf', function() {
   space = new Space('hello world')
   equal(space.indexOf('hello'), 0)
   equal(space.indexOf('hello2'), -1)
 })
 
-test('insert', function () {
+test('insert', function() {
   space = new Space('hello world')
   space.insert('hi', 'mom', 0)
   equal(space.indexOf('hi'), 0)
@@ -706,57 +718,57 @@ test('matches leak', function() {
 })
 
 
-test('multiline', function () {
-  
+test('multiline', function() {
+
   var a = new Space('my multiline\n string')
   equal(a.get('my'), 'multiline\nstring')
-  
+
   var a = new Space('my \n \n multiline\n string')
   equal(a.get('my'), '\n\nmultiline\nstring')
-  
+
   var b = new Space('brave new\n world')
   equal(b.get('brave'), 'new\nworld', 'ml value correct')
   equal(b.toString(), 'brave new\n world\n', 'multiline does not begin with nl')
-  
+
   var c = new Space('brave \n new\n world')
   equal(c.get('brave'), '\nnew\nworld', 'ml begin with nl value correct')
   equal(c.toString(), 'brave \n new\n world\n', 'multiline begins with nl')
-  
+
   var d = new Space('brave \n \n new\n world')
   equal(d.get('brave'), '\n\nnew\nworld', 'ml begin with 2 nl value correct')
   equal(d.toString(), 'brave \n \n new\n world\n', 'multiline begins with 2 nl')
-  
+
   var e = new Space('brave new\n world\n ')
   equal(e.get('brave'), 'new\nworld\n', 'ml value end with nl correct')
   equal(e.toString(), 'brave new\n world\n \n', 'multiline ends with a nl')
-  
+
   var f = new Space('brave new\n world\n \n ')
   equal(f.get('brave'), 'new\nworld\n\n', 'ml value end with 2 nl correct')
   equal(f.toString(), 'brave new\n world\n \n \n', 'multiline ends with 2 nl')
-  
-  
+
+
   var g = new Space()
   g.set('brave', '\nnew\nworld\n\n')
   equal(g.get('brave'), '\nnew\nworld\n\n', 'set ml works')
   equal(g.toString(), 'brave \n new\n world\n \n \n', 'set ml works')
-  
+
 })
 
 test('next', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
 
-  
+
   equal(a.next('john'), 'susy')
   equal(a.prev('john'), 'bob')
   equal(a.next('susy'), 'bob')
   equal(a.prev('susy'), 'john')
   equal(a.prev('bob'), 'susy')
   equal(a.next('bob'), undefined)
-  
+
   equal(a.next('foobar'), 'john')
-  
-  
+
+
 })
 
 test('object count', function() {
@@ -767,7 +779,7 @@ test('object count', function() {
   equal(b._objectCount(), 0)
   var c = new Space('hello world')
   equal(c._objectCount(), 0)
-  
+
 })
 
 test('order', function() {
@@ -775,7 +787,7 @@ test('order', function() {
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   var keys = a.tableOfContents()
   equal(keys, 'john susy bob', 'order is preserved')
-  
+
 })
 
 test('patch', function() {
@@ -817,21 +829,21 @@ test('patch', function() {
   a.patch(new Space(new Space(patch)))
   equal(a.get('last'), 'Grimes')
   equal(a.get('first'), 'Frank')
-  
+
   // delete an element
   var page = new Space()
   page.set('text', new Space('content hello world'))
   equal(page.length(), 1, 'item deleted')
   page.patch(new Space('text '))
   equal(page.length(), 0, 'item deleted')
-  
+
   var pages = new Space()
   pages.set('page1', new Space('text\n content hello world'))
   equal(pages.get('page1').length(), 1)
   pages.get('page1').patch('text')
   equal(pages.get('page1').length(), 0)
-  
-  
+
+
   var a = new Space('type meta\n')
   var b = new Space('content\n')
   a.patch(b)
@@ -841,7 +853,7 @@ test('patch', function() {
   var patch = new Space('meta\n content')
   space.patch(patch)
   equal(space.get('meta type'), 'meta', 'patch okay')
-  
+
   var a = new Space('hello world')
   ok(a.patch(), 'If nothing passed dont error.')
   ok(a.patch(''), 'If nothing passed dont error.')
@@ -864,12 +876,12 @@ test('path functions', function() {
   equal(Space.pathLeaf('football'), 'football')
   equal(Space.pathLeaf('page header'), 'header')
   equal(Space.pathLeaf('page header content'), 'content')
-  
+
   equal(Space.pathBranch('football'), '')
   equal(Space.pathBranch('page header'), 'page')
   equal(Space.pathBranch('page header content'), 'page header')
-  
-  
+
+
 })
 
 test('pop', function() {
@@ -878,10 +890,10 @@ test('pop', function() {
   equal(a.length(), 3)
   equal(a.pop().toString(), 'bob\n age 10\n')
   equal(a.length(), 2)
-  
+
   var empty = new Space()
   equal(empty.pop(), null)
-  
+
 })
 
 test('prepend', function() {
@@ -895,7 +907,7 @@ test('prepend', function() {
 test('prev', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  
+
   equal(a.next('john'), 'susy')
   equal(a.prev('john'), 'bob')
   equal(a.next('susy'), 'bob')
@@ -951,7 +963,9 @@ test('reload', function() {
   ok(a.reload())
   equal(a.length(), 0, 'empty reload cleared object')
   var count = 0
-  a.on('reload', function () {count++})
+  a.on('reload', function() {
+    count++
+  })
   a.reload('john 1')
   a.reload('john 2')
   equal(a.length(), 1)
@@ -968,9 +982,9 @@ test('rename', function() {
   index = a.indexOf('breck')
   equal(index, 0, 'index okay')
   equal(a.get('breck age'), '5', 'value okay')
-  
+
   // for now we removed xpath rename.
-  
+
 })
 
 test('reorder', function() {
@@ -979,22 +993,22 @@ test('reorder', function() {
   equal(a.tableOfContents(), 'hello hi', 'order correct')
   a.insert('yo', 'pal', 0)
   equal(a.tableOfContents(), 'yo hello hi', 'order correct')
-  
+
   a.insert('hola', 'pal', 2)
   equal(a.tableOfContents(), 'yo hello hola hi', 'order correct')
-  
+
   a.patchOrder('hello\nhi\nhola\nyo')
   equal(a.tableOfContents(), 'hello hi hola yo', 'order correct')
   a.patchOrder('yo\nhola\nhi\nhello')
   equal(a.tableOfContents(), 'yo hola hi hello', 'order correct')
   equal(a.get('yo'), 'pal', 'keys okay')
-  
+
   // Recursive
   a = new Space('b\n content hi\n value foobar')
   b = new Space('b\n value foobar\n content hi')
   equal(a.diffOrder(b).toString(), 'b\n value\n content\n', 'diff order correct')
   equal(a.patchOrder(a.diffOrder(b)).toString(), b.toString(), 'recursive order patch')
-  
+
 })
 
 test('set', function() {
@@ -1002,40 +1016,40 @@ test('set', function() {
   var value = new Space('hello world')
   equal(value.get('hello'), 'world')
   ok(value.set('hello', 'mom') instanceof Space, 'set should return instance so we can chain it')
-  
+
   var byint = new Space()
   byint.set(2, 'hi')
   equal(byint.get(2), 'hi')
-  
+
   var blah = new Space()
   value.set('boom', '')
   equal(value.get('boom'), '', 'empty string')
-  
+
   equal(value.get('hello'), 'mom', 'value should be changed')
   value.set('head style color', 'blue')
   equal(value.get('head style color'), 'blue', 'set should have worked')
-  
+
   var foo = new Space('style\n')
   foo.set('style color', 'red')
   foo.set('style width', '100')
   equal(foo.get('style color'), 'red')
   equal(foo.get('style width'), '100')
-  
+
   var a = new Space('hello world\n')
   a.set('hi', 'mom')
   equal(a.tableOfContents(), 'hello hi', 'order correct')
   a.insert('yo', 'pal', 0)
   equal(a.tableOfContents(), 'yo hello hi', 'order correct')
-  
+
   a.insert('hola', 'pal', 2)
   equal(a.tableOfContents(), 'yo hello hola hi', 'order correct')
-  
+
   var c = new Space()
   c.set('hi', 'hello world')
   c.set('yo', new Space('hello world'))
   // should these be equal?
   notEqual(c.get('hi'), c.get('yo'))
-  
+
   var a = new Space()
   a.set('meta x', 123)
   a.set('meta y', 1235)
@@ -1052,7 +1066,7 @@ test('setByIndexPath', function() {
   space.set('body footer li', 'world')
   space.setByIndexPath('0 1 1', 'mom')
   equal(space.getByIndexPath('0 1 1'), 'mom')
-  
+
   var s = new Space('h1 hello world')
   s.setByIndexPath('0', 'mom')
   equal(s.get('h1'), 'mom')
@@ -1065,19 +1079,21 @@ test('shift', function() {
   equal(a.length(), 3)
   equal(a.shift().toString(), 'john\n age 5\n')
   equal(a.length(), 2)
-  
+
   var empty = new Space()
   equal(empty.shift(), null)
-  
+
 })
 
 test('sort', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a.tableOfContents(), 'john susy bob')
-  a.sort(function (a, b) { return b[0] < a[0] })
+  a.sort(function(a, b) {
+    return b[0] < a[0]
+  })
   equal(a.tableOfContents(), 'bob john susy')
-  
+
 })
 
 test('toBinary', function() {
@@ -1143,7 +1159,7 @@ test('toJSON', function() {
 
   var a = new Space("hello world")
   equal(a.toJSON(), '{"hello":"world"}')
-  
+
   var b = new Space("foo bar")
   a.set('b', b)
   equal(a.toJSON(), '{"hello":"world","b":{"foo":"bar"}}')
@@ -1155,7 +1171,7 @@ test('toObject', function() {
   var a = new Space("hello world")
   ok(typeof a.toObject() === 'object')
   equal(a.toObject()['hello'], 'world')
-  
+
   var b = new Space("foo bar")
   a.set('b', b)
   equal(a.toObject()['b']['foo'], 'bar')
@@ -1201,16 +1217,16 @@ test('toString', function() {
   equal(b.toString(), 'a\n text \n  this is a multline string\n  and more\n')
   a.set('even_more', b)
   equal(a.toString(), 'john\n age 5\nmultiline hello\n world\nother foobar\neven_more\n a\n  text \n   this is a multline string\n   and more\n')
-  
-  
+
+
   var e = new Space('z-index 0')
   e['z-index'] = 0
   equal(e.toString(), 'z-index 0\n')
 })
 
 test('__transpose', function() {
-  
-  
+
+
   var a = new Space($('#transposeData').text().trim())
   var html = a.__transpose($('#transposeTemplate').text().trim())
   equal(html.toString().trim(), $('#transposeExpected').text().trim())
@@ -1226,29 +1242,29 @@ test('union', function() {
   equal(Space.union(a, b).length(), 3, 'union should have 3 items')
   equal(Space.union(a, c).length(), 1, 'union should have 1 item')
   ok(Space.union(a, c).toString() === c.toString(), 'union should be equal to c')
-  
+
   equal(Space.union(a, b, c, d).length(), 1, 'union should take multiple params')
   equal(Space.union(a, b, d).length(), 2, 'union should be 2 long')
   equal(Space.union(d, a, b, c).length(), 1, 'union should 1 be long')
-  
+
   a = new Space('font-family Arial\nbackground red\ncolor blue\nwidth 10px')
   b = new Space('font-family Arial\nbackground green\ncolor blue\nwidth 10px')
   c = new Space('font-family Arial\nbackground orange\ncolor blue\nwidth 12px')
   d = new Space('font-family Arial\nbackground #aaa\ncolor blue\nwidth 12px')
   e = new Space('font-family Arial\nbackground #fff\ncolor blue\nwidth 121px')
-  
+
   var union = Space.union(a, b, c, d, e)
   equal(union.length(), 2, 'should should have length 2')
   equal(union.get('color'), 'blue', 'union should have color blue')
   equal(union.get('font-family'), 'Arial', 'union should have font family arial')
-  
+
   union = Space.union.apply(a, [b, c, d, e])
   equal(union.length(), 2, 'union should have length 2')
-  
-  
+
+
 })
 
-test('update', function () {
+test('update', function() {
   var a = new Space('hello world')
   a.update(0, 'hi', 'mom')
   equal(a.toString(), 'hi mom\n')
@@ -1263,12 +1279,11 @@ test('url methods', function() {
 
 })
 
-test('version', function () {
+test('version', function() {
   ok(Space.version)
 })
 
-test('__width', function () {
+test('__width', function() {
   space = new Space('hello world')
   equal(space.__width(), 11)
 })
-
