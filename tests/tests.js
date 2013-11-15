@@ -694,6 +694,16 @@ test('last', function() {
   equal(value.getByIndex(-1), 'mom')
 })
 
+test('loadFromArray', function() {
+
+  var a = new Space([1,2,3])
+  equal(a.toString(), 'item 1\nitem 2\nitem 3\n')
+
+  a = new Space({data : [ {charge : 1}, {charge : 2}]})
+  equal(a.toString(), 'data\n item\n  charge 1\n item\n  charge 2\n')
+
+})
+
 test('loadFromString', function() {
 
   a = new Space('text \n this is a string\n and more')

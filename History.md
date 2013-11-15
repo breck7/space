@@ -1,3 +1,7 @@
+0.7.0 / 2013-11-15
+==================
+- BREAKING CHANGE: when parsing JSON/Arrays, we no longer set the key/type as "0..1..2..". Instead, its "item"
+
 0.6.0 / 2013-11-14
 ==================
 - BREAKING CHANGE: firstKey() is now firstType()

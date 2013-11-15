@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.6.0'
+Space.version = '0.7.0'
 
 Space.arrayDelete = function(array, index) {
   return array.slice(0, index).concat(array.slice(index + 1))
@@ -657,6 +657,23 @@ Space.prototype._load = function(content) {
   }
 
   // Load from object
+  if (content instanceof Array)
+    this._loadFromArray(content)
+  else
+    this._loadFromObject(content)
+}
+
+Space.prototype._loadFromArray = function(array) {
+  for (var i in array) {
+    var value = array[i]
+    if (typeof value === 'object')
+      this._setPair('item', new Space(value))
+    else
+      this._setPair('item', value)
+  }
+}
+
+Space.prototype._loadFromObject = function(content) {
   for (var type in content) {
     // In case hasOwnProperty has been overwritten we
     // call the original
