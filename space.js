@@ -134,19 +134,32 @@ Space.prototype.create = function(type, value) {
 }
 
 Space.prototype._delete = function(type) {
-  if (typeof type === 'number') {
-    this._deletePair(type)
-    return 1
-  }
-  if (!type.toString().match(/ /)) {
-    var index = this.indexOf(type)
-    if (index === -1)
-      return 0
-    this._deletePair(index)
-    return 1
-  }
+  if (typeof type === 'number')
+    return this._deleteByIndex(type)
+  else if (type.toString().match(/ /))
+    return this._deleteByXPath(type)
+  else
+    return this._deleteByType(type)
+}
+
+Space.prototype._deleteByIndex = function(index) {
+  if (this._pairs[index] === undefined)
+    return 0
+  this._pairs.splice(index, 1)
+  return 1
+}
+
+Space.prototype._deleteByType = function(type) {
+  var index = this.indexOf(type)
+  if (index === -1)
+    return 0
+  this._deleteByIndex(index)
+  return 1
+}
+
+Space.prototype._deleteByXPath = function(xpath) {
   // Get parent
-  var parts = type.split(/ /)
+  var parts = xpath.split(/ /)
   var child = parts.pop()
   var parent = this.get(parts.join(' '))
   if (parent instanceof Space)
@@ -159,10 +172,6 @@ Space.prototype['delete'] = function(type) {
     this.trigger('delete', type)
   this.trigger('change')
   return this
-}
-
-Space.prototype._deletePair = function(index) {
-  this._pairs.splice(index, 1)
 }
 
 /**

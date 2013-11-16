@@ -1,3 +1,7 @@
+0.7.2 / 2013-11-15
+==================
+- Delete methods refactor
+
 0.7.1 / 2013-11-15
 ==================
 - Passing an int to .delete() now deletes the pair with that numeric index.
