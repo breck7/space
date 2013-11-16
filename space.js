@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.7.1'
+Space.version = '0.7.3'
 
 Space.arrayDelete = function(array, index) {
   return array.slice(0, index).concat(array.slice(index + 1))
@@ -51,7 +51,7 @@ Space.strRepeat = function(string, count) {
  */
 Space.union = function() {
   var union = Space.unionSingle(arguments[0], arguments[1])
-  for (var i in arguments) {
+  for (var i = 0; i < arguments.length; i++) {
     if (i === 1) continue // skip the first one
     union = Space.unionSingle(union, arguments[i])
     if (!union.length()) break
@@ -271,7 +271,7 @@ Space.prototype.diffOrder = function(space) {
 }
 
 Space.prototype.each = function(fn) {
-  for (var i in this._pairs) {
+  for (var i = 0; i < this._pairs.length; i++) {
     if (fn.call(this, this._pairs[i][0], this._pairs[i][1], i) === false)
       return this
   }
@@ -280,7 +280,7 @@ Space.prototype.each = function(fn) {
 
 Space.prototype.filter = function(fn) {
   var result = new Space()
-  for (var i in this._pairs) {
+  for (var i = 0; i < this._pairs.length; i++) {
     if (fn.call(this, this._pairs[i][0], this._pairs[i][1], i) === true)
       result.append(this._pairs[i][0], this._pairs[i][1])
   }

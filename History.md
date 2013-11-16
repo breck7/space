@@ -1,3 +1,7 @@
+0.7.3 / 2013-11-15
+==================
+- Fixed bug in each method where the index was a typeof string instead of number.
+
 0.7.2 / 2013-11-15
 ==================
 - Delete methods refactor
