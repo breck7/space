@@ -85,7 +85,6 @@ test('append', function() {
 
 })
 
-
 test('clear', function() {
   var a = new Space('hello world')
   equal(a.length(), 1)
@@ -175,7 +174,10 @@ test('delete', function() {
   // #28
   var a = new Space()
   a.delete(2)
-
+  
+  var b = new Space('hi\nhello world')
+  b.delete(1)
+  equal(b.toString(), 'hi\n')
 
 })
 

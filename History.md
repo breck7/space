@@ -1,3 +1,7 @@
+0.7.1 / 2013-11-15
+==================
+- Passing an int to .delete() now deletes the pair with that numeric index.
+
 0.7.0 / 2013-11-15
 ==================
 - BREAKING CHANGE: when parsing JSON/Arrays, we no longer set the key/type as "0..1..2..". Instead, we set type as "item"

@@ -13,4 +13,4 @@ fs.writeFileSync('package.space', pack.toString(), 'utf8')
 fs.writeFileSync('package.json', beautify(pack.toJSON(), { indent_size: 2 }), 'utf8')
 var js = fs.readFileSync('space.js', 'utf8').replace(/Space\.version.*/, "Space.version = '" + version + "'")
 fs.writeFileSync('space.js', js, 'utf8')
-
+console.log('Updated to version %s', version)
