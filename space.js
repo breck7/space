@@ -955,35 +955,36 @@ Space.prototype.setByIndexPath = function(query, value) {
  * @param {int} Optional index to insert at
  * @return The matching value
  */
-Space.prototype._setByXPath = function(type, value) {
-  if (!type)
+Space.prototype._setByXPath = function(path, value) {
+  if (!path)
     return null
-  var generations = type.toString().split(/ /g)
-  var context = this
-  var currentType
+  var generations = path.toString().split(/ /g)
+  var currentContext = this
+  var currentPath
   var index
   for (var i = 0; i < generations.length; i++) {
-    currentType = generations[i]
+    currentPath = generations[i]
+    var isLeaf = (i === (generations.length - 1))
     // If path is already set, continue
-    if (context._getValueByType(currentType) instanceof Space) {
-      context = context.get(currentType)
+    if (!isLeaf && currentContext._getValueByType(currentPath) instanceof Space) {
+      currentContext = currentContext.get(currentPath)
       continue
     }
 
     var newValue
     // Leaf
-    if (i === (generations.length - 1))
+    if (isLeaf)
       newValue = value
     else
       newValue = new Space()
 
     // update pair
-    if (context.has(currentType)) {
-      var index = context.indexOf(currentType)
-      context._setPair(currentType, newValue, index, true)
+    if (currentContext.has(currentPath)) {
+      var index = currentContext.indexOf(currentPath)
+      currentContext._setPair(currentPath, newValue, index, true)
     } else
-      context._setPair(currentType, newValue)
-    context = context.get(currentType)
+      currentContext._setPair(currentPath, newValue)
+    currentContext = currentContext.get(currentPath)
   }
   return this
 }

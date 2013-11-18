@@ -1068,6 +1068,12 @@ test('set', function() {
   a.set('meta c', 435)
   a.set('meta x', 1235123)
   equal(a.get('meta c'), 435)
+  
+  
+  var space = new Space('name John\nage\nfavoriteColors\n blue\n  blue1 1\n  blue2 2\n green\n red 1\n')
+
+  space.set('favoriteColors blue', 'purple').toString()
+  equal(space.get('favoriteColors blue'), 'purple')
 
 })
 
