@@ -648,6 +648,31 @@ Space.prototype._typeCount = function() {
 }
 
 /**
+ * Return the last type/value pair as a space object.
+ */
+Space.prototype.last = function() {
+  if (!this.length())
+    return new Space()
+  var lastIndex = this.length() - 1
+  var result = new Space().set(this._pairs[lastIndex][0], this._pairs[lastIndex][1])
+  return result
+}
+
+Space.prototype.lastType = function() {
+  if (!this.length())
+    return null
+  var lastIndex = this.length() - 1
+  return this._pairs[lastIndex][0]
+}
+
+Space.prototype.lastValue = function() {
+  if (!this.length())
+    return null
+  var lastIndex = this.length() - 1
+  return this._pairs[lastIndex][1]
+}
+
+/**
  * @return int
  */
 Space.prototype.length = function() {

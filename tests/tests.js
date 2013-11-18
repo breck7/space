@@ -694,6 +694,21 @@ test('last', function() {
 
   var value = new Space('hello world\nhi mom')
   equal(value.getByIndex(-1), 'mom')
+
+  var value = new Space('hello world\nhi mom')
+  equal(value.last().toString(), 'hi mom\n')
+
+})
+
+test('lastType', function() {
+  var value = new Space('hello world\nhi mom')
+  equal(value.lastType(), 'hi')
+
+})
+
+test('lastValue', function() {
+  var value = new Space('hello world\nhi mom')
+  equal(value.lastValue(), 'mom')
 })
 
 test('loadFromArray', function() {
