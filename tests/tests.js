@@ -72,7 +72,7 @@ domains\n\
 test('append', function() {
   var a = new Space('hello world')
   var count = 0
-  a.on('append', function(type, value) {
+  a.on('append', function(property, value) {
     count++
   })
   a.append('foo', 'bar')
@@ -140,7 +140,7 @@ test('concat', function() {
 test('create', function() {
   var a = new Space('hello world')
   var count = 0
-  a.on('create', function(type, value) {
+  a.on('create', function(property, value) {
     count++
   })
   a.create('foo', 'bar')
@@ -166,9 +166,9 @@ test('delete', function() {
   ok(a.delete('earth north_america united_states california san_francisco') instanceof Space, 'returns space')
   equal(a.get('earth north_america united_states california san_francisco'), undefined, 'neighborhood is gone')
 
-  var a = new Space('type meta\n')
+  var a = new Space('property meta\n')
   a.delete('content')
-  equal(a.get('type'), 'meta', 'delete a non existing entry works')
+  equal(a.get('property'), 'meta', 'delete a non existing entry works')
 
 
   // #28
@@ -310,7 +310,7 @@ test('diffOrder', function() {
 
 })
 
-test('diff between a blank type/value and empty object', function() {
+test('diff between a blank property/value and empty object', function() {
 
   var a = new Space('hi ')
   var b = new Space('hi\n')
@@ -320,19 +320,19 @@ test('diff between a blank type/value and empty object', function() {
   equal(typeof b.get('hi'), 'object')
   notStrictEqual(a.get('hi'), b.get('hi'))
 
-  equal(a.toString(), 'hi \n', 'a should be a type with empty string value')
+  equal(a.toString(), 'hi \n', 'a should be a property with empty string value')
   equal(b.toString(), 'hi\n')
 
 })
 
-test('duplicate type', function() {
+test('duplicate property', function() {
 
   var spaceWithDupe = 'height 45px\n\
 height 50px\n\
 width 56px'
 
   var value = new Space(spaceWithDupe)
-  // When turning a string into a Space object and given a duplicate type, last item should win
+  // When turning a string into a Space object and given a duplicate property, last item should win
   equal(value.get('height'), '50px')
 
   equal(value.length(), 3)
@@ -343,8 +343,8 @@ test('each', function() {
 
   var value = new Space('hello world\nhi mom')
   var string = ''
-  equal(value.each(function(type, value) {
-    string += type.toUpperCase()
+  equal(value.each(function(property, value) {
+    string += property.toUpperCase()
     string += value.toUpperCase()
     string += this.length()
   }).length(), 2, 'test chaining')
@@ -353,16 +353,16 @@ test('each', function() {
   // test breaking
   var count = 0
   var value = new Space('hello world\nhi mom')
-  value.each(function(type, value) {
+  value.each(function(property, value) {
     count++
-    if (type === 'hello')
+    if (property === 'hello')
       return false
   })
   equal(count, 1)
 
   var a = new Space('hello world\nhi world')
   var i = 0
-  a.each(function(type, value, index) {
+  a.each(function(property, value, index) {
     i = i + index
   })
   equal(i, 1, 'index worked')
@@ -405,7 +405,7 @@ test('events', function() {
   var b = ''
   var c = ''
   var setCount = 0
-  a.on('set', function(type, value) {
+  a.on('set', function(property, value) {
     b = value
   })
   var changeCount = 0
@@ -415,7 +415,7 @@ test('events', function() {
   a.on('patch', function(patch) {
     c = patch
   })
-  a.on('set', function(type, value) {
+  a.on('set', function(property, value) {
     setCount++
   })
   a.set('hello', 'bob')
@@ -463,8 +463,8 @@ domains\n\
     block1\n\
      content Hello world\n')
   var i = 0
-  obj.every(function(type, value) {
-    this.rename(type, type.toUpperCase())
+  obj.every(function(property, value) {
+    this.rename(property, property.toUpperCase())
     i++
   })
 
@@ -476,7 +476,7 @@ domains\n\
 test('filter', function() {
   var value = new Space($('#FilterTest').text())
   var c = 0
-  value.filter(function(type, value) {
+  value.filter(function(property, value) {
     return parseFloat(value.get('age')) > 22
   }).each(function() {
     c++
@@ -505,9 +505,9 @@ test('first', function() {
 
 })
 
-test('firstType', function() {
+test('firstProperty', function() {
   var value = new Space('hello world\nhi mom')
-  equal(value.firstType(), 'hello')
+  equal(value.firstProperty(), 'hello')
 
 })
 
@@ -645,8 +645,8 @@ test('__height', function() {
 test('html dsl', function() {
   var html = new Space('h1 hello world\nh1 hello world')
   var page = ''
-  html.every(function(type, value) {
-    page += '<' + type + '>' + value + '</' + type + '>'
+  html.every(function(property, value) {
+    page += '<' + property + '>' + value + '</' + property + '>'
   })
   equal(page, '<h1>hello world</h1><h1>hello world</h1>')
 })
@@ -679,7 +679,7 @@ test('isASet', function() {
 
 })
 
-test('type count', function() {
+test('property count', function() {
 
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a._typeCount(), 6)
@@ -700,9 +700,9 @@ test('last', function() {
 
 })
 
-test('lastType', function() {
+test('lastProperty', function() {
   var value = new Space('hello world\nhi mom')
-  equal(value.lastType(), 'hi')
+  equal(value.lastProperty(), 'hi')
 
 })
 
@@ -871,15 +871,15 @@ test('patch', function() {
   equal(pages.get('page1').length(), 0)
 
 
-  var a = new Space('type meta\n')
+  var a = new Space('property meta\n')
   var b = new Space('content\n')
   a.patch(b)
   equal(a.length(), 1, 'patch okay')
-  equal(a.get('type'), 'meta', 'patch okay')
-  var space = new Space('meta\n type meta')
+  equal(a.get('property'), 'meta', 'patch okay')
+  var space = new Space('meta\n property meta')
   var patch = new Space('meta\n content')
   space.patch(patch)
-  equal(space.get('meta type'), 'meta', 'patch okay')
+  equal(space.get('meta property'), 'meta', 'patch okay')
 
   var a = new Space('hello world')
   ok(a.patch(), 'If nothing passed dont error.')

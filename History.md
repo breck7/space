@@ -1,3 +1,8 @@
+0.8.0 / 2013-11-19
+==================
+- BREAKING CHANGE: firstType is now firstProperty, getTypes is now getProperties, lastType is now lastProperty
+- Renamed "Type/Types/type" to "Property/Properties/property". Thanks to @jyxt for calling me on that bad name :)
+
 0.7.3 / 2013-11-15
 ==================
 - Fixed bug in each method where the index was a typeof string instead of number.

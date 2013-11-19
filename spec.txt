@@ -19,18 +19,18 @@ Decimal: 10
 At a higher level, a Space object consists of a sequence of pairs.
 
 A pair holds two sequences of chars (hereafter referred to as strings):
-one named "Type" and one named "Value".
+one named "Property" and one named "Value".
 
-"Type" is a sequence of any char other than the space char or newline char.
-"Type" is terminated by a space char or newline. If "Type" is terminated
-by a space char, its associated "Value" will be a string. If "Type" is
+"Property" is a sequence of any char other than the space char or newline char.
+"Property" is terminated by a space char or newline. If "Property" is terminated
+by a space char, its associated "Value" will be a string. If "Property" is
 terminated by a newline char, its associated "Value" will be a Space object.
-If "Type" is terminated by an end-of-file char its associated "Value" will be
+If "Property" is terminated by an end-of-file char its associated "Value" will be
 an empty Space object.
 
 "Value" can contain any char, but newline chars must be escaped. To escape a
 newline char in "Value", precede the newline char with a newline char + N space
-chars, where N is equal to the number of spaces preceding the "Type" + 1.
+chars, where N is equal to the number of spaces preceding the "Property" + 1.
 "Value" is terminated by an unescaped newline char. "Value" can also be
 terminated by an end-of-file char.
 
