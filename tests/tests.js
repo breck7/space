@@ -621,6 +621,11 @@ test('get expecting a branch but hitting a leaf', function() {
 
 })
 
+test('getValues', function() {
+  var html = new Space('h1 hello world\nh1 hello world')
+  equal(html.getValues().join('\n'), 'hello world\nhello world')
+})
+
 
 test('has', function() {
   space = new Space('hello world')
