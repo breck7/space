@@ -684,7 +684,7 @@ Space.prototype.lastValue = function() {
  * @return int
  */
 Space.prototype.length = function() {
-  return this.getProperties().length
+  return this._pairs.length
 }
 
 Space.prototype._load = function(content) {
