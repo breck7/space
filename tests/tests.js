@@ -1019,6 +1019,14 @@ test('rename', function() {
 
 })
 
+test('renameAll', function() {
+  var space = new Space($('#RenameAllTest').text())
+  equal(space.toString().match(/first-name/g).length, 5)
+  space.renameAll('first-name', 'firstName')
+  console.log(space.toString())
+  equal(space.toString().match(/firstName/g).length, 5)
+})
+
 test('reorder', function() {
   var a = new Space('hello world\n')
   a.set('hi', 'mom')

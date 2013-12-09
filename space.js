@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.1'
+Space.version = '0.8.2'
 
 Space.arrayDelete = function(array, index) {
   return array.slice(0, index).concat(array.slice(index + 1))
@@ -950,6 +950,17 @@ Space.prototype.rename = function(oldName, newName) {
   if (oldName !== newName)
     this.trigger('rename', oldName, newName)
   this.trigger('change')
+  return this
+}
+
+// Recursive rename
+Space.prototype.renameAll = function(oldName, newName) {
+  this.each(function (key, value, index) {
+    if (key === oldName)
+      this._setPair(newName, value, index, true)
+    if (value instanceof Space)
+      value.renameAll(oldName, newName)
+  })
   return this
 }
 
