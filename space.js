@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.3'
+Space.version = '0.8.4'
 
 Space.arrayDelete = function(array, index) {
   return array.slice(0, index).concat(array.slice(index + 1))
@@ -406,7 +406,7 @@ Space.prototype.getCud = function(space) {
   space.each(function(property, value) {
     if (subject.get(property) === undefined)
       diff.set('created ' + property, value)
-    else if (subject.get(property) !== value)
+    else if (subject.get(property).toString() !== value.toString())
       diff.set('updated ' + property, value)
   })
   this.each(function(property, value) {
