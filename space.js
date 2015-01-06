@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.4'
+Space.version = '0.8.5'
 
 Space.arrayDelete = function(array, index) {
   return array.slice(0, index).concat(array.slice(index + 1))
@@ -346,12 +346,32 @@ Space.prototype.get = function(query) {
   return this._getValueByString(query.toString())
 }
 
+/**
+ * Get all pairs with a matching property as a space object.
+ * @param {string|int|space}
+ * @return {space}
+ */
 Space.prototype.getAll = function(query) {
   var matches = new Space()
   this.each(function(property, value) {
     if (property !== query)
       return true
     matches.append(property, value)
+  })
+  return matches
+}
+
+/**
+ * Get all pairs with a matching property as an array.
+ * @param {string|int|space}
+ * @return {array}
+ */
+Space.prototype.getArray = function(query) {
+  var matches = []
+  this.each(function(property, value) {
+    if (property !== query)
+      return true
+    matches.push(value)
   })
   return matches
 }

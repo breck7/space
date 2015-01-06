@@ -324,6 +324,23 @@ width 56px'
 
 })
 
+test('duplicate property with getArray', function() {
+
+  var spaceWithDupe = 'height 45px\n\
+height 50px\n\
+width 56px'
+
+  var value = new Space(spaceWithDupe)
+  equal(value.getArray('height').length, 2)
+  equal(value.getArray('height')[1], "50px")
+
+  var spaceWithoutDupe = new Space("height 25px")
+  equal(spaceWithoutDupe.getArray('height').length, 1)
+  equal(spaceWithoutDupe.getArray('height')[0], "25px")
+  equal(spaceWithoutDupe.getArray('width').length, 0)
+
+})
+
 test('each', function() {
 
   var value = new Space('hello world\nhi mom')
