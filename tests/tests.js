@@ -457,7 +457,7 @@ domains\n\
 })
 
 test('filter', function() {
-  var value = new Space($('#FilterTest').text())
+  var value = new Space(testStrings.filter)
   var c = 0
   value.filter(function(property, value) {
     return parseFloat(value.get('age')) > 22
@@ -534,7 +534,7 @@ test('getByIndexPath', function() {
   space.set('body footer li', 'world')
   equal(space.getByIndexPath('0 1 1'), 'world')
 
-  var space = new Space($('#getByIndexPath').text())
+  var space = new Space(testStrings.getByIndexPath)
   equal(space.getByIndexPath('1 2 0'), 'main')
 
 })
@@ -991,14 +991,12 @@ test('rename', function() {
   equal(a.get('breck age'), '5', 'value okay')
 
   // for now we removed xpath rename.
-
 })
 
 test('renameAll', function() {
-  var space = new Space($('#RenameAllTest').text())
+  var space = new Space(testStrings.renameAll)
   equal(space.toString().match(/first-name/g).length, 5)
   space.renameAll('first-name', 'firstName')
-  console.log(space.toString())
   equal(space.toString().match(/firstName/g).length, 5)
 })
 
@@ -1209,8 +1207,8 @@ test('toQueryString', function() {
 })
 
 test('toShapes', function() {
-  var a = new Space($('#getByIndexPath').text())
-  equal(a.toShapes(), $('#shapes').text())
+  var a = new Space(testStrings.getByIndexPath)
+  equal(a.toShapes(), testStrings.shapes)
 })
 
 test('toString', function() {
@@ -1243,10 +1241,9 @@ test('toString', function() {
 })
 
 test('__transpose', function() {
-
-  var a = new Space($('#transposeData').text().trim())
-  var html = a.__transpose($('#transposeTemplate').text().trim())
-  equal(html.toString().trim(), $('#transposeExpected').text().trim())
+  var a = new Space(testStrings.transposeData)
+  var html = a.__transpose(testStrings.transposeTemplate)
+  equal(html.toString().trim(), testStrings.transposeExpected)
 })
 
 test('union', function() {

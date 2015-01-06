@@ -1,6 +1,7 @@
 var qunit = require('qunit')
 
 qunit.run({
+	deps: {path: './tests/testStrings.js', namespace: "testStrings"},
     code: {
 
 		// Include the source code
