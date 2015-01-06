@@ -120,6 +120,19 @@ iframe
  frameborder 0
  allowfullscreen*/})
 
+testStrings.splitTest = multiline(function () {/*
+thisWillBe ignored
+title This is a test
+content Hello world
+date 2/25/2014
+title This is not a test
+content Hello planet
+date 2/25/2015
+title This is definitely a test
+content Hello earth
+date 2/25/2016
+*/})
+
 // Export for use in Node.js
 if (typeof exports != 'undefined')
   module.exports = testStrings;

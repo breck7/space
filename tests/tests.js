@@ -679,16 +679,6 @@ test('isASet', function() {
 
 })
 
-test('property count', function() {
-
-  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  equal(a._typeCount(), 6)
-  var b = new Space('')
-  equal(b._typeCount(), 0)
-  var c = new Space('hello world')
-  equal(c._typeCount(), 1)
-})
-
 test('last', function() {
 
   var value = new Space('hello world\nhi mom')
@@ -940,6 +930,16 @@ test('prev', function() {
   equal(a.prev('bob'), 'susy')
 })
 
+test('property count', function() {
+
+  var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
+  equal(a._typeCount(), 6)
+  var b = new Space('')
+  equal(b._typeCount(), 0)
+  var c = new Space('hello world')
+  equal(c._typeCount(), 1)
+})
+
 test('push', function() {
 
   var a = new Space()
@@ -1128,6 +1128,15 @@ test('sort', function() {
     return b[0] < a[0]
   })
   equal(a.tableOfContents(), 'bob john susy')
+
+})
+
+test('split', function() {
+
+  var a = new Space(testStrings.splitTest)
+  equal(a.split("foobar").length, 0)
+  equal(a.split("title").length, 3)
+  equal(a.split("title")[2].get("date"), "2/25/2016")
 
 })
 

@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.5'
+Space.version = '0.8.6'
 
 Space.arrayDelete = function(array, index) {
   return array.slice(0, index).concat(array.slice(index + 1))
@@ -1076,6 +1076,42 @@ Space.prototype.shift = function() {
 Space.prototype.sort = function(fn) {
   this._pairs = this._pairs.sort(fn)
   return this
+}
+
+/**
+ * Splits an object into an array of objects. Everytime the passed
+ * property is encountered, a new object is created with that pair as the
+ * first pair in the new object. The search begins on the first occurence
+ * of the passed delimiter. Any preceding items will be ignored.
+ *
+ * @param string
+ * @return array of space objects
+ */
+Space.prototype.split = function(delimiter) {
+  var matches = [],
+      hasMatch = false,
+      currentItem = new Space();
+
+  this.each(function(property, value) {
+    if (property === delimiter) {
+      if (hasMatch)
+        matches.push(currentItem)
+      else
+        hasMatch = true
+      currentItem = new Space()
+    }
+
+    if (!hasMatch)
+      return true
+
+    // Todo: we probably need to do a deep clone of value
+    currentItem.append(property, value)
+  })
+
+  if (hasMatch)
+    matches.push(currentItem)
+
+  return matches
 }
 
 /**
