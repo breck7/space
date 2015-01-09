@@ -572,7 +572,6 @@ test('getCud', function() {
   var B = new Space('name John\nage 22\nhometown Brockton')
   var diff = A.getCud(B)
   equal(diff.toString(), 'created\n hometown Brockton\nupdated\n age 22\ndeleted\n state\n')
-
 })
 
 test('getTokens', function() {
@@ -614,7 +613,6 @@ test('getTokensConcise', function() {
 test('get expecting a branch but hitting a leaf', function() {
   var value = new Space('posts leaf')
   equal(undefined, value.get('posts branch'))
-
 })
 
 test('getValues', function() {
@@ -635,6 +633,15 @@ test('hasOwnProperty bug', function() {
   foo.hasOwnProperty = null
   space = new Space(foo)
   ok(space)
+})
+
+test('heredoc', function() {
+  var doc = new Space(testStrings.heredoc)
+  // todo: should this be 15?
+  equal(doc.length(), 15)
+
+  var parsedDoc = Space.fromHeredoc(testStrings.heredoc, "body", "endbody")
+  equal(parsedDoc.length(), 4)
 })
 
 test('__height', function() {

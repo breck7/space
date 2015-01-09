@@ -5,7 +5,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.6'
+Space.version = '0.8.7'
 
 Space.arrayDelete = function(array, index) {
   return array.slice(0, index).concat(array.slice(index + 1))
@@ -13,6 +13,56 @@ Space.arrayDelete = function(array, index) {
 
 Space.isXPath = function(property) {
   return property.match(/ /)
+}
+
+/**
+ * Takes all content from the start delimiter to the end delimiter,
+ * turns it into a multiline string value, and removes all pairs including the
+ * end delimiter.
+ *
+ * It will parse all heredocs encountered. If a start delimiter is found
+ * without a matching end delimiter, all the content after the start
+ * delimiter will be used as the heredoc.
+ *
+ * Returns a new Space object.
+ *
+ * @param start Delimiter at start of heredoc
+ * @param start Delimiter at end of heredoc
+ * @return space
+ */
+Space.fromHeredoc = function(content, start, end) {
+  // Remove Windows newlines
+  content = content.replace(/\n\r/g, '\n')
+
+  var lines = content.split("\n"),
+      startIndex = null,
+      linesToDelete = [],
+      startRegex = new RegExp("\^" + start + "(?: |$)"),
+      endRegex = new RegExp("\^" + end);
+
+  for (var i = 0; i < lines.length; i++) {
+    if (startIndex === null) {
+      if (lines[i].match(startRegex)) {
+        startIndex = i
+        // Make sure the key starts with a " " so its value is treated as a multiline
+        // string.
+        if (lines[i].length === start.length)
+          lines[i] = lines[i] + " "
+      } else {
+        continue;
+      }
+    } else if (lines[i].match(endRegex)) {
+      startIndex = null
+      linesToDelete.push(i)
+    } else {
+      lines[i] = " " + lines[i]
+    }
+  }
+
+  for (var i = linesToDelete.length -1; i >= 0 ; i--)
+    lines.splice(linesToDelete[i], 1);
+
+  return new Space(lines.join("\n"))
 }
 
 Space.pathBranch = function(xpath) {
@@ -31,9 +81,9 @@ Space.pathLeaf = function(xpath) {
 }
 
 /**
- * @param {string}
- * @param {int}
- * @return {string}
+ * @param string
+ * @param int
+ * @return string
  */
 Space.strRepeat = function(string, count) {
   var str = ''
@@ -46,8 +96,8 @@ Space.strRepeat = function(string, count) {
 /**
  * Return a new Space with the property/value pairs that all passed spaces contain.
  * space: will probably be removed.
- * @param {array} Array of Spaces
- * @return {Space}
+ * @param array Array of Spaces
+ * @return space
  */
 Space.union = function() {
   var union = Space.unionSingle(arguments[0], arguments[1])
@@ -61,8 +111,8 @@ Space.union = function() {
 
 /**
  * todo: this method will probably be removed.
- * @param {Space}
- * @return {Space}
+ * @param space
+ * @return space
  */
 Space.unionSingle = function(spaceA, spaceB) {
   var union = new Space()
@@ -86,7 +136,7 @@ Space.prototype.append = function(property, value) {
 
 /**
  * Deletes all data. Should this clear listeners?
- * @return this
+ * @return space this
  */
 Space.prototype._clear = function() {
   this._pairs = []
@@ -95,7 +145,7 @@ Space.prototype._clear = function() {
 
 /**
  * Deletes all data. Should this clear listeners?
- * @return this
+ * @return space this
  */
 Space.prototype.clear = function(space) {
   if (this.isEmpty())
@@ -110,7 +160,7 @@ Space.prototype.clear = function(space) {
 
 /**
  * Returns a deep copied space.
- * @return {Space}
+ * @return space
  */
 Space.prototype.clone = function() {
   return new Space(this.toString())
@@ -181,8 +231,8 @@ Space.prototype['delete'] = function(property) {
  *
  * todo: clean and refactor this.
  *
- * @param {Space} The space to compare the instance against.
- * @return {Space}
+ * @param space The space to compare the instance against.
+ * @return space
  */
 Space.prototype.diff = function(space) {
 
@@ -241,8 +291,8 @@ Space.prototype.diff = function(space) {
 }
 
 /**
- * @param {space}
- * @return {space} Returns empty space if order is equal.
+ * @param space
+ * @return space Returns empty space if order is equal.
  */
 Space.prototype.diffOrder = function(space) {
 
@@ -270,6 +320,12 @@ Space.prototype.diffOrder = function(space) {
   return diff
 }
 
+/**
+ * Passes property, value, index to each pair.
+ *
+ * @param function
+ * @return space this
+ */
 Space.prototype.each = function(fn) {
   for (var i = 0; i < this._pairs.length; i++) {
     if (fn.call(this, this._pairs[i][0], this._pairs[i][1], i) === false)
@@ -278,6 +334,10 @@ Space.prototype.each = function(fn) {
   return this
 }
 
+/**
+ * @param function
+ * @return space
+ */
 Space.prototype.filter = function(fn) {
   var result = new Space()
   for (var i = 0; i < this._pairs.length; i++) {
@@ -287,6 +347,11 @@ Space.prototype.filter = function(fn) {
   return result
 }
 
+/**
+ * @param typeTest
+ * @param valueTest
+ * @return space
+ */
 Space.prototype.find = function(typeTest, valueTest) {
   // for now assume string test
   // search this one
@@ -307,6 +372,8 @@ Space.prototype.find = function(typeTest, valueTest) {
 
 /**
  * Return the first property/value pair as a space object.
+ *
+ * @return space
  */
 Space.prototype.first = function() {
   if (!this.length())
@@ -315,18 +382,28 @@ Space.prototype.first = function() {
   return result
 }
 
+/**
+ * @return string
+ */
 Space.prototype.firstProperty = function() {
   if (!this.length())
     return null
   return this._pairs[0][0]
 }
 
+/**
+ * @return any
+ */
 Space.prototype.firstValue = function() {
   if (!this.length())
     return null
   return this._pairs[0][1]
 }
 
+/**
+ * @param fn function
+ * @return space this
+ */
 Space.prototype.every = function(fn) {
   this.each(function(property, value, index) {
     fn.call(this, property, value, index)
@@ -338,9 +415,8 @@ Space.prototype.every = function(fn) {
 
 /**
  * Search the space for a given path (xpath).
- * @param {string|int|space}
- * @param {space}
- * @return The matching value
+ * @param string|int|space
+ * @return any
  */
 Space.prototype.get = function(query) {
   return this._getValueByString(query.toString())
@@ -348,8 +424,8 @@ Space.prototype.get = function(query) {
 
 /**
  * Get all pairs with a matching property as a space object.
- * @param {string|int|space}
- * @return {space}
+ * @param string|int|space
+ * @return space
  */
 Space.prototype.getAll = function(query) {
   var matches = new Space()
@@ -363,8 +439,8 @@ Space.prototype.getAll = function(query) {
 
 /**
  * Get all pairs with a matching property as an array.
- * @param {string|int|space}
- * @return {array}
+ * @param string|int|space
+ * @return array
  */
 Space.prototype.getArray = function(query) {
   var matches = []
@@ -376,10 +452,18 @@ Space.prototype.getArray = function(query) {
   return matches
 }
 
+/**
+ * @param int
+ * @return any
+ */
 Space.prototype.getByIndex = function(index) {
   return this._getValueByIndex(index)
 }
 
+/**
+ * @param string
+ * @return any
+ */
 Space.prototype.getByIndexPath = function(query) {
   var parts = query.split(/ /g)
   var first = parseFloat(parts.shift())
@@ -389,6 +473,10 @@ Space.prototype.getByIndexPath = function(query) {
     return this._getValueByIndex(first).getByIndexPath(parts.join(' '))
 }
 
+/**
+ * @param space
+ * @return any
+ */
 Space.prototype.getBySpace = function(query) {
   return this._getValueBySpace(query)
 }
@@ -438,7 +526,7 @@ Space.prototype.getCud = function(space) {
 
 
 /**
- * @param {int}
+ * @param int
  * @return The matching value
  */
 Space.prototype._getValueByIndex = function(index) {
@@ -478,7 +566,7 @@ Space.prototype.getProperties = function() {
 
 /**
  * Search the space for a given path (xpath).
- * @param {string}
+ * @param string
  * @return The matching value
  */
 Space.prototype._getValueByString = function(xpath) {
@@ -503,8 +591,8 @@ Space.prototype._getValueByString = function(xpath) {
 
 /**
  * Recursively retrieve properties.
- * @param {space}
- * @return Space
+ * @param space
+ * @return space
  */
 Space.prototype._getValueBySpace = function(space) {
   var result = new Space()
@@ -755,18 +843,18 @@ Space.prototype._loadFromObject = function(content) {
 
 /**
  * Construct the Space from a string.
- * @param {string}
- * @return {Space}
+ * @param string
+ * @return space
  */
 Space.prototype._loadFromString = function(string) {
 
   // Space always start on a property. Eliminate whitespace at beginning of string
-  string = string.replace(/^[\n ]*/, '')
+  string = string.replace(/^\s*/, '')
 
-  /** Eliminate Windows \r characters and newlines at end of string.*/
-  string = string.replace(/\n\r/g, '\n').replace(/\r\n/g, '\n')
+  /* Eliminate Windows \r characters.*/
+  string = string.replace(/\n\r/g, '\n')
 
-  /** Eliminate newlines at end of string.*/
+  /* Eliminate newlines at end of string.*/
   //  string = string.replace(/\n[\n ]*$/, '')
 
   /** Space doesn't have useless lines*/
@@ -796,8 +884,8 @@ Space.prototype._loadFromString = function(string) {
 
 /**
  * Return the next property in the Space, given a property.
- * @param {string}
- * @return {string}
+ * @param string
+ * @return string
  */
 Space.prototype.next = function(property) {
   var index = this.indexOf(property)
@@ -805,6 +893,10 @@ Space.prototype.next = function(property) {
   return this._getPropertyByIndex(next)
 }
 
+/**
+ * @param eventName string
+ * @param fn function
+ */
 Space.prototype.off = function(eventName, fn) {
   if (!this.events[eventName])
     return true
@@ -823,6 +915,10 @@ Space.prototype._objectCount = function() {
   return count
 }
 
+/**
+ * @param eventName string
+ * @param fn function
+ */
 Space.prototype.on = function(eventName, fn) {
 
   if (!this.events[eventName])
@@ -832,8 +928,8 @@ Space.prototype.on = function(eventName, fn) {
 
 /**
  * Apply a patch to the Space instance.
- * @param {Space|string}
- * @return {Space}
+ * @param space|string
+ * @return space
  */
 Space.prototype._patch = function(patch) {
 
@@ -888,8 +984,8 @@ Space.prototype.patch = function(patch) {
 
 /**
  * Change the order of the types
- * @param {array|string}
- * @return {this}
+ * @param space|any
+ * @return space this
  */
 Space.prototype._patchOrder = function(space) {
 
@@ -933,8 +1029,8 @@ Space.prototype.prepend = function(property, value) {
 
 /**
  * Return the previous name in the Space, given a name.
- * @param {string}
- * @return {string}
+ * @param string
+ * @return string
  */
 Space.prototype.prev = function(name) {
   var index = this.indexOf(name)
@@ -997,6 +1093,11 @@ Space.prototype.set = function(property, value, index) {
   return this
 }
 
+/**
+ * @param 
+ *
+ * @return space this
+ */
 Space.prototype.setByIndexPath = function(query, value) {
   if (!Space.isXPath(query)) {
     var i = parseFloat(query)
@@ -1014,10 +1115,10 @@ Space.prototype.setByIndexPath = function(query, value) {
 
 /**
  * Search the space for a given path (xpath).
- * @param {string}
- * @param {space}
- * @param {int} Optional index to insert at
- * @return The matching value
+ *
+ * @param string
+ * @param any
+ * @return space this
  */
 Space.prototype._setByXPath = function(path, value) {
   if (!path)
@@ -1073,6 +1174,10 @@ Space.prototype.shift = function() {
   return result
 }
 
+/**
+ * @param fn function 
+ * @return space this
+ */
 Space.prototype.sort = function(fn) {
   this._pairs = this._pairs.sort(fn)
   return this
@@ -1209,7 +1314,7 @@ Space.prototype.toggle = function(property, value1, value2) {
 
 /**
  * Return executable javascript code.
- * @return {string}
+ * @return string
  */
 Space.prototype.toJavascript = function(multiline) {
   var str = 'new Space(\'' + this.toString().replace(/\n/g, '\\n').replace(/\'/g, '\\\'') + '\')'
@@ -1220,7 +1325,7 @@ Space.prototype.toJavascript = function(multiline) {
 
 /**
  * Return JSON
- * @return {string}
+ * @return string
  */
 Space.prototype.toJSON = function() {
   return JSON.stringify(this.toObject())
@@ -1288,7 +1393,7 @@ Space.prototype.toShapes = function(spaces) {
 }
 
 /**
- * @return {string}
+ * @return string
  */
 Space.prototype.toString = function(spaces) {
   spaces = spaces || 0
@@ -1330,6 +1435,9 @@ Space.prototype.toString = function(spaces) {
   return string
 }
 
+/**
+ * @return string
+ */
 Space.prototype.toURL = function() {
   return encodeURIComponent(this.toString())
 }
@@ -1347,6 +1455,9 @@ Space.prototype.__transpose = function(templateString) {
   return new Space(result)
 }
 
+/**
+ * @param eventName string
+ */
 Space.prototype.trigger = function(eventName) {
   if (!this.events[eventName])
     return true
@@ -1356,6 +1467,12 @@ Space.prototype.trigger = function(eventName) {
   }
 }
 
+/**
+ * @param index int
+ * @param property any
+ * @param value any
+ * @return space this
+ */
 Space.prototype.update = function(index, property, value) {
   this._setPair(property, value, index, true)
   return this

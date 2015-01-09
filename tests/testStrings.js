@@ -133,6 +133,37 @@ content Hello earth
 date 2/25/2016
 */})
 
+testStrings.heredoc = multiline(function () {/*
+title This is a test
+summary This is a multiline
+ string with indentation.
+body
+
+This is a multiline string without indentation
+==============================================
+
+- When you want to write long things by hand and
+  then later parse them.
+- This is just an example of a workaround for what
+  otherwise would be an annoying limitation in writing space
+  objects by hand.
+- The upside of this approach is you can still easily extract
+  some structured information without having to structure the
+  whole document. The downside is that treating the whole
+  item as a space doc will include some nonsense.
+
+It will parse fine but does require an operation to combine all of these
+pairs.
+
+In this case, we have:
+
+- space.parseHeredoc("body", "endbody")
+- space.createHeredoc("body", "endbody")
+
+endbody
+date 2/25/2014
+*/})
+
 // Export for use in Node.js
 if (typeof exports != 'undefined')
   module.exports = testStrings;
