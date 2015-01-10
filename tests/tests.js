@@ -66,7 +66,6 @@ domains\n\
 
   space = new Space(string)
   equal(space.get('domains test.test.com pages home settings data title'), 'Hello, World', 'Multiline creation should be okay.')
-
 })
 
 test('append', function() {
@@ -82,7 +81,6 @@ test('append', function() {
 
   a.append('foo', 'two')
   equal(a.length(), 4)
-
 })
 
 test('clear', function() {
@@ -95,7 +93,6 @@ test('clear', function() {
   a.clear('foo bar')
   ok(!a.get('hello'))
   equal(a.get('foo'), 'bar')
-
 })
 
 test('clone', function() {
@@ -124,7 +121,6 @@ test('clone', function() {
   equal(f.get('foobar 123'), '456')
   f.hi = 'test'
   equal(a.hi, undefined)
-
 })
 
 test('concat', function() {
@@ -132,7 +128,6 @@ test('concat', function() {
   var b = new Space('hi mom')
   a.concat(b)
   equal(a.get('hi'), 'mom')
-
 })
 
 test('create', function() {
@@ -148,7 +143,6 @@ test('create', function() {
 })
 
 test('delete', function() {
-
   var a = new Space()
   a.set('name', 'Breck')
   equal(a.get('name'), 'Breck', 'name is set')
@@ -175,7 +169,6 @@ test('delete', function() {
   var b = new Space('hi\nhello world')
   b.delete(1)
   equal(b.toString(), 'hi\n')
-
 })
 
 /*
@@ -187,9 +180,7 @@ test('dupes', function () {
 */
 
 test('diff of subclasses', function() {
-
   function Page(space) {
-
     this.clear()
 
     if (space)
@@ -200,7 +191,6 @@ test('diff of subclasses', function() {
   Page.prototype = new Space()
 
   function Block(id, space) {
-
     this.clear()
 
     this.id = id
@@ -277,11 +267,9 @@ test('diff of subclasses', function() {
   diff = page3.diff(page2)
   ok(diff.get('body foobar') instanceof Space, 'block1 in page3 diff is instance of space')
   ok(!diff.get('body foobar id'), 'id did not get set')
-
 })
 
 test('diffOrder', function() {
-
   // Recursive order diff
   var a = new Space('body\n content hello world\n value Hi\n')
   var b = new Space('body\n value Hi\n content hello world\n')
@@ -292,11 +280,9 @@ test('diffOrder', function() {
   var c = new Space('hi world\nhello bob\nyo man\nhola dude')
   equal(a.diffOrder(b).toString(), '', 'no diff')
   equal(a.diffOrder(c).toString(), 'hi\nhello\nyo\nhola\n', 'different')
-
 })
 
 test('diff between a blank property/value and empty object', function() {
-
   var a = new Space('hi ')
   var b = new Space('hi\n')
   strictEqual(a.get('hi'), '', 'hi is equal to empty string')
@@ -307,11 +293,9 @@ test('diff between a blank property/value and empty object', function() {
 
   equal(a.toString(), 'hi \n', 'a should be a property with empty string value')
   equal(b.toString(), 'hi\n')
-
 })
 
 test('duplicate property', function() {
-
   var spaceWithDupe = 'height 45px\n\
 height 50px\n\
 width 56px'
@@ -321,11 +305,9 @@ width 56px'
   equal(value.get('height'), '50px')
 
   equal(value.length(), 3)
-
 })
 
 test('duplicate property with getArray', function() {
-
   var spaceWithDupe = 'height 45px\n\
 height 50px\n\
 width 56px'
@@ -338,11 +320,9 @@ width 56px'
   equal(spaceWithoutDupe.getArray('height').length, 1)
   equal(spaceWithoutDupe.getArray('height')[0], "25px")
   equal(spaceWithoutDupe.getArray('width').length, 0)
-
 })
 
 test('each', function() {
-
   var value = new Space('hello world\nhi mom')
   var string = ''
   equal(value.each(function(property, value) {
@@ -371,7 +351,6 @@ test('each', function() {
 })
 
 test('events', function() {
-
   var value = new Space('hello world\nhi mom')
   var result = ''
   var popsMethod = function() {
@@ -425,7 +404,6 @@ test('events', function() {
   equal(c, 'hi mom')
   equal(setCount, 1)
   equal(changeCount, 2)
-
 })
 
 test('event bubbling', function() {
@@ -437,11 +415,9 @@ test('event bubbling', function() {
     //  cafe.set('menu coffee light price', '5')
   cafe.get('menu coffee light').set('price', '6')
   equal(count, 1)
-
 })
 
 test('every', function() {
-
   var obj = new Space('user\n\
 name Aristotle\n\
 admin false\n\
@@ -470,7 +446,6 @@ domains\n\
 
   equal(i, 20)
   equal(obj.get('DOMAINS TEST.TEST.COM PAGES HOME SETTINGS').toString(), 'DATA\n TITLE Hello, World\n')
-
 })
 
 test('filter', function() {
@@ -485,29 +460,24 @@ test('filter', function() {
 })
 
 test('find', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
 
   equal(a.find('age', '5').length(), 1)
     //  equal(a.find('age', /(5|6)/).length(), 2)
     //  equal(a.find('age', function (value) {return value > 4}).length(), 3)
-
 })
 
 test('first', function() {
-
   var value = new Space('hello world\nhi mom')
   equal(value.getByIndex(0), 'world')
 
   var value = new Space('hello world\nhi mom')
   equal(value.first().toString(), 'hello world\n')
-
 })
 
 test('firstProperty', function() {
   var value = new Space('hello world\nhi mom')
   equal(value.firstProperty(), 'hello')
-
 })
 
 test('firstValue', function() {
@@ -516,7 +486,6 @@ test('firstValue', function() {
 })
 
 test('get', function() {
-
   var value = new Space('hello world')
   equal(value.get('hello'), 'world')
   value.set('2', 'hi')
@@ -529,11 +498,9 @@ test('get', function() {
 
   var value = new Space().get('some')
   strictEqual(value, undefined)
-
 })
 
 test('getAll', function() {
-
   var value = new Space('hello world\nhello world')
   ok(value.getAll('hello') instanceof Space)
   equal(value.getAll('hello').length(), 2)
@@ -553,11 +520,9 @@ test('getByIndexPath', function() {
 
   var space = new Space(testStrings.getByIndexPath)
   equal(space.getByIndexPath('1 2 0'), 'main')
-
 })
 
 test('_getValueByIndex', function() {
-
   var value = new Space('hello world\nhow are you\nhola friend')
   equal(value._getValueByIndex(0), 'world')
   equal(value._getValueByIndex(1), 'are you')
@@ -567,7 +532,6 @@ test('_getValueByIndex', function() {
 })
 
 test('getCud', function() {
-
   var A = new Space('name John\nage 25\nstate California')
   var B = new Space('name John\nage 22\nhometown Brockton')
   var diff = A.getCud(B)
@@ -575,7 +539,6 @@ test('getCud', function() {
 })
 
 test('getTokens', function() {
-
   var value = new Space('hello world')
   equal('KKKKKSVVVVV', value.getTokens())
 
@@ -594,7 +557,6 @@ test('getTokens', function() {
   var value = new Space()
   value.set('multi', 'line1\nline2')
   equal(value.getTokens(), 'KKKKKSVVVVVVEVVVVV')
-
 })
 
 test('getTokensConcise', function() {
@@ -671,35 +633,28 @@ test('insert', function() {
 })
 
 test('isEmpty', function() {
-
   var a = new Space()
   equal(a.isEmpty(), true)
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a.isEmpty(), false)
-
 })
 
 test('isASet', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a.isASet(), true)
-
 })
 
 test('last', function() {
-
   var value = new Space('hello world\nhi mom')
   equal(value.getByIndex(-1), 'mom')
 
   var value = new Space('hello world\nhi mom')
   equal(value.last().toString(), 'hi mom\n')
-
 })
 
 test('lastProperty', function() {
   var value = new Space('hello world\nhi mom')
   equal(value.lastProperty(), 'hi')
-
 })
 
 test('lastValue', function() {
@@ -708,7 +663,6 @@ test('lastValue', function() {
 })
 
 test('loadFromArray', function() {
-
   var a = new Space([1, 2, 3])
   equal(a.toString(), 'item 1\nitem 2\nitem 3\n')
 
@@ -720,11 +674,9 @@ test('loadFromArray', function() {
     }]
   })
   equal(a.toString(), 'data\n item\n  charge 1\n item\n  charge 2\n')
-
 })
 
 test('loadFromString', function() {
-
   a = new Space('text \n this is a string\n and more')
 
   equal(a.get('text'), '\nthis is a string\nand more')
@@ -738,7 +690,6 @@ test('loadFromString', function() {
   equal(c.get('children 1 children 1 age'), '12')
   equal(c.toString().length, string.length)
   equal(c.toString(), string)
-
 })
 
 test('matches leak', function() {
@@ -747,7 +698,6 @@ test('matches leak', function() {
 })
 
 test('multiline', function() {
-
   var a = new Space('my multiline\n string')
   equal(a.get('my'), 'multiline\nstring')
 
@@ -778,11 +728,9 @@ test('multiline', function() {
   g.set('brave', '\nnew\nworld\n\n')
   equal(g.get('brave'), '\nnew\nworld\n\n', 'set ml works')
   equal(g.toString(), 'brave \n new\n world\n \n \n', 'set ml works')
-
 })
 
 test('next', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
 
   equal(a.next('john'), 'susy')
@@ -793,30 +741,24 @@ test('next', function() {
   equal(a.next('bob'), undefined)
 
   equal(a.next('foobar'), 'john')
-
 })
 
 test('object count', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a._objectCount(), 3)
   var b = new Space('')
   equal(b._objectCount(), 0)
   var c = new Space('hello world')
   equal(c._objectCount(), 0)
-
 })
 
 test('order', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   var types = a.tableOfContents()
   equal(types, 'john susy bob', 'order is preserved')
-
 })
 
 test('patch', function() {
-
   var a = new Space('hello world')
   equal(a.get('hello'), 'world')
   var b = new Space('hello mom')
@@ -903,11 +845,9 @@ test('path functions', function() {
   equal(Space.pathBranch('football'), '')
   equal(Space.pathBranch('page header'), 'page')
   equal(Space.pathBranch('page header content'), 'page header')
-
 })
 
 test('pop', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a.length(), 3)
   equal(a.pop().toString(), 'bob\n age 10\n')
@@ -915,19 +855,15 @@ test('pop', function() {
 
   var empty = new Space()
   equal(empty.pop(), null)
-
 })
 
 test('prepend', function() {
-
   var a = new Space('hello world')
   a.prepend('foo', 'bar')
   equal(a.toString(), 'foo bar\nhello world\n')
-
 })
 
 test('prev', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
 
   equal(a.next('john'), 'susy')
@@ -938,7 +874,6 @@ test('prev', function() {
 })
 
 test('property count', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a._typeCount(), 6)
   var b = new Space('')
@@ -948,7 +883,6 @@ test('property count', function() {
 })
 
 test('push', function() {
-
   var a = new Space()
   a.push('hello world')
   equal(a.get('0'), 'hello world')
@@ -957,7 +891,6 @@ test('push', function() {
 })
 
 test('query', function() {
-
   var string = new Space('user\n\
  name Aristotle\n\
  admin false\n\
@@ -989,7 +922,6 @@ test('query', function() {
 })
 
 test('reload', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6')
   ok(a.reload())
   equal(a.length(), 0, 'empty reload cleared object')
@@ -1005,7 +937,6 @@ test('reload', function() {
 })
 
 test('rename', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6')
   var index = a.indexOf('john')
   equal(index, 0, 'index okay')
@@ -1020,7 +951,7 @@ test('rename', function() {
 test('renameAll', function() {
   var space = new Space(testStrings.renameAll)
   equal(space.toString().match(/first-name/g).length, 5)
-  space.renameAll('first-name', 'firstName')
+  space.renameAll('first-name', 'firstName', true)
   equal(space.toString().match(/firstName/g).length, 5)
 })
 
@@ -1045,11 +976,9 @@ test('reorder', function() {
   b = new Space('b\n value foobar\n content hi')
   equal(a.diffOrder(b).toString(), 'b\n value\n content\n', 'diff order correct')
   equal(a.patchOrder(a.diffOrder(b)).toString(), b.toString(), 'recursive order patch')
-
 })
 
 test('set', function() {
-
   var value = new Space('hello world')
   equal(value.get('hello'), 'world')
   ok(value.set('hello', 'mom') instanceof Space, 'set should return instance so we can chain it')
@@ -1098,7 +1027,6 @@ test('set', function() {
 
   space.set('favoriteColors blue', 'purple').toString()
   equal(space.get('favoriteColors blue'), 'purple')
-
 })
 
 test('setByIndexPath', function() {
@@ -1112,11 +1040,9 @@ test('setByIndexPath', function() {
   var s = new Space('h1 hello world')
   s.setByIndexPath('0', 'mom')
   equal(s.get('h1'), 'mom')
-
 })
 
 test('shift', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a.length(), 3)
   equal(a.shift().toString(), 'john\n age 5\n')
@@ -1124,70 +1050,54 @@ test('shift', function() {
 
   var empty = new Space()
   equal(empty.shift(), null)
-
 })
 
 test('sort', function() {
-
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
   equal(a.tableOfContents(), 'john susy bob')
   a.sort(function(a, b) {
     return b[0] < a[0]
   })
   equal(a.tableOfContents(), 'bob john susy')
-
 })
 
 test('split', function() {
-
   var a = new Space(testStrings.splitTest)
   equal(a.split("foobar").length, 0)
   equal(a.split("title").length, 3)
   equal(a.split("title")[2].get("date"), "2/25/2016")
-
 })
 
 test('toBinary', function() {
-
   var a = new Space("ABC\n")
   equal(a.toBinary(), '-|-----|-|----|--|----||----|-|-')
-
 })
 
 test('toBinaryMatrixString', function() {
-
   var a = new Space("A")
   equal(a.toBinaryMatrixString(), '01000001\n')
-
 })
 
 test('toDecimalMatrix', function() {
-
   var a = new Space("A")
   var matrix = a.toDecimalMatrix()
   equal(matrix[0][0], 65)
-
 })
 
 test('toDecimalMatrixString', function() {
-
   var a = new Space("A")
   equal(a.toDecimalMatrixString(), '065\n')
-
 })
 
 test('toggle', function() {
-
   var a = new Space('on true')
   a.toggle('on', 'true', 'false')
   equal(a.get('on'), 'false')
   a.toggle('on', 'true', 'false')
   equal(a.get('on'), 'true')
-
 })
 
 test('toJavascript', function() {
-
   var a = new Space("hello world")
   equal(a.toJavascript(), 'new Space(\'hello world\\n\')')
 
@@ -1202,41 +1112,36 @@ test('toJavascript', function() {
 
   var multiline = new Space('name John\nname John')
   equal(multiline.toJavascript(true), "new Space(\'name John\\n\\\nname John\\n\\\n\')")
-
 })
 
 test('toJSON', function() {
-
   var a = new Space("hello world")
   equal(a.toJSON(), '{"hello":"world"}')
 
   var b = new Space("foo bar")
   a.set('b', b)
   equal(a.toJSON(), '{"hello":"world","b":{"foo":"bar"}}')
-
 })
 
 test('toObject', function() {
-
   var a = new Space("hello world")
+
   ok(typeof a.toObject() === 'object')
   equal(a.toObject()['hello'], 'world')
 
   var b = new Space("foo bar")
   a.set('b', b)
   equal(a.toObject()['b']['foo'], 'bar')
-
 })
 
 test('toQueryString', function() {
-
   var a = new Space("name Breck")
+
   equal(a.toQueryString(), 'name=Breck')
   a.set('city', 'Brockton')
   equal(a.toQueryString(), 'name=Breck&city=Brockton')
   a.set('city', 'Brockton, MA')
   equal(a.toQueryString(), 'name=Breck&city=Brockton%2C%20MA')
-
 })
 
 test('toShapes', function() {
@@ -1245,7 +1150,6 @@ test('toShapes', function() {
 })
 
 test('toString', function() {
-
   var value = new Space('hello world')
   equal(value.toString(), 'hello world\n')
   value.set('foo', 'bar')
@@ -1280,7 +1184,6 @@ test('__transpose', function() {
 })
 
 test('union', function() {
-
   var a = new Space('maine me\nnew_york nyc\ncali ca')
   var b = new Space('maine me\nnew_york nyc\ncali ca')
   var c = new Space('maine me')
@@ -1307,7 +1210,6 @@ test('union', function() {
 
   union = Space.union.apply(a, [b, c, d, e])
   equal(union.length(), 2, 'union should have length 2')
-
 })
 
 test('update', function() {
@@ -1317,12 +1219,10 @@ test('update', function() {
 })
 
 test('url methods', function() {
-
   var a = new Space('maine me\nnew_york nyc\ncali ca')
   var encoded = a.toURL()
   var b = new Space(decodeURIComponent(encoded))
   equal(a.toString(), b.toString(), 'toUrl worked')
-
 })
 
 test('version', function() {
