@@ -1,3 +1,32 @@
+0.8.7 / 2015-01-09
+==================
+- Added fromHeredoc method
+- Miscellaneous fixes and cleanup
+
+0.8.6 / 2015-01-06
+==================
+- Added split method
+
+0.8.5 / 2015-01-06
+==================
+- Added getArray method
+
+0.8.4 / 2013-12-22
+==================
+- Bug fix in getCud method
+
+0.8.3 / 2013-12-09
+==================
+- Performance improvement
+
+0.8.2 / 2013-12-08
+==================
+- Added renameAll method
+
+0.8.1 / 2013-12-07
+==================
+- Added getValues method
+
 0.8.0 / 2013-11-19
 ==================
 - BREAKING CHANGE: firstType is now firstProperty, getTypes is now getProperties, lastType is now lastProperty
