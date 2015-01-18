@@ -1089,6 +1089,53 @@ test('toDecimalMatrixString', function() {
   equal(a.toDecimalMatrixString(), '065\n')
 })
 
+// Test this only in node.js
+if (typeof require !== 'undefined') {
+  asyncTest('toFile and fromFile', 7, function() {
+
+    // Arrange
+    var fs = require("fs"),
+        obj = new Space('hello world'),
+        filename = 'toFileTest.space'
+
+    // Act
+    Space.toFile(filename, obj)
+
+    // Assert
+    ok(fs.existsSync(filename), "Expected file to exist")
+
+    // Act
+    var fromFile = Space.fromFile(filename)
+
+    // Assert
+    ok(fromFile instanceof Space, "Expected space object")
+    equal(fromFile.toString(), obj.toString(), "Expected equal space objects")
+
+    // Cleanup
+    fs.unlinkSync(filename)
+
+    // Act
+    Space.toFile(filename, obj, function (err) {
+
+      // Assert
+      ok(!err, "Expected no error")
+
+      // Act
+      Space.fromFile(filename, function (err, newObj) {
+        // Assert
+        ok(!err, "Expected no error")
+        ok(newObj instanceof Space, "Expected space object")
+        equal(newObj.toString(), obj.toString(), "Expected equal space objects")
+
+        // Cleanup
+        fs.unlinkSync(filename)
+        start()
+      })
+    })
+
+  })
+}
+
 test('toggle', function() {
   var a = new Space('on true')
   a.toggle('on', 'true', 'false')
@@ -1223,6 +1270,12 @@ test('url methods', function() {
   var encoded = a.toURL()
   var b = new Space(decodeURIComponent(encoded))
   equal(a.toString(), b.toString(), 'toUrl worked')
+})
+
+test('web methods', function() {
+  // TODO: write tests for node.js and browser.
+  ok(Space.fromUrl)
+  ok(Space.toUrl)
 })
 
 test('version', function() {

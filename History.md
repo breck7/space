@@ -1,3 +1,7 @@
+0.8.8 / 2015-01-17
+==================
+- Added fromFile, toFile, fromUrl, and toUrl methods
+
 0.8.7 / 2015-01-09
 ==================
 - Added fromHeredoc method
