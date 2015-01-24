@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.9'
+Space.version = '0.8.10'
 
 /**
  * Delete items from an array
@@ -63,15 +63,17 @@ Space.fromHeredoc = function(content, start, end) {
       startIndex = null,
       linesToDelete = [],
       startRegex = new RegExp("\^" + start + "(?: |$)"),
+      linesLength = lines.length,
+      startLength = start.length,
       endRegex = new RegExp("\^" + end);
 
-  for (var i = 0; i < lines.length; i++) {
+  for (var i = 0; i < linesLength; i++) {
     if (startIndex === null) {
       if (lines[i].match(startRegex)) {
         startIndex = i
         // Make sure the key starts with a " " so its value is treated as a multiline
         // string.
-        if (lines[i].length === start.length)
+        if (lines[i].length === startLength)
           lines[i] = lines[i] + " "
       } else {
         continue;
@@ -280,8 +282,9 @@ Space.strRepeat = function(string, count) {
  * @return space
  */
 Space.union = function() {
-  var union = Space.unionSingle(arguments[0], arguments[1])
-  for (var i = 0; i < arguments.length; i++) {
+  var union = Space.unionSingle(arguments[0], arguments[1]),
+      argumentsLength = arguments.length
+  for (var i = 0; i < argumentsLength; i++) {
     if (i === 1) continue // skip the first one
     union = Space.unionSingle(union, arguments[i])
     if (!union.length()) break
@@ -432,7 +435,8 @@ Space.prototype._deleteByIndex = function(index) {
     // If the removed value is not the cached value.
   } else {
     // There is an entry after this one
-    for (var i = index; i < this.length(); i++) {
+    var length = this.length()
+    for (var i = index; i < length; i++) {
       if (this._pairs[i][0] === property) {
         this._cache[property] = this._pairs[i][1]
         break;
@@ -576,7 +580,8 @@ Space.prototype.diffOrder = function(space) {
  * @return space this
  */
 Space.prototype.each = function(fn) {
-  for (var i = 0; i < this._pairs.length; i++) {
+  var length = this._pairs.length
+  for (var i = 0; i < length; i++) {
     if (fn.call(this, this._pairs[i][0], this._pairs[i][1], i) === false)
       return this
   }
@@ -591,8 +596,9 @@ Space.prototype.each = function(fn) {
  * @return space
  */
 Space.prototype.filter = function(fn) {
-  var result = new Space()
-  for (var i = 0; i < this._pairs.length; i++) {
+  var result = new Space(),
+      length = this._pairs.length
+  for (var i = 0; i < length; i++) {
     if (fn.call(this, this._pairs[i][0], this._pairs[i][1], i) === true)
       result.append(this._pairs[i][0], this._pairs[i][1])
   }
@@ -914,7 +920,8 @@ Space.prototype.getTokens = function(debug) {
   var tokens = ''
   var escapeLength = 1
   var escaping = 0
-  for (var i = 0; i < string.length - 1; i++) {
+  var stringLength = string.length
+  for (var i = 0; i < stringLength - 1; i++) {
     var character = string.substr(i, 1)
 
     if (escaping > 0) {
@@ -1017,7 +1024,8 @@ Space.prototype.__height = function() {
 Space.prototype.indexOf = function(property) {
   if (!this._index[property])
     return -1;
-  for (var i = 0; i < this.length(); i++) {
+  var length = this.length()
+  for (var i = 0; i < length; i++) {
     if (this._pairs[i][0] === property)
       return i
   }
@@ -1195,9 +1203,10 @@ Space.prototype._loadFromString2 = function(string) {
       objects = {0 : this},
       valueSpaceCount = 0,
       spacesToGo = 0,
-      started = false
+      started = false,
+      stringLength = string.length
 
-  for (var i = 0; i < string.length; i++) {
+  for (var i = 0; i < stringLength; i++) {
     var c = string[i]
 
     if (c === '\r')
@@ -1623,7 +1632,8 @@ Space.prototype._setByXPath = function(path, value) {
   var currentContext = this
   var currentPath
   var index
-  for (var i = 0; i < generations.length; i++) {
+  var generationsLength = generations.length
+  for (var i = 0; i < generationsLength; i++) {
     currentPath = generations[i]
     var isLeaf = (i === (generations.length - 1))
     // If path is already set, continue
@@ -1802,9 +1812,10 @@ Space.prototype.toColumns = function() {
       col = 0,
       maxLength = 0,
       extras = 0,
-      rows = 0
+      rows = 0,
+      thisStringLength = thisString.length
 
-  for (var i = 0; i < thisString.length; i++) {
+  for (var i = 0; i < thisStringLength; i++) {
     var c = thisString[i]
     if (c === "\n") {
       // Fill extra whitespace for this row
