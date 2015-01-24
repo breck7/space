@@ -8,6 +8,9 @@ beautify:
 install:
 	cd ..; sudo npm install -g space/; npm install space/
 
+perf:
+	open tests/perf.html
+
 publish:
 	npm publish
 

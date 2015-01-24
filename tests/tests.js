@@ -200,9 +200,9 @@ test('diff of subclasses', function() {
 
   Block.prototype = new Space()
 
-  var a = new Space('hello world')
-  var b = new Space('hello mom')
-  var c = new Space('first John')
+  var a = new Space('hello world'),
+      b = new Space('hello mom'),
+      c = new Space('first John')
 
   equal(a.diff(b).toString(), 'hello mom\n')
   ok(a.diff(c) instanceof Space, 'diff is a space')
@@ -301,8 +301,8 @@ height 50px\n\
 width 56px'
 
   var value = new Space(spaceWithDupe)
-    // When turning a string into a Space object and given a duplicate property, last item should win
-  equal(value.get('height'), '50px')
+    // When turning a string into a Space object and given a duplicate property, first item should win
+  equal(value.get('height'), '45px')
 
   equal(value.length(), 3)
 })
@@ -677,19 +677,24 @@ test('loadFromArray', function() {
 })
 
 test('loadFromString', function() {
-  a = new Space('text \n this is a string\n and more')
+  var a = new Space('text \n this is a string\n and more')
 
   equal(a.get('text'), '\nthis is a string\nand more')
 
-  b = new Space('a\n text \n  this is a string\n  and more')
+  var b = new Space('a\n text \n  this is a string\n  and more')
   equal(b.get('a text'), '\nthis is a string\nand more')
   equal(b.toString(), 'a\n text \n  this is a string\n  and more\n')
 
   var string = 'first_name John\nlast_name Doe\nchildren\n 1\n  first_name Joe\n  last_name Doe\n  children\n   1\n    first_name Joe Jr.\n    last_name Doe\n    age 12\ncolors\n blue\n red\nbio \n Hello this is\n my multline\n biography\n \n Theres a blank line in there as well\n \n \n Two blank lines above this one.\ncode <p></p>\n'
-  c = new Space(string)
+  var c = new Space(string)
   equal(c.get('children 1 children 1 age'), '12')
   equal(c.toString().length, string.length)
   equal(c.toString(), string)
+})
+
+test('loadFromString extra spaces', function() {
+  var d = new Space('one\ntwo\n  three\n    four\nfive six')
+  equal(d.length(), 3)
 })
 
 test('matches leak', function() {
@@ -973,7 +978,7 @@ test('reorder', function() {
 
   // Recursive
   a = new Space('b\n content hi\n value foobar')
-  b = new Space('b\n value foobar\n content hi')
+  var b = new Space('b\n value foobar\n content hi')
   equal(a.diffOrder(b).toString(), 'b\n value\n content\n', 'diff order correct')
   equal(a.patchOrder(a.diffOrder(b)).toString(), b.toString(), 'recursive order patch')
 })
