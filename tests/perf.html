@@ -2,84 +2,24 @@
       "http://www.w3.org/TR/html4/loose.dtd">
 <html>
   <head>
-  	<script type="text/javascript" src="../space.js"></script>
+    <link rel="stylesheet" href="qunit-git.css" type="text/css"/>
     <script type="text/javascript" src="jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../space.js"></script>
+    <script type="text/javascript" src="qunit-git.js"></script>
+    <script type="text/javascript" src="testStrings.js"></script>
+    <script type="text/javascript" src="perf.js"></script>
     <script type="text/javascript">
-
-    var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
-
-	var randomString = function(min, max) {
-	  length = (Math.round(Math.random() * (max - min))) + min
-	  var string = '';
-	  
-	  for (var i = 0; i < length; i++) {
-	    var randomNumber = Math.floor(Math.random() * chars.length);
-	    string += chars.substring(randomNumber, randomNumber + 1);
-	  }
-	  
-	  return string;
-	}
-
-	// Experimental method for quickly generating perf test data
-	Space.random = function (rows, depthOdds) {
-	  var space = new Space(),
-	      depthOdds = depthOdds || 0,
-	      property = '',
-	      value = ''
-
-	  while (rows > 0) {
-	    property = randomString(3, 6)
-
-	    // Nest
-	    if (depthOdds > Math.random())
-	      space.append(property, Space.random(3, depthOdds))
-
-	    // Or set a leaf
-	    else {
-	      value = randomString(4, 8)
-	      space.append(property, value)
-	    }
-
-	    rows--
-	  }
-	  return space
-	}
-
+    QUnit.config.autostart = false
     $(document).ready(function() {
-      Space._load2 = false
-	  var a = Space.random(10000, 0.1).toString()
-	  
-	  var t = new Date().getTime()
-	  b = new Space(a)
-	  console.log(b.length())
-	  console.debug(new Date().getTime() - t)
-	  
-	  Space._load2 = true
-	  t = new Date().getTime()
-	  c = new Space(a)
-	  console.debug(new Date().getTime() - t)
-
-	  Space._load2 = false
-	  t = new Date().getTime()
-	  d = new Space(a)
-	  console.debug(new Date().getTime() - t)
-
-	  Space._load2 = true
-	  t = new Date().getTime()
-	  e = new Space(a)
-	  console.debug(new Date().getTime() - t)
-
-	  console.debug("json parse: length, time")
-	  j = JSON.stringify(e.toObject())
-	  t = new Date().getTime()
-	  console.log(j.length)
-	  m = JSON.parse(j)
-	  console.debug(new Date().getTime() - t)	  
-	  console.log(Object.keys(m).length)
+      QUnit.start()
     })
     </script>
   </head>
   <body>
-  	<h1>Perf</h1>
+    <h1 id="qunit-header">QUnit example</h1>
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests">
+    </ol>
   </body>
 </html>
