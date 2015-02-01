@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.11'
+Space.version = '0.8.12'
 
 /**
  * Delete items from an array
@@ -128,17 +128,29 @@ Space.fromFile = function(filepath, options, callback) {
   })
 }
 
-Space.fromCsv = function (str) {
-  return Space.fromDelimiter(str, ",")
+/**
+ * @param str string The csv string to parse
+ * @param propertyName? string Optional property name to set for each row. Default is "row"
+ * @return space
+ */
+Space.fromCsv = function (str, propertyName) {
+  return Space.fromDelimiter(str, ",", propertyName)
 }
 
-Space.fromDelimiter = function (str, delimiter) {
+/**
+ * @param str string The csv string to parse
+ * @param delimiter string
+ * @param propertyName? string Optional property name to set for each row. Default is "row"
+ * @return space
+ */
+Space.fromDelimiter = function (str, delimiter, propertyName) {
   var length = str.length,
       currentItem = "",
       currentPosition = 0,
       inQuote = false,
       rows = [[]],
       space = new Space(),
+      propertyName = propertyName || "row",
       currentRow = 0
 
   while (currentPosition < length) {
@@ -199,18 +211,30 @@ Space.fromDelimiter = function (str, delimiter) {
       obj.append(prop, v)
     })
 
-    space.append('row', obj)
+    space.append(propertyName, obj)
   })
 
   return space
 }
 
-Space.fromSsv = function (str) {
-  return Space.fromDelimiter(str, " ")
+/**
+ * Parses a simple space separated value "name age height\njoe 20 68"
+ *
+ * @param str string ssv string to parse
+ * @param propertyName? string Optional property name to set for each row. Default is "row"
+ * @return space
+ */
+Space.fromSsv = function (str, propertyName) {
+  return Space.fromDelimiter(str, " ", propertyName)
 }
 
-Space.fromTsv = function (str) {
-  return Space.fromDelimiter(str, "\t")
+/**
+ * @param str string The tab string to parse
+ * @param propertyName? string Optional property name to set for each row. Default is "row"
+ * @return space
+ */
+Space.fromTsv = function (str, propertyName) {
+  return Space.fromDelimiter(str, "\t", propertyName)
 }
 
 /**
@@ -2197,6 +2221,9 @@ Space.prototype.toString = function(spaces) {
   return string
 }
 
+/**
+ * @return string
+ */
 Space.prototype.toTsv = function() {
   return this.toDelimited("\t")
 }

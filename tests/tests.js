@@ -493,7 +493,6 @@ test('fromCsv', function() {
   var b = Space.fromCsv("Age,Birth Place,Country\n12,Brockton,USA")
   strictEqual(b.length(), 1)
   strictEqual(b.getByIndex(0).get('Country'), 'USA')
-  console.log('\n' + b.toString())
 })
 
 test('fromHeredoc', function() {
