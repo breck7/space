@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.10'
+Space.version = '0.8.11'
 
 /**
  * Delete items from an array
@@ -1718,32 +1718,31 @@ Space.prototype.sort = function(fn) {
  * first pair in the new object. The search begins on the first occurence
  * of the passed delimiter. Any preceding items will be ignored.
  *
- * @param string
- * @return array of space objects
+ * @param delimiter string
+ * @param propertyName? If provided will return space object with each entry nested under this name.
+ * @return array|space Of space objects or space object with nested entries
  */
-Space.prototype.split = function(delimiter) {
-  var matches = [],
-      hasMatch = false,
-      currentItem = new Space();
+Space.prototype.split = function(delimiter, propertyName) {
+  var matches = propertyName ? new Space() : [],
+      currentItem = null
 
   this.each(function(property, value) {
     if (property === delimiter) {
-      if (hasMatch)
-        matches.push(currentItem)
-      else
-        hasMatch = true
+      // Insert the previous item if we had created one.
+      if (currentItem)
+        propertyName ? matches.append(propertyName, currentItem) : matches.push(currentItem)
       currentItem = new Space()
     }
 
-    if (!hasMatch)
+    if (!currentItem)
       return true
 
     // Todo: we probably need to do a deep clone of value
     currentItem.append(property, value)
   })
 
-  if (hasMatch)
-    matches.push(currentItem)
+  if (currentItem)
+    propertyName ? matches.append(propertyName, currentItem) : matches.push(currentItem)
 
   return matches
 }
@@ -1842,6 +1841,10 @@ Space.prototype.toColumns = function() {
   return cols
 }
 
+Space.prototype.toCsv = function() {
+  return this.toDelimited(",")
+}
+
 /**
  * Experimental.
  * @return array
@@ -1886,6 +1889,67 @@ Space.prototype.toDecimalMatrixString = function() {
     })
     str += '\n'
   })
+  return str
+}
+
+/**
+ * @param delimiter string
+ * @param header? Array like ["name", "city", "state", "country", "income"]
+ * @return string
+ */
+Space.prototype.toDelimited = function(delimiter, header) {
+  var str = "",
+      regex = new RegExp("(\\n|\\\"|\\" + delimiter + ")"),
+      escapeFunction = function (str) {
+        // No escaping necessary
+        if (!str.match(regex))
+          return str
+
+        // Surround the str with "" and replace any " with ""
+        return "\"" + str.replace(/\"/g, '""') + "\""
+      },
+      rows = [],
+      header = header || [],
+      headerIndex = {}
+
+  // If header not provided, build it
+  if (!header.length) {
+    this.each(function (property, row) {
+      //  We expect value to be an instance of space
+      if (!(row instanceof Space))
+        return true
+
+      row.each(function (column, value) {
+        if (headerIndex[column])
+          return true
+
+        header.push(column)
+        headerIndex[column] = true
+      })
+    })
+  }
+
+  // Build the header row
+  header.forEach(function (columnName) {
+    str += delimiter + escapeFunction(columnName)
+  })
+
+  str = str.substr(1) + "\n" // Chop the first comma and add newline
+
+  this.each(function (property, row) {
+      //  We expect value to be an instance of space
+      if (!(row instanceof Space))
+        return true
+
+      var rowStr = ""
+
+      header.forEach(function (columnName) {
+          var v = row.get(columnName) || ""
+          rowStr += delimiter + escapeFunction(v.toString())
+      })
+
+      str += rowStr.substr(1) + "\n" // Chop the first comma and add newline
+    })
   return str
 }
 
@@ -1993,10 +2057,16 @@ Space.prototype.toShapes = function(spaces) {
     // Plain string
     else
       string += '[]' + '\n'
-
   })
 
   return string
+}
+
+/**
+ * @return string
+ */
+Space.prototype.toSsv = function() {
+  return this.toDelimited(" ")
 }
 
 /**
@@ -2040,6 +2110,10 @@ Space.prototype.toString = function(spaces) {
   })
 
   return string
+}
+
+Space.prototype.toTsv = function() {
+  return this.toDelimited("\t")
 }
 
 /**

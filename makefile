@@ -17,6 +17,9 @@ perf:
 publish:
 	npm publish
 
+speedcoach:
+	cp ~/speedcoach/speedcoach.js tests/speedcoach.js
+
 test:
 	open tests/index.html
 

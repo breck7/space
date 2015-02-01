@@ -1071,6 +1071,12 @@ test('split', function() {
   equal(a.split("foobar").length, 0)
   equal(a.split("title").length, 3)
   equal(a.split("title")[2].get("date"), "2/25/2016")
+
+  var b = new Space(testStrings.splitTest)
+  var c = b.split("title", "post")
+  ok(c instanceof Space)
+  strictEqual(c.length(), 3)
+  strictEqual(c.get('post content'), 'Hello world')
 })
 
 test('toBinary', function() {
@@ -1081,6 +1087,11 @@ test('toBinary', function() {
 test('toBinaryMatrixString', function() {
   var a = new Space("A")
   equal(a.toBinaryMatrixString(), '01000001\n')
+})
+
+test('toCsv', function() {
+  var a = new Space(testStrings.toDelimited)
+  strictEqual(a.split("id", "post").toCsv(), testStrings.toCsvResult)
 })
 
 test('toDecimalMatrix', function() {
@@ -1201,6 +1212,11 @@ test('toShapes', function() {
   equal(a.toShapes(), testStrings.shapes)
 })
 
+test('toSsv', function() {
+  var a = new Space(testStrings.toDelimited)
+  strictEqual(a.split("id", "post").toSsv(), testStrings.toSsvResult)
+})
+
 test('toString', function() {
   var value = new Space('hello world')
   equal(value.toString(), 'hello world\n')
@@ -1227,6 +1243,12 @@ test('toString', function() {
   var e = new Space('z-index 0')
   e['z-index'] = 0
   equal(e.toString(), 'z-index 0\n')
+})
+
+test('toTsv', function() {
+  var a = new Space(testStrings.toDelimited)
+  console.log(a.split("id", "post").toTsv())
+  strictEqual(a.split("id", "post").toTsv(), testStrings.toTsvResult)
 })
 
 test('__transpose', function() {

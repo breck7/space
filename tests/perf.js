@@ -1,6 +1,12 @@
 QUnit.module('Space')
 
+var isNode = typeof require !== 'undefined'
 var _chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'
+
+if (isNode) {
+  var fs = require('fs'),
+      speedcoach = require('./speedcoach')
+}
 
 var randomString = function(min, max) {
   var string = ''
@@ -39,29 +45,41 @@ var randomSpace = function (rows, depthOdds) {
   return space
 }
 
+test('start', function() {
+  speedcoach('start')
+  ok(true)
+})
 
-test('Space', function() {
+test('tests', function() {
+  speedcoach('start tests')
   Space._load2 = false
   var a = randomSpace(10000, 0.2).toString()
   
   var t = new Date().getTime()
-  b = new Space(a)
+  var b = new Space(a)
   
   Space._load2 = true
   t = new Date().getTime()
-  c = new Space(a)
+  var c = new Space(a)
 
   Space._load2 = false
   t = new Date().getTime()
-  d = new Space(a)
+  var d = new Space(a)
 
   Space._load2 = true
   t = new Date().getTime()
-  e = new Space(a)
+  var e = new Space(a)
 
-  j = JSON.stringify(e.toObject())
+  var j = JSON.stringify(e.toObject())
   t = new Date().getTime()
-  m = JSON.parse(j)
+  var m = JSON.parse(j)
+  ok(true)
+  speedcoach('end tests')
+})
+
+test('end', function() {
+  speedcoach('end')
+  speedcoach.print()
   ok(true)
 })
 

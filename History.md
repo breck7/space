@@ -1,3 +1,10 @@
+0.8.11 / 2015-01-31
+==================
+- Added option to split to allow for returning Space object in addition to array
+- Added toCsv, toSsv, toTsv, and toDelimited methods
+- Added perf stubs
+- Slight performance improvements
+
 0.8.8 / 2015-01-17
 ==================
 - Added fromFile, toFile, fromUrl, and toUrl methods
