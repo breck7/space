@@ -128,6 +128,91 @@ Space.fromFile = function(filepath, options, callback) {
   })
 }
 
+Space.fromCsv = function (str) {
+  return Space.fromDelimiter(str, ",")
+}
+
+Space.fromDelimiter = function (str, delimiter) {
+  var length = str.length,
+      currentItem = "",
+      currentPosition = 0,
+      inQuote = false,
+      rows = [[]],
+      space = new Space(),
+      currentRow = 0
+
+  while (currentPosition < length) {
+    var c = str[currentPosition]
+    if (!inQuote) {
+      if (c === delimiter) {
+        rows[currentRow].push(currentItem)
+        currentItem = ''
+        if (str[currentPosition + 1] === '"') {
+          inQuote = true
+          currentPosition++
+        }
+      }
+      else if (c === '\n') {
+        rows[currentRow].push(currentItem)
+        currentItem = ''
+        currentRow++
+        if (str[currentPosition + 1])
+          rows[currentRow] = []
+        if (str[currentPosition + 1] === '"') {
+          inQuote = true
+          currentPosition++
+        }
+      }
+      else if (currentPosition === length - 1)
+        rows[currentRow].push(currentItem + c)
+      else
+        currentItem += c
+    } else {
+      if (c !== '"')
+        currentItem += c
+      else if (str[currentPosition + 1] !== '"')
+        inQuote = false
+      else {
+        currentItem += '"'
+        currentPosition++ // Jump 2
+      }
+    }
+    currentPosition++
+  }
+
+  // Strip any spaces from property names.
+  // This makes the mapping not quite 1 to 1 if there are any spaces in prop names.
+  for (var i = 0; i < rows[0].length; i++) {
+    rows[0][i] = rows[0][i].replace(/ /g, '')
+  }
+
+  rows.forEach(function (row, index) {
+    if (index === 0)
+      return true
+
+    var obj = new Space()
+    rows[0].forEach(function (prop, i) {
+      var v = row[i]
+      if (v === '')
+        return true
+
+      obj.append(prop, v)
+    })
+
+    space.append('row', obj)
+  })
+
+  return space
+}
+
+Space.fromSsv = function (str) {
+  return Space.fromDelimiter(str, " ")
+}
+
+Space.fromTsv = function (str) {
+  return Space.fromDelimiter(str, "\t")
+}
+
 /**
  * Node.js only
  *

@@ -485,6 +485,37 @@ test('firstValue', function() {
   equal(value.firstValue(), 'world')
 })
 
+test('fromCsv', function() {
+  var a = Space.fromCsv(testStrings.toCsvResult)
+  strictEqual(a.toString(), testStrings.toDelimited)
+  strictEqual(a.toCsv(), testStrings.toCsvResult)
+
+  var b = Space.fromCsv("Age,Birth Place,Country\n12,Brockton,USA")
+  strictEqual(b.length(), 1)
+  strictEqual(b.getByIndex(0).get('Country'), 'USA')
+  console.log('\n' + b.toString())
+})
+
+test('fromHeredoc', function() {
+  var doc = new Space(testStrings.heredoc)
+  // todo: should this be 15?
+  equal(doc.length(), 15)
+  var parsedDoc = Space.fromHeredoc(testStrings.heredoc, "body", "endbody")
+  equal(parsedDoc.length(), 4)
+})
+
+test('fromSsv', function() {
+  var a = Space.fromSsv(testStrings.toSsvResult)
+  strictEqual(a.toString(), testStrings.toDelimited)
+  strictEqual(a.toSsv(), testStrings.toSsvResult)
+})
+
+test('fromTsv', function() {
+  var a = Space.fromTsv(testStrings.toTsvResult)
+  strictEqual(a.toString(), testStrings.toDelimited)
+  strictEqual(a.toTsv(), testStrings.toTsvResult)
+})
+
 test('get', function() {
   var value = new Space('hello world')
   equal(value.get('hello'), 'world')
@@ -595,15 +626,6 @@ test('hasOwnProperty bug', function() {
   foo.hasOwnProperty = null
   space = new Space(foo)
   ok(space)
-})
-
-test('heredoc', function() {
-  var doc = new Space(testStrings.heredoc)
-  // todo: should this be 15?
-  equal(doc.length(), 15)
-
-  var parsedDoc = Space.fromHeredoc(testStrings.heredoc, "body", "endbody")
-  equal(parsedDoc.length(), 4)
 })
 
 test('__height', function() {
@@ -1091,7 +1113,7 @@ test('toBinaryMatrixString', function() {
 
 test('toCsv', function() {
   var a = new Space(testStrings.toDelimited)
-  strictEqual(a.split("id", "post").toCsv(), testStrings.toCsvResult)
+  strictEqual(a.toCsv(), testStrings.toCsvResult)
 })
 
 test('toDecimalMatrix', function() {
@@ -1214,7 +1236,7 @@ test('toShapes', function() {
 
 test('toSsv', function() {
   var a = new Space(testStrings.toDelimited)
-  strictEqual(a.split("id", "post").toSsv(), testStrings.toSsvResult)
+  strictEqual(a.toSsv(), testStrings.toSsvResult)
 })
 
 test('toString', function() {
@@ -1247,8 +1269,7 @@ test('toString', function() {
 
 test('toTsv', function() {
   var a = new Space(testStrings.toDelimited)
-  console.log(a.split("id", "post").toTsv())
-  strictEqual(a.split("id", "post").toTsv(), testStrings.toTsvResult)
+  strictEqual(a.toTsv(), testStrings.toTsvResult)
 })
 
 test('__transpose', function() {

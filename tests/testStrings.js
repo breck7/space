@@ -164,13 +164,15 @@ endbody
 date 2/25/2014
 */})
 
-testStrings.toDelimited = multiline(function () {/*id 1
-title One 
- plus one
-summary An expose, on the result of one "plus" one
-id 2
-title The answer, my friend, is...
-summary "Two"
+testStrings.toDelimited = multiline(function () {/*row
+ id 1
+ title One 
+  plus one
+ summary An expose, on the result of one "plus" one
+row
+ id 2
+ title The answer, my friend, is...
+ summary "Two"
 */})
 
 testStrings.toCsvResult = multiline(function () {/*id,title,summary
@@ -189,22 +191,6 @@ testStrings.toTsvResult = "id\ttitle\tsummary\n\
 1\t\"One \n\
 plus one\"\t\"An expose, on the result of one \"\"plus\"\" one\"\n\
 2\tThe answer, my friend, is...\t\"\"\"Two\"\"\"\n"
-
-testStrings.toTables = multiline(function () {/*
-person
- id 1
- name Amanda
- username amanda12
- email amanda@nowhere
-person
- id 2
- name Phil
- username gopher
- email phsma@here
-friend
- from 1
- to 2
-*/})
 
 // Export for use in Node.js
 if (typeof exports != 'undefined')
