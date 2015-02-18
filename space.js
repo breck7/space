@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.8.12'
+Space.version = '0.9.0'
 
 /**
  * Delete items from an array
@@ -1273,12 +1273,21 @@ Space.prototype._load = function(content) {
 
 Space.prototype._loadFromArray = function(array) {
   for (var i in array) {
-    var value = array[i]
-    if (typeof value === 'object')
-      this._setPair('item', new Space(value))
-    else
-      this._setPair('item', value)
+    this._loadPair(i.toString(), array[i])
   }
+}
+
+Space.prototype._loadPair = function(property, value) {
+  if (value === null)
+    this._setPair(property, "null")
+  else if (value === undefined)
+    this._setPair(property, "")
+  else if (!(typeof value === "object"))
+    this._setPair(property, value.toString())
+  else if (value instanceof Date)
+    this._setPair(property, value.getTime().toString())
+  else
+    this._setPair(property, new Space(value))
 }
 
 Space.prototype._loadFromObject = function(content) {
@@ -1287,11 +1296,7 @@ Space.prototype._loadFromObject = function(content) {
     // call the original
     if (!Object.prototype.hasOwnProperty.call(content, property))
       continue
-    var value = content[property]
-    if (typeof value === 'object')
-      this._setPair(property, new Space(value))
-    else
-      this._setPair(property, value)
+    this._loadPair(property, content[property])
   }
 }
 
@@ -2095,18 +2100,65 @@ Space.prototype.toJavascript = function(multiline) {
 /**
  * Return JSON
  *
+ * Note: when guessTypes is true, toJSON will never return empty arrays, only
+ * empty objects, if one is encountered. Handle appropriately.
+ *
+ * @param guessTypes? Whether to scan for arrays and numbers and convert to predicted type.
  * @return string JSON
  */
-Space.prototype.toJSON = function() {
-  return JSON.stringify(this.toObject())
+Space.prototype.toJSON = function(guessTypes) {
+  return JSON.stringify(this.toObject(guessTypes))
+}
+
+Space.prototype._toObject = function() {
+  var properties = this.getProperties(),
+      isArray = properties.length > 0,
+      next = 0
+
+  properties.forEach(function (v) {
+    if (v !== next.toString())
+      isArray = false
+    next++
+  })
+
+  var obj = isArray ? [] : {}
+
+  this.each(function(property, value) {
+    var v
+    if (value instanceof Space)
+      v = value._toObject()
+    else if (value === "false")
+      v = false
+    else if (value === "true")
+      v = true
+    else if (value === "null")
+      v = null
+    else if (value.match(/^[\-\.]?[0-9]+[0-9\.]*$/))
+      v = parseFloat(value)
+    else
+      v = value
+
+    if (isArray)
+      obj.push(v)
+    else
+      obj[property] = v
+  })
+  return obj
 }
 
 /**
  * Returns a regular javascript object
  *
+ * Note: when guessTypes is true, toJSON will never return empty arrays, only
+ * empty objects, if one is encountered. Handle appropriately.
+ *
+ * @param guessTypes? Whether to scan for arrays and numbers and convert to predicted type.
  * @return object
  */
-Space.prototype.toObject = function() {
+Space.prototype.toObject = function(guessTypes) {
+  if (guessTypes)
+    return this._toObject()
+
   var obj = {}
   this.each(function(property, value) {
     if (value instanceof Space)

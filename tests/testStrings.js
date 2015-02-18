@@ -192,6 +192,35 @@ testStrings.toTsvResult = "id\ttitle\tsummary\n\
 plus one\"\t\"An expose, on the result of one \"\"plus\"\" one\"\n\
 2\tThe answer, my friend, is...\t\"\"\"Two\"\"\"\n"
 
+testStrings.json = {
+  "firstName": "John",
+  "lastName": "Smith",
+  "isAlive": true,
+  "lowScore": 0,
+  "lowestScore": -10,
+  "age": 25,
+  "height_cm": 167.6,
+  "numbers": [12, 132.2, 312, true, null, false, {}, ""],
+  "address": {
+    "streetAddress": "21 2nd Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10021-3100",
+    "blankString": ""
+  },
+  "phoneNumbers": [
+    {
+      "type": "home",
+      "number": "212 555-1234"
+    },
+    {
+      "type": "office",
+      "number": "646 555-4567"
+    }
+  ],
+  "spouse": null
+}
+
 // Export for use in Node.js
 if (typeof exports != 'undefined')
   module.exports = testStrings;

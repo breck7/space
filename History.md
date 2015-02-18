@@ -1,3 +1,13 @@
+0.9.0 / 2015-02-17
+==================
+- BREAKING CHANGE: passing in arrays to create new Space instances will now set
+the property names to "0 1 2 3...N" instead of "item item item..." This makes it
+easier to go from JSON => Space => JSON. This reverts the change introduced in 0.7.0,
+which was a bad idea.
+- Added guessTypes parameter to the toJSON and toObject methods for turning
+space objects into JS objects with type information. Result is better JSON => Space => JSON
+flows.
+
 0.8.12 / 2015-02-01
 ===================
 - Added optional parameter to fromDelimited methods to set row property name in returned object.

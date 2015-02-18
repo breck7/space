@@ -685,7 +685,7 @@ test('lastValue', function() {
 
 test('loadFromArray', function() {
   var a = new Space([1, 2, 3])
-  equal(a.toString(), 'item 1\nitem 2\nitem 3\n')
+  equal(a.toString(), '0 1\n1 2\n2 3\n')
 
   a = new Space({
     data: [{
@@ -694,7 +694,19 @@ test('loadFromArray', function() {
       charge: 2
     }]
   })
-  equal(a.toString(), 'data\n item\n  charge 1\n item\n  charge 2\n')
+  equal(a.toString(), 'data\n 0\n  charge 1\n 1\n  charge 2\n')
+})
+
+test('loadFromObject', function() {
+  var a = new Space(testStrings.json)
+  strictEqual(a.get("lowestScore"), "-10")
+
+  var d = new Date(),
+      time = d.getTime()
+
+  var b = new Space({ name: "John", date: d})
+
+  strictEqual(b.get("date"), time.toString())
 })
 
 test('loadFromString', function() {
@@ -1216,6 +1228,16 @@ test('toObject', function() {
   var b = new Space("foo bar")
   a.set('b', b)
   equal(a.toObject()['b']['foo'], 'bar')
+})
+
+test('toObject with types', function() {
+  var sample = testStrings.json,
+      a = new Space(sample),
+      js = a.toObject(true),
+      s = JSON.stringify(js, null, 2),
+      samplejson = JSON.stringify(sample, null, 2)
+
+  strictEqual(s, samplejson)
 })
 
 test('toQueryString', function() {
