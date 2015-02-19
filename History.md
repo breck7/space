@@ -1,6 +1,7 @@
 0.9.2 / 2015-02-19
 ==================
-- Added mapValues method
+- Merged mapValues and mapProperties methods into one map method with params and
+  added an inplace flag
 
 0.9.1 / 2015-02-18
 ==================

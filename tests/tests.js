@@ -737,25 +737,25 @@ test('matches leak', function() {
 
 test('map properties', function() {
   var foo = new Space('hello world\nfoo bar')
-  foo.mapProperties(function (v){ return v.toUpperCase()})
+  foo.map(function (v){ return v.toUpperCase()}, null, null, true)
   strictEqual(foo.toString(), 'HELLO world\nFOO bar\n')
   foo.set("some deep object", "bam")
   strictEqual(foo.get("some deep object"), "bam")
-  foo.mapProperties(function (v){ return v.toUpperCase()})
+  foo.map(function (v){ return v.toUpperCase()}, null, null, true)
   strictEqual(foo.get("some deep object"), undefined, "expected object not to be there")
   strictEqual(foo.get("SOME deep object"), "bam", "expected path to be changed")
-  foo.mapProperties(function (v){ return v.toUpperCase()}, true)
+  foo.map(function (v){ return v.toUpperCase()}, null, true, true)
   ok(!foo.get("SOME deep object"), "expected path to be changed recursively")
   strictEqual(foo.get("SOME DEEP OBJECT"), "bam", "expected recursive map to work")
 })
 
 test('map values', function() {
   var foo = new Space('hello    world   \nfoo    bar  ')
-  foo.mapValues(function (v){ return v.trim()})
+  foo.map(null, function (v){ return v.trim()}, null, true)
   strictEqual(foo.toString(), 'hello world\nfoo bar\n')
   foo.set("some deep object", "    bam   ")
   strictEqual(foo.get("some deep object"), "    bam   ")
-  foo.mapValues(function (v){ return v.trim()}, true)
+  foo.map(null, function (v){ return v.trim()}, true, true)
   strictEqual(foo.get("some deep object"), "bam")
 })
 

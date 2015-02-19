@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.9.1'
+Space.version = '0.9.2'
 
 /**
  * Delete items from an array
@@ -1449,36 +1449,22 @@ Space.prototype._loadFromString = function(string) {
  * @param deep boolean Whether to recurse. Default is false.
  * @return this
  */
-Space.prototype.mapProperties = function(fn, deep) {
-  this._index = {}
-  this._cache = {}
-  var length = this._pairs.length
-  for (var i = 0; i < length; i++) {
-    this._pairs[i][0] = fn(this._pairs[i][0])
-    if (deep && this._pairs[i][1] instanceof Space)
-      this._pairs[i][1].mapProperties(fn, deep)
-    this._updateCache(this._pairs[i][0], this._pairs[i][1])
-  }
-  return this
-}
+Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
+  if (!inPlace)
+    return new Space(this).map(propertiesFn, valuesFn, deep)
 
-/**
- * Apply a fn to every leaf value in this instance and set the
- * value to the return value of the fn.
- *
- * @param fn (prop: string) => string
- * @param deep boolean Whether to recurse. Default is false.
- * @return this
- */
-Space.prototype.mapValues = function(fn, deep) {
   this._index = {}
   this._cache = {}
   var length = this._pairs.length
   for (var i = 0; i < length; i++) {
-    if (!(this._pairs[i][1] instanceof Space))
-      this._pairs[i][1] = fn(this._pairs[i][1])
-    else if (deep)
-      this._pairs[i][1].mapValues(fn, deep)
+
+    if (propertiesFn)
+      this._pairs[i][0] = propertiesFn(this._pairs[i][0])
+    if (!(this._pairs[i][1] instanceof Space) && valuesFn)
+      this._pairs[i][1] = valuesFn(this._pairs[i][1])
+    else if (deep && this._pairs[i][1] instanceof Space)
+      this._pairs[i][1].map(propertiesFn, valuesFn, deep, inPlace)
+    
     this._updateCache(this._pairs[i][0], this._pairs[i][1])
   }
   return this
