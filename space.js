@@ -1463,6 +1463,28 @@ Space.prototype.mapProperties = function(fn, deep) {
 }
 
 /**
+ * Apply a fn to every leaf value in this instance and set the
+ * value to the return value of the fn.
+ *
+ * @param fn (prop: string) => string
+ * @param deep boolean Whether to recurse. Default is false.
+ * @return this
+ */
+Space.prototype.mapValues = function(fn, deep) {
+  this._index = {}
+  this._cache = {}
+  var length = this._pairs.length
+  for (var i = 0; i < length; i++) {
+    if (!(this._pairs[i][1] instanceof Space))
+      this._pairs[i][1] = fn(this._pairs[i][1])
+    else if (deep)
+      this._pairs[i][1].mapValues(fn, deep)
+    this._updateCache(this._pairs[i][0], this._pairs[i][1])
+  }
+  return this
+}
+
+/**
  * Return the next property in the Space, given a property.
  *
  * @param property string

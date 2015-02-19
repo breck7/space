@@ -749,6 +749,16 @@ test('map properties', function() {
   strictEqual(foo.get("SOME DEEP OBJECT"), "bam", "expected recursive map to work")
 })
 
+test('map values', function() {
+  var foo = new Space('hello    world   \nfoo    bar  ')
+  foo.mapValues(function (v){ return v.trim()})
+  strictEqual(foo.toString(), 'hello world\nfoo bar\n')
+  foo.set("some deep object", "    bam   ")
+  strictEqual(foo.get("some deep object"), "    bam   ")
+  foo.mapValues(function (v){ return v.trim()}, true)
+  strictEqual(foo.get("some deep object"), "bam")
+})
+
 test('multiline', function() {
   var a = new Space('my multiline\n string')
   equal(a.get('my'), 'multiline\nstring')
