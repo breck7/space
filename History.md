@@ -3,6 +3,9 @@
 - Added toXml method
 - Removed the "propertyName?" property from the fromCsv and similar methods. Now use
   the row index as the property name.
+- Added mapProperties method
+- Fixed a bug where overwriting a pair was not updating cache
+- Minor tweaks and improvements
 
 0.9.0 / 2015-02-17
 ==================

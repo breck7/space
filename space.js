@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.9.0'
+Space.version = '0.9.1'
 
 /**
  * Delete items from an array
@@ -1411,7 +1411,7 @@ Space.prototype._loadFromString = function(string) {
   string = string.replace(/^\s*/, '')
 
   /* Eliminate Windows \r characters.*/
-  string = string.replace(/\n\r/g, '\n')
+  string = string.replace("\r", "")
 
   /* Eliminate newlines at end of string.*/
   //  string = string.replace(/\n[\n ]*$/, '')
@@ -1442,6 +1442,27 @@ Space.prototype._loadFromString = function(string) {
 }
 
 /**
+ * Apply a fn to every property in this instance and rename the
+ * property to the return value of the fn.
+ *
+ * @param fn (prop: string) => string
+ * @param deep boolean Whether to recurse. Default is false.
+ * @return this
+ */
+Space.prototype.mapProperties = function(fn, deep) {
+  this._index = {}
+  this._cache = {}
+  var length = this._pairs.length
+  for (var i = 0; i < length; i++) {
+    this._pairs[i][0] = fn(this._pairs[i][0])
+    if (deep && this._pairs[i][1] instanceof Space)
+      this._pairs[i][1].mapProperties(fn, deep)
+    this._updateCache(this._pairs[i][0], this._pairs[i][1])
+  }
+  return this
+}
+
+/**
  * Return the next property in the Space, given a property.
  *
  * @param property string
@@ -1456,6 +1477,7 @@ Space.prototype.next = function(property) {
 /**
  * @param eventName string
  * @param fn function
+ * @return this
  */
 Space.prototype.off = function(eventName, fn) {
   if (!this.events[eventName])
@@ -1464,6 +1486,7 @@ Space.prototype.off = function(eventName, fn) {
     if (this.events[eventName][i] === fn)
       this.events[eventName].splice(i, 1)
   }
+  return this
 }
 
 Space.prototype._objectCount = function() {
@@ -1478,11 +1501,13 @@ Space.prototype._objectCount = function() {
 /**
  * @param eventName string
  * @param fn function
+ * @return this
  */
 Space.prototype.on = function(eventName, fn) {
   if (!this.events[eventName])
     this.events[eventName] = []
   this.events[eventName].push(fn)
+  return this
 }
 
 Space.prototype._patch = function(patch) {
@@ -1777,15 +1802,21 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
   else if (overwrite && this._pairs[index]) {
     var overwrittenProperty = this._pairs.splice(index, 1, [property, value])[0][0]
     this._index[overwrittenProperty]--
+    if (this._index[overwrittenProperty] === 0)
+      delete this._cache[overwrittenProperty]
   }
   else
     this._pairs.splice(index, 0, [property, value])
 
+  this._updateCache(property, value, index)
+}
+
+Space.prototype._updateCache = function(property, value, index) {
   var currentCount = this._index[property]
   if (!currentCount)
     this._cache[property] = value
   else if (index !== undefined) {
-    // Scroll through and see if there is already an entry in the catch
+    // Scroll through and see if there is already an entry in the cache
     for (var i = 0; i < index; i++) {
       if (this._pairs[i][0] === property)
         break;

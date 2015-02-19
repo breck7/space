@@ -735,6 +735,20 @@ test('matches leak', function() {
   equal(typeof(matches), "undefined")
 })
 
+test('map properties', function() {
+  var foo = new Space('hello world\nfoo bar')
+  foo.mapProperties(function (v){ return v.toUpperCase()})
+  strictEqual(foo.toString(), 'HELLO world\nFOO bar\n')
+  foo.set("some deep object", "bam")
+  strictEqual(foo.get("some deep object"), "bam")
+  foo.mapProperties(function (v){ return v.toUpperCase()})
+  strictEqual(foo.get("some deep object"), undefined, "expected object not to be there")
+  strictEqual(foo.get("SOME deep object"), "bam", "expected path to be changed")
+  foo.mapProperties(function (v){ return v.toUpperCase()}, true)
+  ok(!foo.get("SOME deep object"), "expected path to be changed recursively")
+  strictEqual(foo.get("SOME DEEP OBJECT"), "bam", "expected recursive map to work")
+})
+
 test('multiline', function() {
   var a = new Space('my multiline\n string')
   equal(a.get('my'), 'multiline\nstring')
@@ -1343,6 +1357,9 @@ test('update', function() {
   var a = new Space('hello world')
   a.update(0, 'hi', 'mom')
   equal(a.toString(), 'hi mom\n')
+  strictEqual(a.indexOf("hello"), -1)
+  strictEqual(a.indexOf("hi"), 0)
+  strictEqual(a.get("hello"), undefined)
 })
 
 test('url methods', function() {
