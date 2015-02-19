@@ -1,3 +1,9 @@
+0.9.1 / 2015-02-18
+==================
+- Added toXml method
+- Removed the "propertyName?" property from the fromCsv and similar methods. Now use
+  the row index as the property name.
+
 0.9.0 / 2015-02-17
 ==================
 - BREAKING CHANGE: passing in arrays to create new Space instances will now set

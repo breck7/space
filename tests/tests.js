@@ -1293,6 +1293,12 @@ test('toTsv', function() {
   strictEqual(a.toTsv(), testStrings.toTsvResult)
 })
 
+test('toXML', function() {
+  var a = new Space(testStrings.toXml)
+  strictEqual(a.toXML(), testStrings.toXmlResult)
+  strictEqual(a.toXML(true), testStrings.toXmlPrettyResult)
+})
+
 test('__transpose', function() {
   var a = new Space(testStrings.transposeData)
   var html = a.__transpose(testStrings.transposeTemplate)

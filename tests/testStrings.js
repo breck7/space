@@ -43,6 +43,38 @@ body
   content hi
 */})
 
+testStrings.toXml = multiline(function () {/*
+html
+ head
+ body
+  div
+  div
+   class main
+   content yo
+  div
+   class footer
+   content hi
+*/})
+
+testStrings.toXmlResult = "<html><head></head><body><div></div><div><class>main</class><content>yo</content>" +
+  "</div><div><class>footer</class><content>hi</content></div></body></html>"
+
+testStrings.toXmlPrettyResult = "<html>\n\
+  <head></head>\n\
+  <body>\n\
+    <div></div>\n\
+    <div>\n\
+      <class>main</class>\n\
+      <content>yo</content>\n\
+    </div>\n\
+    <div>\n\
+      <class>footer</class>\n\
+      <content>hi</content>\n\
+    </div>\n\
+  </body>\n\
+</html>\n\
+"
+
 testStrings.shapes = multiline(function () {/*V
 OV
 OV
@@ -164,12 +196,12 @@ endbody
 date 2/25/2014
 */})
 
-testStrings.toDelimited = multiline(function () {/*row
+testStrings.toDelimited = multiline(function () {/*0
  id 1
  title One 
   plus one
  summary An expose, on the result of one "plus" one
-row
+1
  id 2
  title The answer, my friend, is...
  summary "Two"
