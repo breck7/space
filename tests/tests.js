@@ -1299,6 +1299,11 @@ test('toXML', function() {
   strictEqual(a.toXML(true), testStrings.toXmlPrettyResult)
 })
 
+test('toXMLWithAttributes', function() {
+  var a = new Space(testStrings.toXmlWithAttributes)
+  strictEqual(a.toXMLWithAttributes(true), testStrings.toXmlWithAttributesResult)
+})
+
 test('__transpose', function() {
   var a = new Space(testStrings.transposeData)
   var html = a.__transpose(testStrings.transposeTemplate)

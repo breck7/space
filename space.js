@@ -2297,18 +2297,48 @@ Space.prototype._toXML = function(spaceCount) {
   
   this.each(function(property, value) {
     xml += spaces + "<" + property + ">"
-    if (value instanceof Space) {
-      if (value.length() === 0) {
-        xml += "</" + property + ">" + (spaceCount === -1 ? "" : "\n")
-      } else {
-          xml += (spaceCount === -1 ? "" : "\n") + value._toXML(spaceCount > -1 ? spaceCount + 2 : -1)
-          xml += spaces + "</" + property + ">" + (spaceCount === -1 ? "" : "\n")
-        }
-    }
-    else {
+    if (!(value instanceof Space))
       xml += value
-      xml += "</" + property + ">" + (spaceCount === -1 ? "" : "\n")
+    else if (value.length() > 0)
+      xml += (spaceCount === -1 ? "" : "\n") + value._toXML(spaceCount > -1 ? spaceCount + 2 : -1) + spaces
+
+    xml += "</" + property + ">" + (spaceCount === -1 ? "" : "\n")
+  })
+  return xml
+}
+
+/**
+ * @param pretty? boolean 
+ * @return string
+ */
+Space.prototype.toXMLWithAttributes = function(pretty) {
+  return this._toXMLWithAttributes(pretty ? 0 : -1)
+}
+
+Space.prototype._toXMLWithAttributes = function(spaceCount) {
+  var xml = "",
+      spaces = spaceCount === -1 ? "" : Space.strRepeat(" ", spaceCount)
+
+  this.each(function(property, value) {
+    var content = value.get("content"),
+        attributes = value.get("attributes"),
+        attributesStr = "",
+        contentStr = ""
+    
+    if (attributes) {
+      attributes.each(function (prop, value) {
+        attributesStr += " " + prop + "=\"" + value.replace('"', '\\"') + "\"" 
+      })
     }
+
+    if (!content) {
+    } else if (!(content instanceof Space))
+      contentStr = content
+    else if (content.length() > 0)
+      contentStr = (spaceCount === -1 ? "" : "\n") + content._toXMLWithAttributes(spaceCount > -1 ? spaceCount + 2 : -1) + spaces
+
+    xml += spaces + "<" + property + attributesStr + ">" + contentStr +
+           "</" + property + ">" + (spaceCount === -1 ? "" : "\n")
   })
   return xml
 }
