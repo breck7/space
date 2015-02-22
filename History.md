@@ -1,3 +1,7 @@
+0.9.5 / 2015-02-22
+==================
+- Added pretty param to toJSON
+
 0.9.4 / 2015-02-22
 ==================
 - Fixed bug in rename method where renames of non-existing entities corrupted object.
@@ -8,7 +12,7 @@
   added an inplace flag
 - Added fromXml method
 
-0.9.2 / 2015-02-17
+0.9.2 / 2015-02-18
 ==================
 - MapValues method
 

@@ -2227,10 +2227,11 @@ Space.prototype.toJavascript = function(multiline) {
  * empty objects, if one is encountered. Handle appropriately.
  *
  * @param guessTypes? Whether to scan for arrays and numbers and convert to predicted type.
+ * @param pretty? Whether to pretty print the returned JSON.
  * @return string JSON
  */
-Space.prototype.toJSON = function(guessTypes) {
-  return JSON.stringify(this.toObject(guessTypes))
+Space.prototype.toJSON = function(guessTypes, pretty) {
+  return JSON.stringify(this.toObject(guessTypes), null, pretty ? " " : null)
 }
 
 Space.prototype._toObject = function() {
