@@ -610,7 +610,7 @@ test('getTokensConcise', function() {
   equal(value.getTokensConcise(), 'KNKSVNKSVNKSV')
 })
 
-// https://github.com/nudgepad/space/issues/58
+// https://github.com/breck7/space/issues/58
 test('get expecting a branch but hitting a leaf', function() {
   var value = new Space('posts leaf')
   equal(undefined, value.get('posts branch'))

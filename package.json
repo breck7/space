@@ -1,6 +1,6 @@
 {
   "name": "space",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "A lightweight language for objects",
   "main": "./space.js",
   "bin": {
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/nudgepad/space"
+    "url": "git://github.com/breck7/space"
   },
   "keywords": "space",
   "devDependencies": {

@@ -1,6 +1,7 @@
 0.9.5 / 2015-02-22
 ==================
 - Added pretty param to toJSON
+- Updated github links
 
 0.9.4 / 2015-02-22
 ==================
