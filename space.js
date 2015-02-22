@@ -233,6 +233,92 @@ Space.fromTsv = function (str) {
   return Space.fromDelimiter(str, "\t")
 }
 
+Space._parseXml2 = function (str) {
+  var el = document.createElement('div')
+  el.innerHTML = str
+  return el 
+}
+
+Space._initializeXmlParser = function () {
+  if (Space._parseXml)
+    return
+
+  if (typeof window.DOMParser !== "undefined") {
+    Space._parseXml = function (xmlStr) {
+      return (new window.DOMParser()).parseFromString(xmlStr, "text/xml")
+    }
+  }
+
+  else if (typeof window.ActiveXObject !== "undefined" && new window.ActiveXObject("Microsoft.XMLDOM")) {
+      Space._parseXml = function (xmlStr) {
+          var xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM")
+          xmlDoc.async = "false"
+          xmlDoc.loadXML(xmlStr)
+          return xmlDoc
+      }
+  }
+
+  else
+    throw new Error("No XML parser found")
+}
+
+/**
+ * @param str string The XML string to parse
+ * @return space
+ */
+Space.fromXml = function (str) {
+  Space._initializeXmlParser()
+  var xml = Space._parseXml(str)
+
+  try {
+    return Space._fromXml(xml).get("children")
+  }
+  catch (e) {
+    return Space._fromXml(Space._parseXml2(str)).get("children")
+  }
+  
+}
+
+Space._fromXml = function (xml) {
+  var result = new Space(),
+      children = new Space()
+
+  // Set attributes
+  if (xml.attributes) {
+    for (var a = 0; a < xml.attributes.length; a++) {
+      result.set(xml.attributes[a].name, xml.attributes[a].value)
+    }
+  }
+
+  if (xml.data)
+    children.push(xml.data)
+
+  // Set content
+  if (xml.childNodes && xml.childNodes.length > 0) {
+    for (var i = 0; i < xml.childNodes.length; i++) {
+      var child = xml.childNodes[i]
+
+      if (child.tagName && child.tagName.match(/parsererror/i))
+        throw new Error("Parse Error")
+
+      if (child.childNodes.length > 0 && child.tagName)
+        children.append(child.tagName, Space._fromXml(child))
+      else if (child.tagName)
+        children.append(child.tagName, new Space())
+      else if (child.data) {
+        var data = child.data.trim()
+        if (data)
+          children.push(data)
+      }
+    }
+  }
+
+  if (children.length() > 0)
+    result.set("children", children)
+
+  return result
+}
+
 /**
  * Node.js only
  *
@@ -2351,34 +2437,38 @@ Space.prototype._toXML = function(spaceCount) {
  * @return string
  */
 Space.prototype.toXMLWithAttributes = function(pretty) {
-  return this._toXMLWithAttributes(pretty ? 0 : -1)
+  return this.firstValue()._toXMLWithAttributes(this.firstProperty(), pretty ? 0 : -1)
 }
 
-Space.prototype._toXMLWithAttributes = function(spaceCount) {
+Space.prototype._toXMLWithAttributes = function(property, spaceCount) {
   var xml = "",
-      spaces = spaceCount === -1 ? "" : Space.strRepeat(" ", spaceCount)
+      spaces = spaceCount === -1 ? "" : Space.strRepeat(" ", spaceCount),
+      attributesStr = "",
+      contentStr = "",
+      children = this.get("children")
 
-  this.each(function(property, value) {
-    var content = value.get("content"),
-        attributes = value.get("attributes"),
-        attributesStr = "",
-        contentStr = ""
-    
-    if (attributes) {
-      attributes.each(function (prop, value) {
-        attributesStr += " " + prop + "=\"" + value.replace('"', '\\"') + "\"" 
-      })
-    }
-
-    if (!content) {
-    } else if (!(content instanceof Space))
-      contentStr = content
-    else if (content.length() > 0)
-      contentStr = (spaceCount === -1 ? "" : "\n") + content._toXMLWithAttributes(spaceCount > -1 ? spaceCount + 2 : -1) + spaces
-
-    xml += spaces + "<" + property + attributesStr + ">" + contentStr +
-           "</" + property + ">" + (spaceCount === -1 ? "" : "\n")
+  this.each(function (prop, value) {
+    if (prop === "children")
+      return true
+    if (value && value.replace)
+      attributesStr += " " + prop + "=\"" + value.replace('"', '\\"') + "\"" 
+    else
+      attributesStr += " " + prop
   })
+
+  if (children) {
+    children.each(function (prop, value) {
+      if (value instanceof Space)
+        contentStr += (spaceCount === -1 ? "" : "\n") + value._toXMLWithAttributes(prop, spaceCount > -1 ? spaceCount + 2 : -1) + spaces
+      else
+        contentStr += value
+      if (prop === "children")
+        return true
+    })
+  }
+
+  xml += spaces + "<" + property + attributesStr + ">" + contentStr +
+         "</" + property + ">" + (spaceCount === -1 || !contentStr? "" : "\n")
   return xml
 }
 
@@ -2416,6 +2506,12 @@ Space.prototype.trigger = function(eventName) {
 Space.prototype.update = function(index, property, value) {
   this._setPair(property, value, index, true)
   return this
+}
+
+Space.prototype.wrap = function(property) {
+  var newSpace = new Space()
+  newSpace.set(property, this)
+  return this.reload(newSpace.toString())
 }
 
 Space.prototype.__width = function() {

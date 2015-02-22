@@ -1,4 +1,5 @@
 QUnit.module('Space')
+var isNode = typeof require !== 'undefined'
 
 test('Space', function() {
   ok(Space, 'Space class should exist')
@@ -514,6 +515,14 @@ test('fromTsv', function() {
   strictEqual(a.toString(), testStrings.toDelimited)
   strictEqual(a.toTsv(), testStrings.toTsvResult)
 })
+
+if (!isNode) {
+  test('fromXml', function() {
+  
+    var a = Space.fromXml(testStrings.toXmlWithAttributesResult)
+    strictEqual(a.toString(), testStrings.toXmlWithAttributes)
+  })
+}
 
 test('get', function() {
   var value = new Space('hello world')
@@ -1163,7 +1172,7 @@ test('toDecimalMatrixString', function() {
 })
 
 // Test this only in node.js
-if (typeof require !== 'undefined') {
+if (isNode) {
   asyncTest('toFile and fromFile', 7, function() {
 
     // Arrange

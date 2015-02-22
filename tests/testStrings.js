@@ -75,22 +75,17 @@ testStrings.toXmlPrettyResult = "<html>\n\
 </html>\n\
 "
 
-testStrings.toXmlWithAttributes = multiline(function () {/*
-html
- attributes
-  class main
- content
+testStrings.toXmlWithAttributes = multiline(function () {/*html
+ class main
+ children
   head
-   content
-   attributes
   body
-   content
+   style color: red;
+   children
     div
-     attributes
-      class main
-     content Hello world
-   attributes
-    style color: red;
+     class main
+     children
+      0 Hello world
 */})
 
 testStrings.toXmlWithAttributesResult = "<html class=\"main\">\n\

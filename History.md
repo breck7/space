@@ -2,6 +2,7 @@
 ==================
 - Merged mapValues and mapProperties methods into one map method with params and
   added an inplace flag
+- Added fromXml method
 
 0.9.1 / 2015-02-18
 ==================
