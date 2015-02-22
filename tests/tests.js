@@ -1008,13 +1008,41 @@ test('reload', function() {
 })
 
 test('rename', function() {
-  var a = new Space('john\n age 5\nsusy\n age 6')
-  var index = a.indexOf('john')
+  var a = new Space('john\n age 5\nsusy\n age 6\ncandy bar\nx 123\ny 45\n'),
+      originalLength = a.length(),
+      originalString = a.toString(),
+      index = a.indexOf('john')
+
+  // Assert
   equal(index, 0, 'index okay')
+
+  // Act
   ok(a.rename('john', 'breck') instanceof Space, 'returns itself for chaining')
+  a.rename('candy', 'ice')
+
+  // Assert
   index = a.indexOf('breck')
   equal(index, 0, 'index okay')
   equal(a.get('breck age'), '5', 'value okay')
+
+  // Act
+  a.rename('breck', 'john')
+  a.rename('ice', 'candy')
+
+  // Assert
+  strictEqual(a.length(), originalLength, "Length unchanged")
+  strictEqual(a.toString(), originalString, "String unchanged")
+
+  // Arrange
+  var b = new Space(testStrings.renameTest)
+  originalString = b.toString()
+  
+  // Act
+  b.rename("dimensions", "columns")
+
+  // Assert
+  strictEqual(b.toString(), originalString)
+
 
   // for now we removed xpath rename.
 })

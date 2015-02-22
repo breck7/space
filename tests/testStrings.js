@@ -228,6 +228,26 @@ testStrings.toDelimited = multiline(function () {/*0
  summary "Two"
 */})
 
+testStrings.renameTest = multiline(function () {/*title b on GitHub
+description 
+hideLabels true
+public true
+arrangeables stargazers_count created_at forks_count open_issues_count language
+aliases
+ stargazers_count Stars
+ created_at Created
+ forks_count Forks
+ language Language
+ open_issues_count Issues
+formats
+ stargazers_count 0a
+types
+ language string
+ created_at date
+x language
+y stargazers_counter
+*/})
+
 testStrings.toCsvResult = multiline(function () {/*id,title,summary
 1,"One 
 plus one","An expose, on the result of one ""plus"" one"

@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.9.3'
+Space.version = '0.9.4'
 
 /**
  * Delete items from an array
@@ -1753,6 +1753,8 @@ Space.prototype.push = function(value) {
 
 Space.prototype._rename = function(oldName, newName) {
   var index = this.indexOf(oldName)
+  if (index === -1)
+    return this
   this._setPair(newName, this._getValueByProperty(oldName), index, true)
   return this
 }
