@@ -1530,11 +1530,14 @@ Space.prototype._loadFromString = function(string) {
 }
 
 /**
- * Apply a fn to every property in this instance and rename the
- * property to the return value of the fn.
+ * Apply a function(s) to every property and value in this instance and rename the
+ * property to the return value of the propertiesFn and set the value to the
+ * return value of the valuesFn.
  *
  * @param fn (prop: string) => string
+ * @param fn (value: any, newPropertyName: string, oldPropertyName: string) => string
  * @param deep boolean Whether to recurse. Default is false.
+ * @param inPlace boolean Whether to return a new object or change the current. Default is false
  * @return this
  */
 Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
@@ -1545,13 +1548,13 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
   this._cache = {}
   var length = this._pairs.length
   for (var i = 0; i < length; i++) {
-
+    var oldName = this._pairs[i][0]
     if (propertiesFn)
-      this._pairs[i][0] = propertiesFn(this._pairs[i][0])
-    if (!(this._pairs[i][1] instanceof Space) && valuesFn)
-      this._pairs[i][1] = valuesFn(this._pairs[i][1])
-    else if (deep && this._pairs[i][1] instanceof Space)
+      this._pairs[i][0] = propertiesFn(oldName)
+    if (deep && this._pairs[i][1] instanceof Space)
       this._pairs[i][1].map(propertiesFn, valuesFn, deep, inPlace)
+    else if (valuesFn)
+      this._pairs[i][1] = valuesFn(this._pairs[i][1], this._pairs[i][0], oldName)
     
     this._updateCache(this._pairs[i][0], this._pairs[i][1])
   }
