@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.9.6'
+Space.version = '0.9.7'
 
 /**
  * Delete items from an array
@@ -1248,28 +1248,44 @@ Space.prototype.isEmpty = function() {
 }
 
 /**
- * Does a deep check of whether the object has only unique types
+ * Whether this instance has any nested space objects.
  *
  * @return bool
  */
-Space.prototype.isASet = function() {
-  var result = true,
-      set = {}
+Space.prototype.isFlat = function() {
+  var length = this.length
 
-  this.each(function(property, value) {
-    if (set[property]) {
-      result = false
+  for (var i = 0; i < length; i++) {
+    if (this._pairs[i][1] instanceof Space)
       return false
-    }
-    set[property] = true
-    if (value instanceof Space) {
-      if (value.isASet())
-        return true
-      result = false
+  }
+  return true
+}
+
+/**
+ * Check whether the object has only unique properties
+ *
+ * @param deep Whether to search recursively.
+ * @return bool
+ */
+Space.prototype.isStringMap = function(deep) {
+  var length = this.length,
+      map = {}
+
+  for (var i = 0; i < length; i++) {
+    var property = this._pairs[i][0]
+    if (map[property])
       return false
-    }
-  })
-  return result
+    map[property] = true
+    if (!deep)
+      continue
+    var value = this._pairs[i][1]
+    if ((!value instanceof Space))
+      continue
+    if (!value.isStringMap())
+      return false
+  }
+  return true
 }
 
 Space.prototype._typeCount = function() {

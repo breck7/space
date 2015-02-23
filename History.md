@@ -1,6 +1,8 @@
 0.9.7 / 2015-02-22
 ==================
 - Fixed type error when passing undefined to get
+- BREAKING: Renamed isASet to isStringMap
+- Added isFlat method
 
 0.9.6 / 2015-02-22
 ==================

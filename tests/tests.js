@@ -670,9 +670,22 @@ test('isEmpty', function() {
   equal(a.isEmpty(), false)
 })
 
-test('isASet', function() {
+test('isFlat', function() {
+  ok(!new Space(testStrings.renameAll).isFlat())
+  ok(!new Space(testStrings.filter).isFlat())
+  ok(new Space(testStrings.splitTest).isFlat())
+  ok(new Space("foo bar"))
+  ok(new Space(""))
+})
+
+test('isStringMap', function() {
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  equal(a.isASet(), true)
+  equal(a.isStringMap(), true)
+  equal(a.isStringMap(true), true)
+  a.get('john').append('age', '4')
+  equal(a.isStringMap(true), false)
+  var b = new Space('john\n age 5\nsusy\n age 6\njohn\n age 10')
+  equal(b.isStringMap(), false)
 })
 
 test('last', function() {
