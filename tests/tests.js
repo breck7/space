@@ -529,6 +529,7 @@ test('get', function() {
   equal(value.get('hello'), 'world')
   value.set('2', 'hi')
   equal(value.get(2), 'hi')
+  strictEqual(value.get(), undefined)
 
   // get non existant value
 

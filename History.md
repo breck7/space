@@ -1,3 +1,7 @@
+0.9.7 / 2015-02-22
+==================
+- Fixed type error when passing undefined to get
+
 0.9.6 / 2015-02-22
 ==================
 - BREAKING CHANGE: turned length() into a getter. To migrate simply replace all calls to length() with length

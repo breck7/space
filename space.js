@@ -872,6 +872,8 @@ Space.prototype.every = function(fn) {
  * @return any
  */
 Space.prototype.get = function(query) {
+  if (query === undefined)
+    return undefined
   return this._getValueByString(query.toString())
 }
 
