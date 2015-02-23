@@ -5,7 +5,7 @@ test('Space', function() {
   ok(Space, 'Space class should exist')
   ok(new Space() instanceof Space, 'Space should return a space')
   var space = new Space('hello world')
-  equal(space.length(), 1, 'types array should have 1 property')
+  equal(space.length, 1, 'types array should have 1 property')
   equal(space.indexOf('hello'), 0, 'types array should be correct')
   equal(space.get('hello'), 'world', 'Properties should be accessible')
   equal(typeof space.get('hello'), 'string', 'Leafs should be strings')
@@ -18,7 +18,7 @@ test('Space', function() {
   ok(space.get('foobar') instanceof Space, 'Nested spaces should be spaces')
 
   space = new Space('list\nsingle value')
-  equal(space.length(), 2, 'Space should have 2 names')
+  equal(space.length, 2, 'Space should have 2 names')
   ok(space.get('list') instanceof Space, 'A name without a trailing space should be a space')
 
   space = new Space('body')
@@ -81,14 +81,14 @@ test('append', function() {
   equal(count, 1)
 
   a.append('foo', 'two')
-  equal(a.length(), 4)
+  equal(a.length, 4)
 })
 
 test('clear', function() {
   var a = new Space('hello world')
-  equal(a.length(), 1)
+  equal(a.length, 1)
   ok(a.clear() instanceof Space, 'clear should return this so its chainable')
-  equal(a.length(), 0)
+  equal(a.length, 0)
 
   var a = new Space('hello world')
   a.clear('foo bar')
@@ -147,15 +147,15 @@ test('delete', function() {
   var a = new Space()
   a.set('name', 'Breck')
   equal(a.get('name'), 'Breck', 'name is set')
-  equal(a.length(), 1, 'length okay')
+  equal(a.length, 1, 'length okay')
   a.delete('name')
   equal(a.get('name'), undefined, 'name is gone')
-  equal(a.length(), 0, 'length okay')
+  equal(a.length, 0, 'length okay')
   a.set('earth north_america united_states california san_francisco', 'mission')
   ok(a.get('earth north_america united_states california') instanceof Space)
   equal(a.get('earth north_america united_states california san_francisco'), 'mission', 'neighborhood is set')
-  equal(a.get('earth north_america united_states california').length(), 1, 'length okay')
-  equal(a.length(), 1, 'length okay')
+  equal(a.get('earth north_america united_states california').length, 1, 'length okay')
+  equal(a.length, 1, 'length okay')
   ok(a.delete('earth north_america united_states california san_francisco') instanceof Space, 'returns space')
   equal(a.get('earth north_america united_states california san_francisco'), undefined, 'neighborhood is gone')
 
@@ -175,7 +175,7 @@ test('delete', function() {
 /*
 test('dupes', function () {
   space = new Space('time 123\ntime 456')
-  equal(space.length(), 2)
+  equal(space.length, 2)
   equal(space.toString(), 'time 123\ntime 456\n')
 })
 */
@@ -246,20 +246,20 @@ test('diff of subclasses', function() {
 
   var diff = block.diff(block2)
 
-  equal(diff.length(), 0, 'Difference between 2 spaces should not check privates.')
+  equal(diff.length, 0, 'Difference between 2 spaces should not check privates.')
   var diff = block2.diff(block)
-  equal(diff.length(), 0, 'Difference between 2 spaces should not check privates.')
+  equal(diff.length, 0, 'Difference between 2 spaces should not check privates.')
 
   ok(page instanceof Space, 'page is instance of Space')
   ok(page instanceof Space, 'page is instance of Page')
-  ok(page.length(), 'page has 1 name/value')
+  ok(page.length, 'page has 1 name/value')
 
   page.set('body foobar', block)
 
   page2.set('body foobar', block2)
   diff = page.diff(page2)
   equal(page.toString(), page2.toString(), 'Pages should be equal')
-  equal(diff.length(), 0, 'Difference between 2 composites should not check privates in sub parts.')
+  equal(diff.length, 0, 'Difference between 2 composites should not check privates in sub parts.')
 
   ok(page.get('body foobar') instanceof Block, 'block1 is instance of Block')
 
@@ -305,7 +305,7 @@ width 56px'
     // When turning a string into a Space object and given a duplicate property, first item should win
   equal(value.get('height'), '45px')
 
-  equal(value.length(), 3)
+  equal(value.length, 3)
 })
 
 test('duplicate property with getArray', function() {
@@ -329,8 +329,8 @@ test('each', function() {
   equal(value.each(function(property, value) {
     string += property.toUpperCase()
     string += value.toUpperCase()
-    string += this.length()
-  }).length(), 2, 'test chaining')
+    string += this.length
+  }).length, 2, 'test chaining')
   equal(string, 'HELLOWORLD2HIMOM2')
 
   // test breaking
@@ -463,9 +463,9 @@ test('filter', function() {
 test('find', function() {
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
 
-  equal(a.find('age', '5').length(), 1)
-    //  equal(a.find('age', /(5|6)/).length(), 2)
-    //  equal(a.find('age', function (value) {return value > 4}).length(), 3)
+  equal(a.find('age', '5').length, 1)
+    //  equal(a.find('age', /(5|6)/).length, 2)
+    //  equal(a.find('age', function (value) {return value > 4}).length, 3)
 })
 
 test('first', function() {
@@ -492,16 +492,16 @@ test('fromCsv', function() {
   strictEqual(a.toCsv(), testStrings.toCsvResult)
 
   var b = Space.fromCsv("Age,Birth Place,Country\n12,Brockton,USA")
-  strictEqual(b.length(), 1)
+  strictEqual(b.length, 1)
   strictEqual(b.getByIndex(0).get('Country'), 'USA')
 })
 
 test('fromHeredoc', function() {
   var doc = new Space(testStrings.heredoc)
   // todo: should this be 15?
-  equal(doc.length(), 15)
+  equal(doc.length, 15)
   var parsedDoc = Space.fromHeredoc(testStrings.heredoc, "body", "endbody")
-  equal(parsedDoc.length(), 4)
+  equal(parsedDoc.length, 4)
 })
 
 test('fromSsv', function() {
@@ -542,7 +542,7 @@ test('get', function() {
 test('getAll', function() {
   var value = new Space('hello world\nhello world')
   ok(value.getAll('hello') instanceof Space)
-  equal(value.getAll('hello').length(), 2)
+  equal(value.getAll('hello').length, 2)
   var each = ''
   value.getAll('hello').each(function(k, v) {
     each += 'a'
@@ -736,7 +736,7 @@ test('loadFromString', function() {
 
 test('loadFromString extra spaces', function() {
   var d = new Space('one\ntwo\n  three\n    four\nfive six')
-  equal(d.length(), 3)
+  equal(d.length, 3)
 })
 
 test('matches leak', function() {
@@ -870,20 +870,20 @@ test('patch', function() {
   // delete an element
   var page = new Space()
   page.set('text', new Space('content hello world'))
-  equal(page.length(), 1, 'item deleted')
+  equal(page.length, 1, 'item deleted')
   page.patch(new Space('text '))
-  equal(page.length(), 0, 'item deleted')
+  equal(page.length, 0, 'item deleted')
 
   var pages = new Space()
   pages.set('page1', new Space('text\n content hello world'))
-  equal(pages.get('page1').length(), 1)
+  equal(pages.get('page1').length, 1)
   pages.get('page1').patch('text')
-  equal(pages.get('page1').length(), 0)
+  equal(pages.get('page1').length, 0)
 
   var a = new Space('property meta\n')
   var b = new Space('content\n')
   a.patch(b)
-  equal(a.length(), 1, 'patch okay')
+  equal(a.length, 1, 'patch okay')
   equal(a.get('property'), 'meta', 'patch okay')
   var space = new Space('meta\n property meta')
   var patch = new Space('meta\n content')
@@ -905,7 +905,7 @@ test('patch performance test', function() {
     patch.set(Math.random(), 'foobar')
     space.patch(patch)
   }
-  equal(space.length(), 2000)
+  equal(space.length, 2000)
 })
 
 test('path functions', function() {
@@ -920,9 +920,9 @@ test('path functions', function() {
 
 test('pop', function() {
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  equal(a.length(), 3)
+  equal(a.length, 3)
   equal(a.pop().toString(), 'bob\n age 10\n')
-  equal(a.length(), 2)
+  equal(a.length, 2)
 
   var empty = new Space()
   equal(empty.pop(), null)
@@ -986,7 +986,7 @@ test('query', function() {
   var query = new Space('user\n name\n domains\n  test.test.com\n   pages\n    home\n     block1')
   var result = string.getBySpace(query)
   ok(result instanceof Space, 'Retrieve returns a space')
-  equal(result.length(), 1, '1 root node')
+  equal(result.length, 1, '1 root node')
   equal(result.get('user name'), 'Aristotle', 'Name retrieved successfully')
   ok(typeof result.get('user pro') === 'undefined', 'Did not retrieve pro value')
   equal(result.get('user domains test.test.com pages home block1 content'), 'Hello world')
@@ -995,21 +995,21 @@ test('query', function() {
 test('reload', function() {
   var a = new Space('john\n age 5\nsusy\n age 6')
   ok(a.reload())
-  equal(a.length(), 0, 'empty reload cleared object')
+  equal(a.length, 0, 'empty reload cleared object')
   var count = 0
   a.on('reload', function() {
     count++
   })
   a.reload('john 1')
   a.reload('john 2')
-  equal(a.length(), 1)
+  equal(a.length, 1)
   equal(a.get('john'), '2')
   equal(count, 2)
 })
 
 test('rename', function() {
   var a = new Space('john\n age 5\nsusy\n age 6\ncandy bar\nx 123\ny 45\n'),
-      originalLength = a.length(),
+      originalLength = a.length,
       originalString = a.toString(),
       index = a.indexOf('john')
 
@@ -1030,7 +1030,7 @@ test('rename', function() {
   a.rename('ice', 'candy')
 
   // Assert
-  strictEqual(a.length(), originalLength, "Length unchanged")
+  strictEqual(a.length, originalLength, "Length unchanged")
   strictEqual(a.toString(), originalString, "String unchanged")
 
   // Arrange
@@ -1143,9 +1143,9 @@ test('setByIndexPath', function() {
 
 test('shift', function() {
   var a = new Space('john\n age 5\nsusy\n age 6\nbob\n age 10')
-  equal(a.length(), 3)
+  equal(a.length, 3)
   equal(a.shift().toString(), 'john\n age 5\n')
-  equal(a.length(), 2)
+  equal(a.length, 2)
 
   var empty = new Space()
   equal(empty.shift(), null)
@@ -1169,7 +1169,7 @@ test('split', function() {
   var b = new Space(testStrings.splitTest)
   var c = b.split("title", "post")
   ok(c instanceof Space)
-  strictEqual(c.length(), 3)
+  strictEqual(c.length, 3)
   strictEqual(c.get('post content'), 'Hello world')
 })
 
@@ -1377,13 +1377,13 @@ test('union', function() {
   var c = new Space('maine me')
   var d = new Space('maine me\nflorida fl\ncali ca')
   ok(Space.union(a, b), 'a and b are same')
-  equal(Space.union(a, b).length(), 3, 'union should have 3 items')
-  equal(Space.union(a, c).length(), 1, 'union should have 1 item')
+  equal(Space.union(a, b).length, 3, 'union should have 3 items')
+  equal(Space.union(a, c).length, 1, 'union should have 1 item')
   ok(Space.union(a, c).toString() === c.toString(), 'union should be equal to c')
 
-  equal(Space.union(a, b, c, d).length(), 1, 'union should take multiple params')
-  equal(Space.union(a, b, d).length(), 2, 'union should be 2 long')
-  equal(Space.union(d, a, b, c).length(), 1, 'union should 1 be long')
+  equal(Space.union(a, b, c, d).length, 1, 'union should take multiple params')
+  equal(Space.union(a, b, d).length, 2, 'union should be 2 long')
+  equal(Space.union(d, a, b, c).length, 1, 'union should 1 be long')
 
   a = new Space('font-family Arial\nbackground red\ncolor blue\nwidth 10px')
   b = new Space('font-family Arial\nbackground green\ncolor blue\nwidth 10px')
@@ -1392,12 +1392,12 @@ test('union', function() {
   e = new Space('font-family Arial\nbackground #fff\ncolor blue\nwidth 121px')
 
   var union = Space.union(a, b, c, d, e)
-  equal(union.length(), 2, 'should should have length 2')
+  equal(union.length, 2, 'should should have length 2')
   equal(union.get('color'), 'blue', 'union should have color blue')
   equal(union.get('font-family'), 'Arial', 'union should have font family arial')
 
   union = Space.union.apply(a, [b, c, d, e])
-  equal(union.length(), 2, 'union should have length 2')
+  equal(union.length, 2, 'union should have length 2')
 })
 
 test('update', function() {

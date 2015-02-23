@@ -1,3 +1,7 @@
+0.9.6 / 2015-02-22
+==================
+- BREAKING CHANGE: turned length() into a getter. To migrate simply replace all calls to length() with length
+
 0.9.5 / 2015-02-22
 ==================
 - Added pretty param to toJSON
