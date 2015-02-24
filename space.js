@@ -1968,7 +1968,7 @@ Space.prototype.shift = function() {
  * @return space this
  */
 Space.prototype.sort = function(fn) {
-  this._pairs = this._pairs.sort(fn)
+  this._pairs.sort(fn)
   return this
 }
 
