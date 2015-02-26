@@ -735,27 +735,36 @@ test('loadFromObject', function() {
 test('loadFromString', function() {
   var a = new Space('text \n this is a string\n and more')
 
-  equal(a.get('text'), '\nthis is a string\nand more')
+  strictEqual(a.get('text'), '\nthis is a string\nand more')
 
   var b = new Space('a\n text \n  this is a string\n  and more')
-  equal(b.get('a text'), '\nthis is a string\nand more')
-  equal(b.toString(), 'a\n text \n  this is a string\n  and more\n')
+  strictEqual(b.get('a text'), '\nthis is a string\nand more')
+  strictEqual(b.toString(), 'a\n text \n  this is a string\n  and more\n')
 
   var string = 'first_name John\nlast_name Doe\nchildren\n 1\n  first_name Joe\n  last_name Doe\n  children\n   1\n    first_name Joe Jr.\n    last_name Doe\n    age 12\ncolors\n blue\n red\nbio \n Hello this is\n my multline\n biography\n \n Theres a blank line in there as well\n \n \n Two blank lines above this one.\ncode <p></p>\n'
   var c = new Space(string)
-  equal(c.get('children 1 children 1 age'), '12')
-  equal(c.toString().length, string.length)
-  equal(c.toString(), string)
+  strictEqual(c.get('children 1 children 1 age'), '12')
+  strictEqual(c.toString().length, string.length)
+  strictEqual(c.toString(), string)
+
+  var d = new Space("\n\na b\n")
+  strictEqual(d.toString(), "a b\n", "Expected extra newlines at start of string to be trimmed")
+
+  var e = new Space("a b\n\nb c\n")
+  strictEqual(e.toString(), "a b\nb c\n", "Expected extra newlines in middle of string to be trimmed")
+
+  var f = new Space("a b\n\n\n")
+  strictEqual(f.toString(), "a b\n", "Expected extra newlines at end of string to be trimmed")
 })
 
 test('loadFromString extra spaces', function() {
   var d = new Space('one\ntwo\n  three\n    four\nfive six')
-  equal(d.length, 3)
+  strictEqual(d.length, 3)
 })
 
 test('matches leak', function() {
   var foo = new Space('hello world')
-  equal(typeof(matches), "undefined")
+  strictEqual(typeof(matches), "undefined")
 })
 
 test('map properties', function() {

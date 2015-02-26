@@ -1,3 +1,7 @@
+0.9.8 / 2015-02-25
+==================
+- Bug fix in the load2 parsing algo
+
 0.9.7 / 2015-02-22
 ==================
 - Fixed type error when passing undefined to get

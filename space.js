@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = '0.9.7'
+Space.version = '0.9.8'
 
 /**
  * Delete items from an array
@@ -1480,6 +1480,10 @@ Space.prototype._loadFromString2 = function(string) {
         // it may be the end of a space
         spacesToGo = valueSpaceCount + 1
         spaceCount = 0
+        // Advance to the next non-newline
+        while (string[i + 1] === "\n") {
+          i++
+        }
         if (i !== string.length - 1)
           currentValue += c
       } else {
