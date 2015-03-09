@@ -1,11 +1,8 @@
 {
   "name": "space",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "A lightweight language for objects",
   "main": "./space.js",
-  "bin": {
-    "space": "cli.js"
-  },
   "scripts": {
     "test": "node tests/node-test.js"
   },

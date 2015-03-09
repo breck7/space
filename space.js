@@ -11,7 +11,7 @@ function Space(content) {
   return this
 }
 
-Space.version = "0.9.8"
+Space.version = "0.9.9"
 
 /**
  * Delete items from an array
@@ -372,13 +372,14 @@ Space._nodeRequest = function(url, callback, spaceObj) {
 
   if (spaceObj) {
     var options = {
-      url: url,
-      method: "POST",
-      headers: {
-        contentType: "text/plain"
-      },
-      body: spaceObj.toString()
-    }
+        url: url,
+        method: "POST",
+        headers: {
+          contentType: "text/plain"
+        },
+        body: spaceObj.toString()
+      }
+
     return request.post({url: url, formData: spaceObj.toString()}, callback)
   }
 
@@ -478,7 +479,8 @@ Space.union = function() {
   for (var i = 0; i < argumentsLength; i++) {
     if (i === 1) continue // skip the first one
     union = Space.unionSingle(union, arguments[i])
-    if (!union.length) break
+    if (!union.length)
+      break
   }
   return union
 }
@@ -511,9 +513,7 @@ Space.unionSingle = function(spaceA, spaceB) {
  */
 Space.prototype.append = function(property, value) {
   this._setPair(property, value)
-  this.trigger("append", property, value)
-  this.trigger("change")
-  return this
+  return this.trigger("append", property, value).trigger("change")
 }
 
 /**
@@ -598,9 +598,7 @@ Space.prototype.concat = function(b) {
  */
 Space.prototype.create = function(property, value) {
   this._setPair(property, value)
-  this.trigger("create", property, value)
-  this.trigger("change")
-  return this
+  return this.trigger("create", property, value).trigger("change")
 }
 
 Space.prototype._delete = function(property) {
@@ -620,8 +618,8 @@ Space.prototype._deleteByIndex = function(index) {
   
   this._index[property]--
   if (!this._index[property]) {
-    delete this._cache[property];
-    delete this._index[property];
+    delete this._cache[property]
+    delete this._index[property]
   } else if (removedPair[0][1] !== this._cache[property]) {
     // If the removed value is not the cached value.
   } else {
@@ -630,7 +628,7 @@ Space.prototype._deleteByIndex = function(index) {
     for (var i = index; i < length; i++) {
       if (this._pairs[i][0] === property) {
         this._cache[property] = this._pairs[i][1]
-        break;
+        break
       }
     }
   }
@@ -640,19 +638,16 @@ Space.prototype._deleteByIndex = function(index) {
 
 Space.prototype._deleteByProperty = function(property) {
   var index = this.indexOf(property)
-  if (index === -1)
-    return 0
-  return this._deleteByIndex(index)
+  return index === -1 ? 0 : this._deleteByIndex(index)
 }
 
 Space.prototype._deleteByXPath = function(xpath) {
   // Get parent
-  var parts = xpath.split(/ /)
-  var child = parts.pop()
-  var parent = this.get(parts.join(" "))
-  if (parent instanceof Space)
-    return parent._delete(child)
-  return 0
+  var parts = xpath.split(/ /),
+      child = parts.pop(),
+      parent = this.get(parts.join(" "))
+
+  return parent instanceof Space ? parent._delete(child) : 0
 }
 
 /**
@@ -665,8 +660,7 @@ Space.prototype._deleteByXPath = function(xpath) {
 Space.prototype["delete"] = function(property) {
   if (this._delete(property))
     this.trigger("delete", property)
-  this.trigger("change")
-  return this
+  return this.trigger("change")
 }
 
 /**
@@ -824,32 +818,28 @@ Space.prototype.find = function(typeTest, valueTest) {
 
 /**
  * Return the first property/value pair as a space object.
+ * Returns an empty space instance if current instance is empty.
  *
  * @return space
  */
 Space.prototype.first = function() {
   if (!this.length)
     return new Space()
-  var result = new Space().set(this._pairs[0][0], this._pairs[0][1])
-  return result
+  return new Space().set(this._pairs[0][0], this._pairs[0][1])
 }
 
 /**
  * @return string
  */
 Space.prototype.firstProperty = function() {
-  if (!this.length)
-    return null
-  return this._pairs[0][0]
+  return this.length ? this._pairs[0][0] : null
 }
 
 /**
  * @return any
  */
 Space.prototype.firstValue = function() {
-  if (!this.length)
-    return null
-  return this._pairs[0][1]
+  return this.length ? this._pairs[0][1] : null
 }
 
 /**
@@ -922,8 +912,8 @@ Space.prototype.getByIndex = function(index) {
  * @return any
  */
 Space.prototype.getByIndexPath = function(query) {
-  var parts = query.split(/ /g)
-  var first = parseFloat(parts.shift())
+  var parts = query.split(/ /g),
+      first = parseFloat(parts.shift())
   if (parts.length === 0)
     return this._getValueByIndex(first)
   else
@@ -967,10 +957,11 @@ Space.prototype.getBySpace = function(query) {
  * @return space the cud diff
  */
 Space.prototype.getCud = function(space) {
-  var diff = new Space("created\nupdated\ndeleted\n")
+  var diff = new Space("created\nupdated\ndeleted\n"),
+      subject = this
   if (!(space instanceof Space))
     space = new Space(space)
-  var subject = this
+
   space.each(function(property, value) {
     if (subject.get(property) === undefined)
       diff.set("created " + property, value)
@@ -992,22 +983,11 @@ Space.prototype._getValueByIndex = function(index) {
   // Passing -1 gets the last item, et cetera
   if (index < 0)
     index = this.length + index
-  if (this._pairs[index])
-    return this._pairs[index][1]
-  return undefined
+  return this._pairs[index] ? this._pairs[index][1] : undefined
 }
 
 Space.prototype._getValueByProperty = function(property) {
   return this._cache[property]
-  /*
-  this._pairs.forEach(function(pair, index) {
-    if (pair[0] === property) {
-      result = pair[1]
-      return false
-    }
-  })
-  return result
-  */
 }
 
 Space.prototype._getPropertyByIndex = function(index) {
@@ -1040,7 +1020,6 @@ Space.prototype.getProperties = function() {
  * @return any The matching value
  */
 Space.prototype._getValueByString = function(xpath) {
-
   if (!xpath)
     return undefined
 
@@ -1075,9 +1054,9 @@ Space.prototype._getValueByString = function(xpath) {
  * @return space
  */
 Space.prototype._getValueBySpace = function(space) {
-  var result = new Space()
+  var result = new Space(),
+      me = this
 
-  var me = this
   space.each(function(property, v) {
     var value = me._getValueByProperty(property)
 
@@ -1102,87 +1081,6 @@ Space.prototype._getValueBySpace = function(space) {
 }
 
 /**
- * Experimental.
- *
- * @param debug bool
- * @return string
- */
-Space.prototype.getTokens = function(debug) {
-  var string = this.toString()
-  var mode = "K"
-  var tokens = ""
-  var escapeLength = 1
-  var escaping = 0
-  var stringLength = string.length
-  for (var i = 0; i < stringLength - 1; i++) {
-    var character = string.substr(i, 1)
-
-    if (escaping > 0) {
-      // skip over the escaped spaces
-      tokens += "E"
-      escaping--
-      continue
-    }
-
-    if (character !== " " && character !== "\n") {
-      if (mode === "N")
-        mode = "K"
-      tokens += mode
-      continue
-    }
-
-    if (character === " ") {
-      if (mode === "V") {
-        tokens += mode
-        continue
-      } else if (mode === "K") {
-        tokens += "S"
-        mode = "V"
-        continue
-      }
-      // KEY hunt mode
-      else {
-        escapeLength++
-        tokens += "N"
-        continue
-      }
-    }
-
-    //  else its a newline
-    if (mode === "K") {
-      mode = "N"
-      escapeLength = 1
-      tokens += "N"
-      continue
-    } else if (mode === "V") {
-      // if is escaped
-      if (string.substr(i + 1, escapeLength) === Space.strRepeat(" ", escapeLength)) {
-        tokens += "V"
-        escaping = escapeLength
-        continue
-      }
-
-      // else not escaped
-      mode = "N"
-      escapeLength = 1
-      tokens += "N"
-      continue
-    }
-  }
-  return tokens
-}
-
-/**
- * Experimental
- *
- * @return string
- */
-Space.prototype.getTokensConcise = function() {
-  // http://stackoverflow.com/questions/7780794/javascript-regex-remove-duplicate-characters
-  return this.getTokens().replace(/[^\w\s]|(.)(?=\1)/gi, "")
-}
-
-/**
  * Returns a shallow array of all the values.
  *
  * @return array<any>
@@ -1201,11 +1099,6 @@ Space.prototype.getValues = function() {
  */
 Space.prototype.has = function(property) {
   return !!this._getValueByProperty(property)
-}
-
-// Experimental
-Space.prototype.__height = function() {
-  return this.toString().match(/\n/g).length
 }
 
 /**
@@ -1288,15 +1181,6 @@ Space.prototype.isStringMap = function(deep) {
   return true
 }
 
-Space.prototype._typeCount = function() {
-  var count = this.length
-  this.each(function(property, value) {
-    if (value instanceof Space)
-      count += value._typeCount()
-  })
-  return count
-}
-
 /**
  * Return the last property/value pair as a space object.
  *
@@ -1306,8 +1190,7 @@ Space.prototype.last = function() {
   if (!this.length)
     return new Space()
   var lastIndex = this.length - 1
-  var result = new Space().set(this._pairs[lastIndex][0], this._pairs[lastIndex][1])
-  return result
+  return new Space().set(this._pairs[lastIndex][0], this._pairs[lastIndex][1])
 }
 
 /**
@@ -1316,8 +1199,7 @@ Space.prototype.last = function() {
 Space.prototype.lastProperty = function() {
   if (!this.length)
     return null
-  var lastIndex = this.length - 1
-  return this._pairs[lastIndex][0]
+  return this._pairs[this.length - 1][0]
 }
 
 /**
@@ -1326,8 +1208,7 @@ Space.prototype.lastProperty = function() {
 Space.prototype.lastValue = function() {
   if (!this.length)
     return null
-  var lastIndex = this.length - 1
-  return this._pairs[lastIndex][1]
+  return this._pairs[this.length - 1][1]
 }
 
 /**
@@ -1342,7 +1223,6 @@ Object.defineProperty(Space.prototype, "length", {
 Space._load2 = true
 
 Space.prototype._load = function(content) {
-
   // Load from string
   if (typeof content === "string") {
     if (!content.length)
@@ -1540,9 +1420,11 @@ Space.prototype._loadFromString = function(string) {
   }
   */
   var spaces = string.split(/\n(?! )/g),
-      matches
+      matches,
+      space
+
   for (var i in spaces) {
-    var space = spaces[i]
+    space = spaces[i]
     if (matches = space.match(/^([^ ]+)(\n|$)/)) // Space
       this._setPair(matches[1], new Space(space.substr(matches[1].length).replace(/\n /g, "\n")))
     else if (matches = space.match(/^([^ ]+) /)) // Leaf
@@ -1590,9 +1472,7 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
  * @return string
  */
 Space.prototype.next = function(property) {
-  var index = this.indexOf(property)
-  var next = index + 1
-  return this._getPropertyByIndex(next)
+  return this._getPropertyByIndex(this.indexOf(property) + 1)
 }
 
 /**
@@ -1610,15 +1490,6 @@ Space.prototype.off = function(eventName, fn) {
   return this
 }
 
-Space.prototype._objectCount = function() {
-  var count = 0
-  this.each(function(property, value) {
-    if (value instanceof Space)
-      count += 1 + value._objectCount()
-  })
-  return count
-}
-
 /**
  * @param eventName string
  * @param fn function
@@ -1632,13 +1503,11 @@ Space.prototype.on = function(eventName, fn) {
 }
 
 Space.prototype._patch = function(patch) {
-
   if (!(patch instanceof Space))
     patch = new Space(patch)
 
   var me = this
   patch.each(function(property, patchValue) {
-
     // If patch value is a string, doesnt matter what property subject is.
     if (typeof patchValue === "string") {
       if (patchValue === "")
@@ -1668,7 +1537,6 @@ Space.prototype._patch = function(patch) {
 
     // Final case. Do a deep copy of space.
     me.set(property, new Space(patchValue), null, true)
-
   })
 
   return this
@@ -1681,11 +1549,9 @@ Space.prototype._patch = function(patch) {
  * @return space
  */
 Space.prototype.patch = function(patch) {
-  // todo, do not trigger patch if no change
   this._patch(patch)
-  this.trigger("patch", patch)
-  this.trigger("change")
-  return this
+  // todo, do not trigger patch if no change
+  return this.trigger("patch", patch).trigger("change")
 }
 
 /**
@@ -1694,12 +1560,11 @@ Space.prototype.patch = function(patch) {
  * @return space this
  */
 Space.prototype._patchOrder = function(space) {
-
   if (!(space instanceof Space))
     space = new Space(space)
 
-  var me = this
-  var copy = this.clone()
+  var me = this,
+      copy = this.clone()
   me._clear()
   space.each(function(property, value) {
     me._setPair(property, copy.get(property))
@@ -1717,11 +1582,9 @@ Space.prototype._patchOrder = function(space) {
  * @return space
  */
 Space.prototype.patchOrder = function(space) {
-  // todo: do not trigger event if no change
   this._patchOrder(space)
-  this.trigger("patchOrder", space)
-  this.trigger("change")
-  return this
+  // todo: do not trigger event if no change
+  return this.trigger("patchOrder", space).trigger("change")
 }
 
 /**
@@ -1732,9 +1595,10 @@ Space.prototype.patchOrder = function(space) {
 Space.prototype.pop = function() {
   if (!this.length)
     return null
-  var result = new Space()
-  var property = this._getPropertyByIndex(-1)
-  var value = this._getValueByProperty(property)
+  var result = new Space(),
+      property = this._getPropertyByIndex(-1),
+      value = this._getValueByProperty(property)
+
   result.set(property, value)
   this._delete(property)
   return result
@@ -1758,9 +1622,7 @@ Space.prototype.prepend = function(property, value) {
  * @return string
  */
 Space.prototype.prev = function(name) {
-  var index = this.indexOf(name)
-  var prev = index - 1
-  return this._getPropertyByIndex(prev)
+  return this._getPropertyByIndex(this.indexOf(name) - 1)
 }
 
 /**
@@ -1854,10 +1716,8 @@ Space.prototype.set = function(property, value, index, noEvents) {
     else
       this._setPair(property, value, index)
   }
-  if (!noEvents) {
-    this.trigger("set", property, value, index)
-    this.trigger("change")
-  }
+  if (!noEvents)
+    this.trigger("set", property, value, index).trigger("change")
   return this
 }
 
@@ -1874,8 +1734,8 @@ Space.prototype.setByIndexPath = function(query, value) {
     this.update(i, this._getPropertyByIndex(i), value)
     return this
   }
-  var branch = Space.pathBranch(query)
-  var space = this.getByIndexPath(branch)
+  var branch = Space.pathBranch(query),
+      space = this.getByIndexPath(branch)
   if (!space)
     return this
   var property = parseFloat(Space.pathLeaf(query))
@@ -1886,30 +1746,31 @@ Space.prototype.setByIndexPath = function(query, value) {
 Space.prototype._setByXPath = function(path, value) {
   if (!path)
     return null
-  var generations = path.toString().split(/ /g)
-  var currentContext = this
-  var currentPath
-  var index
-  var generationsLength = generations.length
+  
+  var generations = path.toString().split(/ /g),
+      currentContext = this,
+      currentPath,
+      index,
+      isLeaf,
+      newValue,
+      generationsLength = generations.length
+
   for (var i = 0; i < generationsLength; i++) {
     currentPath = generations[i]
-    var isLeaf = (i === (generations.length - 1))
+    isLeaf = (i === (generations.length - 1))
+    
     // If path is already set, continue
     if (!isLeaf && currentContext._getValueByProperty(currentPath) instanceof Space) {
       currentContext = currentContext.get(currentPath)
       continue
     }
 
-    var newValue
     // Leaf
-    if (isLeaf)
-      newValue = value
-    else
-      newValue = new Space()
+    newValue = isLeaf ? value : new Space()
 
     // update pair
     if (currentContext.has(currentPath)) {
-      var index = currentContext.indexOf(currentPath)
+      index = currentContext.indexOf(currentPath)
       currentContext._setPair(currentPath, newValue, index, true)
     } else
       currentContext._setPair(currentPath, newValue)
@@ -1942,7 +1803,7 @@ Space.prototype._updateCache = function(property, value, index) {
     // Scroll through and see if there is already an entry in the cache
     for (var i = 0; i < index; i++) {
       if (this._pairs[i][0] === property)
-        break;
+        break
     }
     // This is the new first value
     if (i === index)
@@ -2027,133 +1888,8 @@ Space.prototype.tableOfContents = function() {
   return this.getProperties().join(" ")
 }
 
-/**
- * Experimental.
- * @return string
- */
-Space.prototype.toBinary = function() {
-  var binary = ""
-  var str = this.toString()
-  for (var i = 0; i < str.length; i++) {
-    var bits = parseFloat(str.substr(i, 1).charCodeAt(0)).toString(2)
-    while (bits.length < 8) {
-      bits = "0" + bits
-    }
-    binary += bits
-  }
-  return binary.replace(/0/g, "-").replace(/1/g, "|")
-}
-
-/**
- * Experimental.
- * @return string
- */
-Space.prototype.toBinaryMatrixString = function() {
-  var str = ""
-  var matrix = this.toDecimalMatrix()
-  matrix.forEach(function(row, i) {
-    row.forEach(function(c, j) {
-      var bits = c.toString(2)
-      while (bits.length < 8) {
-        bits = "0" + bits
-      }
-      str += bits
-    })
-    str += "\n"
-  })
-  return str
-}
-
-/**
- * Experimental. Very inefficient. If useful speed & trim it up.
- * @return array
- */
-Space.prototype.toColumns = function() {
-  var thisString = this.toString(),
-      str = "",
-      cols = [],
-      col = 0,
-      maxLength = 0,
-      extras = 0,
-      rows = 0,
-      thisStringLength = thisString.length
-
-  for (var i = 0; i < thisStringLength; i++) {
-    var c = thisString[i]
-    if (c === "\n") {
-      // Fill extra whitespace for this row
-      while (col < maxLength) {
-        cols[col] += " "
-        col++
-      }
-      col = 0
-      rows++
-      continue
-    }
-    if (!cols[col]) {
-      cols[col] = ""
-      for (var r = 0; r < rows; r++) {
-        // Fill extra whitespace in previous rows
-        cols[col] += " "
-      }
-    }
-    cols[col] += c
-    col++
-    if (col > maxLength)
-      maxLength = col
-  }
-  return cols
-}
-
 Space.prototype.toCsv = function() {
   return this.toDelimited(",")
-}
-
-/**
- * Experimental.
- * @return array
- */
-Space.prototype.toDecimalMatrix = function() {
-  var width = this.__width()
-  var lines = this.toString().replace(/\n$/, "").split(/\n/g)
-  var matrix = []
-  for (var i = 0; i < lines.length; i++) {
-    var line = lines[i]
-    var row = []
-    var length = line.length
-    for (var c = 0; c < width; c++) {
-      if (c < length)
-        row.push(line.substr(c, 1).charCodeAt(0))
-      else
-        row.push(0)
-    }
-    matrix.push(row)
-  }
-  return matrix
-}
-
-/**
- * Experimental.
- * @return string
- */
-Space.prototype.toDecimalMatrixString = function() {
-  var str = ""
-  var matrix = this.toDecimalMatrix()
-  matrix.forEach(function(row, i) {
-    var first = ""
-    row.forEach(function(c, j) {
-      str = str + first
-      if (c < 10)
-        str += "00" + c
-      else if (c > 9 && c < 100)
-        str += "0" + c
-      else
-        str += c
-      first = " "
-    })
-    str += "\n"
-  })
-  return str
 }
 
 /**
@@ -2337,44 +2073,6 @@ Space.prototype.toQueryString = function() {
 }
 
 /**
- * Experimental
- */
-Space.prototype.toShapes = function(spaces) {
-  spaces = spaces || 0
-  var string = "V\n"
-  // Iterate over each property
-  this.each(function(property, value) {
-
-    // If property value is undefined
-    if (value === undefined) {
-      string += "\n"
-      return true
-    }
-
-    // Set up the property part of the property/value pair
-    string += Space.strRepeat(" ", spaces) + "O"
-
-    // If the value is a space, concatenate it
-    if (value instanceof Space)
-      string += value.toShapes(spaces + 1)
-
-    // If an object (other than class of space) snuck in there
-    else if (typeof value === "object")
-      string += new Space(value).toShapes(spaces + 1)
-
-    // dont put a blank string on a blank value.
-    else if (value.toString() === "")
-      string += " \n"
-
-    // Plain string
-    else
-      string += "[]" + "\n"
-  })
-
-  return string
-}
-
-/**
  * @return string
  */
 Space.prototype.toSsv = function() {
@@ -2502,29 +2200,18 @@ Space.prototype._toXMLWithAttributes = function(property, spaceCount) {
   return xml
 }
 
-Space.prototype.__transpose = function(templateString) {
-  var result = ""
-  this.each(function(property, value) {
-    var template = new Space(templateString.toString())
-    template.every(function(k, xpath, index) {
-      if (value._getValueByProperty(xpath))
-        this._setPair(k, value._getValueByProperty(xpath), index, true)
-    })
-    result += template.toString()
-  })
-  return new Space(result)
-}
-
 /**
  * @param eventName string
+ * @return this
  */
 Space.prototype.trigger = function(eventName) {
   if (!this.events[eventName])
-    return true
+    return this
   var args = Array.prototype.slice.call(arguments)
   for (var i in this.events[eventName]) {
     this.events[eventName][i].apply(this, args.slice(1))
   }
+  return this
 }
 
 /**
@@ -2538,20 +2225,17 @@ Space.prototype.update = function(index, property, value) {
   return this
 }
 
+/**
+ * Return a new space instance which has one property/value. The
+ * property is the one passed. The value is the current instance.
+ *
+ * @param property string
+ * @return Space The new instance.
+ */
 Space.prototype.wrap = function(property) {
   var newSpace = new Space()
   newSpace.set(property, this)
   return this.reload(newSpace.toString())
-}
-
-Space.prototype.__width = function() {
-  var lines = this.toString().split(/\n/g)
-  var width = 0
-  lines.forEach(function(str, property) {
-    if (str.length > width)
-      width = str.length
-  })
-  return width
 }
 
 // Export Space for use in Node.js

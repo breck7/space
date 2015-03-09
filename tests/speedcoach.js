@@ -17,58 +17,74 @@ function speedcoach(mark) {
 speedcoach.isNode = false
 speedcoach.on = true
 
-if (typeof require !== 'undefined') {
+if (typeof require !== "undefined") {
   speedcoach.isNode = true
 }
 
 speedcoach.marks = []
 
 /**
+ * @param chronological Whether to sort by order. (Default is sort by consumption)
  * @return string
  */
-speedcoach.times = function () {
-  var times = '',
-      spans = []
+speedcoach.times = function (chronological) {
+  var times = "",
+      spans = [],
+      sorted
 
   speedcoach.marks.forEach(function (element, index, list) {
     if (index + 1 >= list.length)
       return false
     var next = list[index + 1]
     // Marks and time
-    var entry = [element[0] + ' to ' + next[0], next[1] - element[1]]
+    var entry = [element[0] + " to " + next[0], next[1] - element[1]]
     // Mem
     if (speedcoach.isNode)
       entry.push(next[2][0] - element[2][0])
     spans.push(entry)
   })
 
-  var sorted = spans.sort(function(a,b){
-    return (a > b ? 1 : null) || (a < b ? -1 : 0)
-  }).reverse()
+  if (chronological) {
+    sorted = spans
+  } else {
+    var sorted = spans.sort(function(a,b){
+      return (a > b ? 1 : null) || (a < b ? -1 : 0)
+    }).reverse()
+  }
 
   sorted.forEach(function (element) {
-    var mem = ''
+    var mem = ""
     if (speedcoach.isNode)
-      mem = ' +' + (element[2]/1000000).toFixed(1) + 'MB '
-    times += (element[1]/1000).toFixed(1) + 'S ' + element[0] + mem + '\n'
+      mem = " +" + (element[2]/1000000).toFixed(2) + "mb "
+    times += (element[1]/1000).toFixed(2) + "s " + element[0] + mem + "\n"
   })
 
   return times
 }
 
-speedcoach.print = function (dontClear) {
+/**
+ * @param dontClear Set to true to not clear the marks
+ * @param chronological Whether to sort by order. (Default is sort by consumption)
+ * @return string
+ */
+speedcoach.print = function (dontClear, chronological) {
+  var data = "\n" + speedcoach.times(chronological),
+      clear = !dontClear
+
   if (!speedcoach.on)
     return;
 
   if (console.debug)
-    console.debug('\n' + speedcoach.times())
+    console.debug(data)
   else
-    console.log('\n' + speedcoach.times())
+    console.log(data)
 
-  if (!dontClear)
+  if (clear)
     speedcoach.marks = []
+
+  return data
 }
 
 // Export Space for use in Node.js
-if (typeof exports !== 'undefined')
+if (speedcoach.isNode)
   module.exports = speedcoach;

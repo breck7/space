@@ -1,3 +1,7 @@
+0.9.9 / 2015-03-08
+==================
+- Code pruning and cleanup. Removed methods marked "experimental" and removes spacefs.
+
 0.9.8 / 2015-02-25
 ==================
 - Bug fix in the load2 parsing algo
@@ -136,4 +140,3 @@ flows.
 - added History.md
 - added version.js and 'make version' command
 - added toggle method
-

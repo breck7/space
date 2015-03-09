@@ -29,9 +29,6 @@ testmin:
 testnode:
 	node tests/node-test.js
 
-testfs:
-	mocha spacefs/tests/test.js
-
 version:
 	node version.js
 

@@ -1,19 +1,20 @@
-QUnit.module('Space')
+QUnit.module("Space")
 
-var isNode = typeof require !== 'undefined'
-var _chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'
+var isNode = typeof require !== "undefined",
+    _chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
 
 if (isNode) {
-  var fs = require('fs'),
-      speedcoach = require('./speedcoach')
+  var fs = require("fs"),
+      speedcoach = require("./speedcoach")
 }
 
 var randomString = function(min, max) {
-  var string = ''
-  length = (Math.round(Math.random() * (max - min))) + min
+  var string = "",
+      length = (Math.round(Math.random() * (max - min))) + min,
+      randomNumber
   
   for (var i = 0; i < length; i++) {
-    var randomNumber = Math.floor(Math.random() * _chars.length)
+    randomNumber = Math.floor(Math.random() * _chars.length)
     string += _chars.substring(randomNumber, randomNumber + 1)
   }
   
@@ -24,8 +25,8 @@ var randomString = function(min, max) {
 var randomSpace = function (rows, depthOdds) {
   var space = new Space(),
       depthOdds = depthOdds || 0,
-      property = '',
-      value = ''
+      property = "",
+      value = ""
 
   while (rows > 0) {
     property = randomString(3, 6)
@@ -45,13 +46,13 @@ var randomSpace = function (rows, depthOdds) {
   return space
 }
 
-test('start', function() {
-  speedcoach('start')
+test("start", function() {
+  speedcoach("start")
   ok(true)
 })
 
-test('tests', function() {
-  speedcoach('start tests')
+test("tests", function() {
+  speedcoach("start tests")
   Space._load2 = false
   var a = randomSpace(10000, 0.2).toString()
   
@@ -74,12 +75,27 @@ test('tests', function() {
   t = new Date().getTime()
   var m = JSON.parse(j)
   ok(true)
-  speedcoach('end tests')
+  speedcoach("end tests")
 })
 
-test('end', function() {
-  speedcoach('end')
+test("patch performance test", function() {
+  // Arrange
+  var space = new Space()
+
+  // Act
+  for (var i = 0; i < 1000; i++) {
+    var patch = new Space()
+    patch.set(Math.random(), new Space("foobar hello\nworld world\nnested\n element 1\n element2\n  foobar hi"))
+    patch.set(Math.random(), "foobar")
+    space.patch(patch)
+  }
+
+  // Assert
+  strictEqual(space.length, 2000)
+})
+
+test("end", function() {
+  speedcoach("end")
   speedcoach.print()
   ok(true)
 })
-
