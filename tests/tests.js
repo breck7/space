@@ -449,17 +449,6 @@ test("diff between a blank property/value and empty object", function() {
   strictEqual(b.toString(), "hi\n")
 })
 
-test("duplicate property", function() {
-  // Arrange
-  var spaceWithDupe = "height 45px\nheight 50px\nwidth 56px",
-      value = new Space(spaceWithDupe)
-  
-  // Act/Assert
-  // When turning a string into a Space object and given a duplicate property, first item should win
-  strictEqual(value.get("height"), "45px")
-  strictEqual(value.length, 3)
-})
-
 test("duplicate property with getArray", function() {
   // Arrange
   var spaceWithDupe = "height 45px\nheight 50px\nwidth 56px",
@@ -763,29 +752,38 @@ if (!isNode) {
 
 test("get", function() {
   // Arrange
-  var value = new Space("hello world")
+  var space = new Space("hello world")
 
   // Assert
-  strictEqual(value.get("hello"), "world")
+  strictEqual(space.get("hello"), "world")
 
   // Act
-  value.set("2", "hi")
+  // Test get with ints
+  space.set("2", "hi")
 
   // Assert
-  strictEqual(value.get(2), "hi")
-  strictEqual(value.get(), undefined)
-
-  // Get non existant value
-  // Act
-  value = new Space().get("some long path")
+  strictEqual(space.get(2), "hi", "Expected int to get casted to string and get value.")
 
   // Assert
-  strictEqual(value, undefined)
+  // Test get with invalid values
+  strictEqual(new Space().get("some"), undefined)
+  strictEqual(new Space().get("some long path"), undefined)
+  strictEqual(space.get(), undefined)
+  strictEqual(space.get(null), undefined)
+  strictEqual(space.get(""), undefined)
+  strictEqual(space.get(false), undefined)
+  strictEqual(space.get(true), undefined)
 
-  /// Act
-  value = new Space().get("some")
+  // Test get with duplicate properties
+  // Arrange
+  space = new Space("height 45px\nheight 50px\nwidth 56px")
+  
   // Assert
-  strictEqual(value, undefined)
+  strictEqual(space.length, 3)
+
+  // Act/Assert
+  // When getting a duplicate property last item should win
+  strictEqual(space.get("height"), "50px", "Expected to get last value in instance with duplicate property.")
 })
 
 test("getAll", function() {
@@ -920,6 +918,22 @@ test("insert", function() {
 
   // Assert
   strictEqual(space.indexOf("hi"), 0)
+
+  // Insert using an index longer than the current object
+  // Act
+  space.insert("test", "dad", 10)
+
+  // Assert
+  strictEqual(space.getByIndex(2), "dad", "Expected insert at int greater than length to append")
+  strictEqual(space.length, 3)
+
+  // Insert using a negative index
+  // Act
+  space.insert("test2", "sister", -1)
+
+  // Assert
+  strictEqual(space.getByIndex(2), "sister")
+  strictEqual(space.getByIndex(3), "dad")
 })
 
 test("isEmpty", function() {
@@ -1541,82 +1555,86 @@ test("reorder", function() {
 
 test("set", function() {
   // Arrange
-  var value = new Space("hello world")
+  var space = new Space("hello world")
 
   // Assert
-  strictEqual(value.get("hello"), "world")
-  ok(value.set("hello", "mom") instanceof Space, "set should return instance so we can chain it")
+  strictEqual(space.get("hello"), "world")
+  ok(space.set("hello", "mom") instanceof Space, "set should return instance so we can chain it")
+  strictEqual(space.get("hello"), "mom")
+
+  // Act
+  space.set("boom", "")
+  // Assert
+  strictEqual(space.get("boom"), "", "empty string")
+
+  // Act
+  space.set("head style color", "blue")
+  // Assert
+  strictEqual(space.get("head style color"), "blue", "set should have worked")
+
+  // TEST INT SCENARIOS
+  // Arrange
+  space = new Space()
+
+  // Act
+  space.set(2, "hi")
+  space.set(3, 3)
+  // Assert
+  strictEqual(space.get(2), "hi")
+  strictEqual(space.get("2"), "hi")
+  strictEqual(space.get("3"), 3)
+
+  // TEST XPATH SCENARIOS
+  // Arrange
+  space = new Space("style\n")
+  // Act
+  space.set("style color", "red")
+  space.set("style width", "100")
+
+  // Assert
+  strictEqual(space.get("style color"), "red")
+  strictEqual(space.get("style width"), "100")
+
+  // TEST ORDERING
+  // Arrange
+  space = new Space("hello world\n")
+  // Act
+  space.set("hi", "mom")
+  // Assert
+  strictEqual(space.tableOfContents(), "hello hi", "order correct")
+
+  // Act
+  space.insert("yo", "pal", 0)
+  // Assert
+  strictEqual(space.tableOfContents(), "yo hello hi", "order correct")
+
+  // Act
+  space.insert("hola", "pal", 2)
+  // Assert
+  strictEqual(space.tableOfContents(), "yo hello hola hi", "order correct")
 
   // Arrange
-  var byint = new Space()
-
+  space = new Space()
   // Act
-  byint.set(2, "hi")
+  space.set("hi", "hello world")
+  space.set("yo", new Space("hello world"))
   // Assert
-  strictEqual(byint.get(2), "hi")
+  notEqual(space.get("hi"), space.get("yo"))
 
   // Arrange
-  var blah = new Space()
-  // Act
-  value.set("boom", "")
-  // Assert
-  strictEqual(value.get("boom"), "", "empty string")
-  strictEqual(value.get("hello"), "mom", "value should be changed")
+  space = new Space()
 
   // Act
-  value.set("head style color", "blue")
+  space.set("meta x", 123)
+  space.set("meta y", 1235)
+  space.set("meta c", 435)
+  space.set("meta x", 1235123)
+
   // Assert
-  strictEqual(value.get("head style color"), "blue", "set should have worked")
+  strictEqual(space.get("meta c"), 435)
 
   // Arrange
-  var foo = new Space("style\n")
-  // Act
-  foo.set("style color", "red")
-  foo.set("style width", "100")
-
-  // Assert
-  strictEqual(foo.get("style color"), "red")
-  strictEqual(foo.get("style width"), "100")
-
-  // Arrange
-  var a = new Space("hello world\n")
-  // Act
-  a.set("hi", "mom")
-  // Assert
-  strictEqual(a.tableOfContents(), "hello hi", "order correct")
-
-  // Act
-  a.insert("yo", "pal", 0)
-  // Assert
-  strictEqual(a.tableOfContents(), "yo hello hi", "order correct")
-
-  // Act
-  a.insert("hola", "pal", 2)
-  // Assert
-  strictEqual(a.tableOfContents(), "yo hello hola hi", "order correct")
-
-  // Arrange
-  a = new Space()
-  // Act
-  a.set("hi", "hello world")
-  a.set("yo", new Space("hello world"))
-  // Assert
-  notEqual(a.get("hi"), a.get("yo"))
-
-  // Arrange
-  a = new Space()
-
-  // Act
-  a.set("meta x", 123)
-  a.set("meta y", 1235)
-  a.set("meta c", 435)
-  a.set("meta x", 1235123)
-
-  // Assert
-  strictEqual(a.get("meta c"), 435)
-
-  // Arrange
-  var space = new Space("name John\nage\nfavoriteColors\n blue\n  blue1 1\n  blue2 2\n green\n red 1\n")
+  space = new Space("name John\nage\nfavoriteColors\n blue\n  blue1 1\n  blue2 2\n green\n red 1\n")
 
   // Act
   space.set("favoriteColors blue", "purple").toString()
@@ -1638,35 +1656,35 @@ test("setByIndexPath", function() {
   strictEqual(space.getByIndexPath("0 1 1"), "mom")
 
   // Arrange
-  var s = new Space("h1 hello world")
+  space = new Space("h1 hello world")
   // Act
-  s.setByIndexPath("0", "mom")
+  space.setByIndexPath("0", "mom")
   // Assert
-  strictEqual(s.get("h1"), "mom")
+  strictEqual(space.get("h1"), "mom")
 })
 
 test("shift", function() {
   // Arrange
-  var a = new Space("john\n age 5\nsusy\n age 6\nbob\n age 10"),
+  var space = new Space("john\n age 5\nsusy\n age 6\nbob\n age 10"),
       empty = new Space()
   // Act/Assert
-  strictEqual(a.length, 3)
-  strictEqual(a.shift().toString(), "john\n age 5\n")
-  strictEqual(a.length, 2)
+  strictEqual(space.length, 3)
+  strictEqual(space.shift().toString(), "john\n age 5\n")
+  strictEqual(space.length, 2)
   strictEqual(empty.shift(), null)
 })
 
 test("sort", function() {
   // Arrange
-  var a = new Space("john\n age 5\nsusy\n age 6\nbob\n age 10")
+  var space = new Space("john\n age 5\nsusy\n age 6\nbob\n age 10")
   // Assert
-  strictEqual(a.tableOfContents(), "john susy bob")
+  strictEqual(space.tableOfContents(), "john susy bob")
   // Act
-  a.sort(function(a, b) {
+  space.sort(function(a, b) {
     return b[0] < a[0]
   })
   // Assert
-  strictEqual(a.tableOfContents(), "bob john susy")
+  strictEqual(space.tableOfContents(), "bob john susy")
 })
 
 test("split", function() {
@@ -1680,7 +1698,7 @@ test("split", function() {
   strictEqual(a.split("title")[2].get("date"), "2/25/2016")
   ok(c instanceof Space)
   strictEqual(c.length, 3)
-  strictEqual(c.get("post content"), "Hello world")
+  strictEqual(c.get("post content"), "Hello earth")
 })
 
 test("toCsv", function() {

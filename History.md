@@ -1,3 +1,8 @@
+0.10.1 / 2015-03-08
+===================
+- BREAKING: get(property: string) now returns the **last** matching pair and not the first.
+- Minor code cleanup and additional tests.
+
 0.9.9 / 2015-03-08
 ==================
 - Code pruning and cleanup. Removed methods marked "experimental" and removes spacefs.

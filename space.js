@@ -3,15 +3,22 @@
  * @return space
  */
 function Space(content) {
+  // Pair[] where interface for Pair is [property: string, value: any]
   this._pairs = []
+
+  // StringMap<int> Count of occurrences of property names in this instance.
   this._index = {}
+
+  // StringMap<any> Cache of property/value pairs that stores the last value for a given property.
   this._cache = {}
+  
+  // StringMap<function[]> Event listeners
   this.events = {}
   this._load(content)
   return this
 }
 
-Space.version = "0.9.9"
+Space.version = "0.9.10"
 
 /**
  * Delete items from an array
@@ -623,9 +630,9 @@ Space.prototype._deleteByIndex = function(index) {
   } else if (removedPair[0][1] !== this._cache[property]) {
     // If the removed value is not the cached value.
   } else {
-    // There is an entry after this one
+    // Update the cache with the preceding occurrence of property
     var length = this.length
-    for (var i = index; i < length; i++) {
+    for (var i = index; i > 0; i--) {
       if (this._pairs[i][0] === property) {
         this._cache[property] = this._pairs[i][1]
         break
@@ -862,7 +869,7 @@ Space.prototype.every = function(fn) {
  * @return any
  */
 Space.prototype.get = function(query) {
-  if (query === undefined)
+  if (query === undefined || query === null)
     return undefined
   return this._getValueByString(query.toString())
 }
@@ -1460,7 +1467,7 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
     else if (valuesFn)
       this._pairs[i][1] = valuesFn(this._pairs[i][1], this._pairs[i][0], oldName)
     
-    this._updateCache(this._pairs[i][0], this._pairs[i][1])
+    this._updateIndexAndCache(this._pairs[i][0], this._pairs[i][1])
   }
   return this
 }
@@ -1782,30 +1789,41 @@ Space.prototype._setByXPath = function(path, value) {
 Space.prototype._setPair = function(property, value, index, overwrite) {
   property = property.toString()
   if (index === undefined)
+    // If index is not provided this is an append operation
     this._pairs.push([property, value])
   else if (overwrite && this._pairs[index]) {
-    var overwrittenProperty = this._pairs.splice(index, 1, [property, value])[0][0]
+    var overwrittenProperty = this._pairs[index][0]
+    this._pairs[index] = [property, value]
     this._index[overwrittenProperty]--
     if (this._index[overwrittenProperty] === 0)
       delete this._cache[overwrittenProperty]
   }
+  else if (index >= this.length)
+    // Perform an append
+    this._pairs.push([property, value])
   else
+    // Perform an insert
     this._pairs.splice(index, 0, [property, value])
 
-  this._updateCache(property, value, index)
+  this._updateIndexAndCache(property, value, index)
 }
 
-Space.prototype._updateCache = function(property, value, index) {
+Space.prototype._updateIndexAndCache = function(property, value, index) {
   var currentCount = this._index[property]
   if (!currentCount)
+    // This is the first occurrence of property
     this._cache[property] = value
-  else if (index !== undefined) {
-    // Scroll through and see if there is already an entry in the cache
-    for (var i = 0; i < index; i++) {
+  else if (index === undefined) {
+    // This is not the first occurrence of property but it IS an append and so last occurrence.
+    this._cache[property] = value
+  }
+  else {
+    // This is not the first occurrence of property. If this is the last occurrence add to cache.
+    for (var i = this.length - 1; i > index; i--) {
       if (this._pairs[i][0] === property)
         break
     }
-    // This is the new first value
+    // This is the new last value
     if (i === index)
       this._cache[property] = value
   }
