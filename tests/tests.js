@@ -1859,13 +1859,31 @@ test("toSsv", function() {
 
 test("toString", function() {
   // Arrange
-  var value = new Space("hello world")
+  var space = new Space("hello world")
   // Assert
-  strictEqual(value.toString(), "hello world\n")
+  strictEqual(space.toString(), "hello world\n")
   // Act
-  value.set("foo", "bar")
+  space.set("foo", "bar")
   // Assert
-  strictEqual(value.toString(), "hello world\nfoo bar\n")
+  strictEqual(space.toString(), "hello world\nfoo bar\n")
+
+  // Arrange
+  space = new Space("z-index 0")
+  // Act
+  space["z-index"] = 0
+  // Assert
+  strictEqual(space.toString(), "z-index 0\n")
+
+  // Test empty values
+  // Arrange
+  space = new Space()
+
+  // Act
+  space.set("empty", "")
+  space.set("undefined", undefined)
+  space.set("null", null)
+  // Assert
+  strictEqual(space.toString(), "empty \nundefined \nnull \n")
 
   // Arrange
   var a = new Space("john\n age 5")
@@ -1886,17 +1904,12 @@ test("toString", function() {
   var b = new Space("a\n text \n  this is a multline string\n  and more")
   // Assert
   strictEqual(b.toString(), "a\n text \n  this is a multline string\n  and more\n")
+
+  // Test setting an instance as a value in another instance
   // Act
   a.set("even_more", b)
   // Assert
   strictEqual(a.toString(), "john\n age 5\nmultiline hello\n world\nother foobar\neven_more\n a\n  text \n   this is a multline string\n   and more\n")
-
-  // Arrange
-  var e = new Space("z-index 0")
-  // Act
-  e["z-index"] = 0
-  // Assert
-  strictEqual(e.toString(), "z-index 0\n")
 })
 
 test("toTsv", function() {
@@ -1919,6 +1932,22 @@ test("toXMLWithAttributes", function() {
   var a = new Space(testStrings.toXmlWithAttributes)
   // Assert
   strictEqual(a.toXMLWithAttributes(true), testStrings.toXmlWithAttributesResult)
+})
+
+test("trim", function() {
+  // Arrange
+  var space = new Space(testStrings.getByIndexPath)
+
+  // Test deep
+  // Act/Assert
+  strictEqual(space.trim(true).toString(), testStrings.getByIndexPathTrimmed)
+
+  // Arrange
+  space = new Space(testStrings.getByIndexPath)
+
+  // Test shallow
+  // Act/Assert
+  strictEqual(space.trim().toString(), testStrings.getByIndexPath.substr(5), "Expected almost same thing")
 })
 
 test("union", function() {

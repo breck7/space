@@ -29,8 +29,7 @@ bob
  age 21
 */})
 
-testStrings.getByIndexPath = multiline(function () {/*
-head
+testStrings.getByIndexPath = multiline(function () {/*head
 body
  div
  div
@@ -38,6 +37,15 @@ body
   class main
   content yo
  div
+ div
+  class footer
+  content hi
+*/})
+
+testStrings.getByIndexPathTrimmed = multiline(function () {/*body
+ div
+  class main
+  content yo
  div
   class footer
   content hi

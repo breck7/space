@@ -18,7 +18,7 @@ function Space(content) {
   return this
 }
 
-Space.version = "0.9.10"
+Space.version = "0.9.11"
 
 /**
  * Delete items from an array
@@ -1831,6 +1831,15 @@ Space.prototype._updateIndexAndCache = function(property, value, index) {
   this._index[property] = currentCount ? currentCount + 1 : 1
 }
 
+Space.prototype._reindex = function() {
+  var length = this.length
+  this._index = {}
+  this._cache = {}
+  for (var i = 0; i < length; i++) {
+    this._updateIndexAndCache(this._pairs[i][0], this._pairs[i][1], i)
+  }
+}
+
 /**
  * Remove the top element from the object
  *
@@ -2107,8 +2116,8 @@ Space.prototype.toString = function(spaces) {
   this.each(function(property, value) {
 
     // If property value is undefined
-    if (value === undefined) {
-      string += "\n"
+    if (value === undefined || value === null) {
+      string += property + " \n"
       return true
     }
 
@@ -2229,6 +2238,30 @@ Space.prototype.trigger = function(eventName) {
   for (var i in this.events[eventName]) {
     this.events[eventName][i].apply(this, args.slice(1))
   }
+  return this
+}
+
+/**
+ * Remove any property whose value is an empty string or empty
+ *
+ * @param recursive Whether to trim deep. Default is false.
+ * @return this
+ */
+Space.prototype.trim = function(recursive) {
+  var itemsToDelete = []
+  this.each(function (property, value, index) {
+    if (value instanceof Space) {
+      if (recursive)
+        value.trim(recursive)
+      if (value.length === 0)
+        itemsToDelete.push(index)
+    } else if (!value) {
+      itemsToDelete.push(index)
+    }
+  })
+
+  Space.removeItems(this._pairs, itemsToDelete)
+  this._reindex()
   return this
 }
 

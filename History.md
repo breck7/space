@@ -1,3 +1,8 @@
+0.10.2 / 2015-03-12
+===================
+- Added trim() method to remove empty properties
+- Fixed bug in toString method which printed empty lines for null or undefined values
+
 0.10.1 / 2015-03-08
 ===================
 - BREAKING: get(property: string) now returns the **last** matching pair and not the first.
