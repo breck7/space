@@ -20,7 +20,7 @@ function Space(content) {
   return this
 }
 
-Space.version = "0.11.0"
+Space.version = "0.11.1"
 
 /**
  * Delete items from an array
@@ -1738,6 +1738,18 @@ Space.prototype.renameAll = function(oldName, newName, recursive) {
     if (recursive && value instanceof Space)
       value.renameAll(oldName, newName, recursive)
   })
+  return this
+}
+
+/**
+ * Does a shallow reverse of the instance.
+ *
+ * @return space this
+ */
+Space.prototype.reverse = function () {
+  this._properties.reverse()
+  this._values.reverse()
+  this._reindex()
   return this
 }
 

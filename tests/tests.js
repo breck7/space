@@ -1598,6 +1598,21 @@ test("reorder", function() {
   strictEqual(a.patchOrder(a.diffOrder(b)).toString(), b.toString(), "recursive order patch")
 })
 
+test("reverse", function() {
+  // Arrange
+  var space = new Space("hi mom\nhey sis\nhey dad")
+
+  // Assert
+  strictEqual(space.get("hey"), "dad")
+
+  // Act
+  space.reverse()
+
+  // Assert
+  strictEqual(space.toString(), "hey dad\nhey sis\nhi mom\n")
+  strictEqual(space.get("hey"), "sis")
+})
+
 test("set", function() {
   // Arrange
   var space = new Space("hello world")

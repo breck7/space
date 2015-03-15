@@ -1,3 +1,7 @@
+0.11.1 / 2015-03-15
+===================
+- Added reverse method
+
 0.11.0 / 2015-03-15
 ===================
 - 20% mem perf improvement by creating less arrays.
