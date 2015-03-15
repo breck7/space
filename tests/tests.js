@@ -501,6 +501,19 @@ test("each", function() {
 
   // Assert
   strictEqual(i, 1, "index worked")
+
+  // Test recursion
+  // Arrange
+  space = new Space(testStrings.getByIndexPath)
+  count = 0
+
+  // Act
+  space.each(function() {
+    count++
+  }, true)
+
+  // Assert
+  strictEqual(count, 11)
 })
 
 test("events", function() {
@@ -1046,6 +1059,23 @@ test("loadFromObject", function() {
   // Assert
   strictEqual(a.get("lowestScore"), "-10")
   strictEqual(b.get("date"), time.toString())
+})
+
+test("loadFromSpace", function() {
+  // Arrange
+  var a = new Space("foo\n bar bam")
+  var b = new Space(a)
+
+  // Assert
+  strictEqual(a.get("foo bar"), "bam")
+  strictEqual(b.get("foo bar"), "bam")
+
+  // Act
+  a.set("foo bar", "wham")
+
+  // Assert
+  strictEqual(a.get("foo bar"), "wham")
+  strictEqual(b.get("foo bar"), "bam")
 })
 
 test("loadFromString", function() {

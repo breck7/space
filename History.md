@@ -1,3 +1,8 @@
+0.10.5 / 2015-03-15
+===================
+- Added deep param to each
+- Fixed reference bug when initializing new instances from other instances
+
 0.10.4 / 2015-03-15
 ===================
 - Made events a getter and now only initialize the events object when needed to save mem. About 5% mem improvement and significantly less objects created on heap.

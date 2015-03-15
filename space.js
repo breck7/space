@@ -17,7 +17,7 @@ function Space(content) {
   return this
 }
 
-Space.version = "0.9.14"
+Space.version = "0.9.15"
 
 /**
  * Delete items from an array
@@ -789,11 +789,14 @@ Space.prototype.diffOrder = function(space) {
  * Passes property, value, index to each pair.
  *
  * @param fn function
+ * @param deep boolean Whether to apply fn recursively. Default is false
  * @return space this
  */
-Space.prototype.each = function(fn) {
+Space.prototype.each = function(fn, deep) {
   var length = this._pairs.length
   for (var i = 0; i < length; i++) {
+    if (deep && this._pairs[i][1] instanceof Space)
+      this._pairs[i][1].each(fn, deep)
     if (fn.call(this, this._pairs[i][0], this._pairs[i][1], i) === false)
       return this
   }
@@ -1277,7 +1280,10 @@ Space.prototype._load = function(content) {
   if (content instanceof Space) {
     var me = this
     content.each(function(property, value) {
-      me._setPair(property, value)
+      if (value instanceof Space)
+        me._setPair(property, value.clone())
+      else
+        me._setPair(property, value)
     })
     return this
   }
