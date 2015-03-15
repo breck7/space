@@ -1,3 +1,8 @@
+0.11.0 / 2015-03-15
+===================
+- 20% mem perf improvement by creating less arrays.
+- BREAKING CHANGE: Sort method now passes a and b as {property:string,value:any}, not [string, any]
+
 0.10.5 / 2015-03-15
 ===================
 - Added deep param to each
@@ -18,7 +23,7 @@
 
 0.10.1 / 2015-03-08
 ===================
-- BREAKING: get(property: string) now returns the **last** matching pair and not the first.
+- BREAKING CHANGE: get(property: string) now returns the **last** matching pair and not the first.
 - Minor code cleanup and additional tests.
 
 0.9.9 / 2015-03-08
@@ -32,7 +37,7 @@
 0.9.7 / 2015-02-22
 ==================
 - Fixed type error when passing undefined to get
-- BREAKING: Renamed isASet to isStringMap
+- BREAKING CHANGE: Renamed isASet to isStringMap
 - Added isFlat method
 
 0.9.6 / 2015-02-22

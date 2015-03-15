@@ -1726,7 +1726,7 @@ test("sort", function() {
   strictEqual(space.tableOfContents(), "john susy bob")
   // Act
   space.sort(function(a, b) {
-    return b[0] < a[0]
+    return b.property < a.property
   })
   // Assert
   strictEqual(space.tableOfContents(), "bob john susy")
