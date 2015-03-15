@@ -1,3 +1,7 @@
+0.10.3 / 2015-03-15
+===================
+- Added hasHeaders param to from delimited methods
+
 0.10.2 / 2015-03-12
 ===================
 - Added trim() method to remove empty properties

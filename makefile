@@ -1,6 +1,7 @@
 all:
 	java -jar ~/compiler.jar --js=space.js --js_output_file=space.min.js
 	open tests/min.html
+	node tests/node-test.js
 
 beautify:
 	js-beautify -f space.js -r -s 2

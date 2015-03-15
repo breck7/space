@@ -18,7 +18,7 @@ function Space(content) {
   return this
 }
 
-Space.version = "0.9.11"
+Space.version = "0.9.13"
 
 /**
  * Delete items from an array
@@ -137,18 +137,20 @@ Space.fromFile = function(filepath, options, callback) {
 
 /**
  * @param str string The csv string to parse
+ * @param hasHeaders boolean Default is true.
  * @return space
  */
-Space.fromCsv = function (str) {
-  return Space.fromDelimiter(str, ",")
+Space.fromCsv = function (str, hasHeaders) {
+  return Space.fromDelimiter(str, ",", hasHeaders)
 }
 
 /**
  * @param str string The csv string to parse
  * @param delimiter string
+ * @param hasHeaders boolean Default is true.
  * @return space
  */
-Space.fromDelimiter = function (str, delimiter) {
+Space.fromDelimiter = function (str, delimiter, hasHeaders) {
   var length = str.length,
       currentItem = "",
       currentPosition = 0,
@@ -156,6 +158,8 @@ Space.fromDelimiter = function (str, delimiter) {
       rows = [[]],
       space = new Space(),
       currentRow = 0
+
+  hasHeaders = hasHeaders !== false
 
   while (currentPosition < length) {
     var c = str[currentPosition]
@@ -196,18 +200,31 @@ Space.fromDelimiter = function (str, delimiter) {
     currentPosition++
   }
 
-  // Strip any spaces from property names.
-  // This makes the mapping not quite 1 to 1 if there are any spaces in prop names.
-  for (var i = 0; i < rows[0].length; i++) {
-    rows[0][i] = rows[0][i].replace(/ /g, "")
+  var headerRow = rows[0],
+      numberOfColumns = headerRow.length
+
+
+  if (!hasHeaders) {
+    // If str has no headers, create them as 0,1,2,3
+    headerRow = []
+    for (var i = 0; i < numberOfColumns; i++) {
+      headerRow.push(i)
+    }
+  } else {
+    // Strip any spaces from column names in the header row.
+    // This makes the mapping not quite 1 to 1 if there are any spaces in prop names.
+    for (var i = 0; i < numberOfColumns; i++) {
+      headerRow[i] = headerRow[i].replace(/ /g, "")
+    }
   }
 
   rows.forEach(function (row, index) {
-    if (index === 0)
+    // Skip header row
+    if (index === 0 && hasHeaders)
       return true
 
     var obj = new Space()
-    rows[0].forEach(function (prop, i) {
+    headerRow.forEach(function (prop, i) {
       var v = row[i]
       if (v === "")
         return true
@@ -216,7 +233,7 @@ Space.fromDelimiter = function (str, delimiter) {
     })
 
     // Subtract 1 since header was row 0
-    space.append(index - 1, obj)
+    space.append(hasHeaders ? index - 1 : index, obj)
   })
 
   return space
@@ -226,18 +243,20 @@ Space.fromDelimiter = function (str, delimiter) {
  * Parses a simple space separated value "name age height\njoe 20 68"
  *
  * @param str string ssv string to parse
+ * @param hasHeaders boolean Default is true.
  * @return space
  */
-Space.fromSsv = function (str) {
-  return Space.fromDelimiter(str, " ")
+Space.fromSsv = function (str, hasHeaders) {
+  return Space.fromDelimiter(str, " ", hasHeaders)
 }
 
 /**
  * @param str string The tab string to parse
+ * @param hasHeaders boolean Default is true.
  * @return space
  */
-Space.fromTsv = function (str) {
-  return Space.fromDelimiter(str, "\t")
+Space.fromTsv = function (str, hasHeaders) {
+  return Space.fromDelimiter(str, "\t", hasHeaders)
 }
 
 Space._parseXml2 = function (str) {

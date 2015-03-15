@@ -185,6 +185,11 @@ plus one","An expose, on the result of one ""plus"" one"
 2,"The answer, my friend, is...","""Two"""
 */})
 
+testStrings.csvNoHeaders = multiline(function () {/*bob,12,red
+mike,321,blue
+al,1214,green
+*/})
+
 testStrings.toSsvResult = multiline(function () {/*id title summary
 1 "One 
 plus one" "An expose, on the result of one ""plus"" one"

@@ -694,18 +694,33 @@ test("firstValue", function() {
 
 test("fromCsv", function() {
   // Arrange
-  var a = Space.fromCsv(testStrings.toCsvResult)
+  var space = Space.fromCsv(testStrings.toCsvResult)
 
   // Assert
-  strictEqual(a.toString(), testStrings.toDelimited)
-  strictEqual(a.toCsv(), testStrings.toCsvResult)
+  strictEqual(space.toString(), testStrings.toDelimited)
+  strictEqual(space.toCsv(), testStrings.toCsvResult)
 
   // Arrange
-  var b = Space.fromCsv("Age,Birth Place,Country\n12,Brockton,USA")
+  space = Space.fromCsv("Age,Birth Place,Country\n12,Brockton,USA")
 
   // Assert
-  strictEqual(b.length, 1)
-  strictEqual(b.getByIndex(0).get("Country"), "USA")
+  strictEqual(space.length, 1)
+  strictEqual(space.getByIndex(0).get("Country"), "USA")
+
+  // Arrange
+  space = Space.fromCsv("")
+
+  // Assert
+  strictEqual(space.toString(), "")
+})
+
+test("fromCsv no headers", function() {
+  // Arrange
+  var a = Space.fromCsv(testStrings.csvNoHeaders, false)
+
+  // Assert
+  strictEqual(a.length, 3)
+  strictEqual(a.get("1 2"), "blue")
 })
 
 test("fromHeredoc", function() {
