@@ -17,7 +17,7 @@ function Space(content) {
   return this
 }
 
-Space.version = "0.9.15"
+Space.version = "0.10.5"
 
 /**
  * Delete items from an array
