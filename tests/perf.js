@@ -8,7 +8,7 @@ if (isNode) {
       speedcoach = require("./speedcoach")
 }
 
-var randomString = function(min, max) {
+function getRandomString (min, max) {
   var string = "",
       length = (Math.round(Math.random() * (max - min))) + min,
       randomNumber
@@ -22,22 +22,22 @@ var randomString = function(min, max) {
 }
 
 // Experimental method for quickly generating perf test data
-var randomSpace = function (rows, depthOdds) {
+function getRandomSpace (rows, depthOdds) {
   var space = new Space(),
       depthOdds = depthOdds || 0,
       property = "",
       value = ""
 
   while (rows > 0) {
-    property = randomString(3, 6)
+    property = getRandomString(3, 6)
 
     // Nest
     if (depthOdds > Math.random())
-      space.append(property, randomSpace(3, depthOdds))
+      space.append(property, getRandomSpace(3, depthOdds))
 
     // Or set a leaf
     else {
-      value = randomString(4, 8)
+      value = getRandomString(4, 8)
       space.append(property, value)
     }
 
@@ -51,31 +51,25 @@ test("start", function() {
   ok(true)
 })
 
-test("tests", function() {
-  speedcoach("start tests")
-  Space._load2 = false
-  var a = randomSpace(10000, 0.2).toString()
+test("load by string speed and mem tests", function() {
+  speedcoach("start speed and mem tests")
+  var str = getRandomSpace(10000, 0.2).toString()
   
-  var t = new Date().getTime()
-  var b = new Space(a)
+  Space._load2 = false
+  var a = new Space(str)
+  var a2 = new Space(str)
+  var a3 = new Space(str)
   
   Space._load2 = true
-  t = new Date().getTime()
-  var c = new Space(a)
+  var b = new Space(str)
+  var b2 = new Space(str)
+  var b3 = new Space(str)
 
-  Space._load2 = false
-  t = new Date().getTime()
-  var d = new Space(a)
-
-  Space._load2 = true
-  t = new Date().getTime()
-  var e = new Space(a)
-
-  var j = JSON.stringify(e.toObject())
-  t = new Date().getTime()
-  var m = JSON.parse(j)
+  // Test json for comparison
+  var jso = JSON.stringify(a.toObject())
+  var parsed = JSON.parse(jso)
+  speedcoach("end speed and mem tests")
   ok(true)
-  speedcoach("end tests")
 })
 
 test("patch performance test", function() {

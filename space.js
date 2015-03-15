@@ -7,18 +7,17 @@ function Space(content) {
   this._pairs = []
 
   // StringMap<int> Count of occurrences of property names in this instance.
-  this._index = {}
+  this._propertyCounts = {}
 
-  // StringMap<any> Cache of property/value pairs that stores the last value for a given property.
+  // StringMap<any> Cache of property/value pairs for quick access to the last value
+  // for a given property or to check if a given property is set.
   this._cache = {}
-  
-  // StringMap<function[]> Event listeners
-  this.events = {}
+
   this._load(content)
   return this
 }
 
-Space.version = "0.9.13"
+Space.version = "0.9.14"
 
 /**
  * Delete items from an array
@@ -549,7 +548,7 @@ Space.prototype.append = function(property, value) {
  */
 Space.prototype._clear = function() {
   this._pairs = []
-  this._index = {}
+  this._propertyCounts = {}
   this._cache = {}
   return this
 }
@@ -578,12 +577,14 @@ Space.prototype.clear = function(space) {
  * @return space this
  */
 Space.prototype.clearListeners = function(eventName) {
+  if (!this._events)
+    return this
   if (eventName)
-    delete this.events[eventName]
+    delete this._events[eventName]
   else {
-    for (var eventName in this.events) {
-      if (this.events.hasOwnProperty(eventName))
-        delete this.events[eventName]
+    for (var eventName in this._events) {
+      if (this._events.hasOwnProperty(eventName))
+        delete this._events[eventName]
     }
   }
   return this
@@ -642,10 +643,10 @@ Space.prototype._deleteByIndex = function(index) {
   var removedPair = this._pairs.splice(index, 1),
       property = removedPair[0][0]
   
-  this._index[property]--
-  if (!this._index[property]) {
+  this._propertyCounts[property]--
+  if (!this._propertyCounts[property]) {
     delete this._cache[property]
-    delete this._index[property]
+    delete this._propertyCounts[property]
   } else if (removedPair[0][1] !== this._cache[property]) {
     // If the removed value is not the cached value.
   } else {
@@ -800,6 +801,28 @@ Space.prototype.each = function(fn) {
 }
 
 /**
+ * @return StringMap<function[]> Event listeners
+ */
+Object.defineProperty(Space.prototype, "events", {
+    get: function events() {
+      return this._events || {}
+    }
+})
+
+/**
+ * @param fn function
+ * @return space this
+ */
+Space.prototype.every = function(fn) {
+  this.each(function(property, value, index) {
+    fn.call(this, property, value, index)
+    if (value instanceof Space)
+      value.every(fn)
+  })
+  return this
+}
+
+/**
  * Returns a new space object with only the pairs that return true when
  * passed to the supplied filter function.
  *
@@ -866,19 +889,6 @@ Space.prototype.firstProperty = function() {
  */
 Space.prototype.firstValue = function() {
   return this.length ? this._pairs[0][1] : null
-}
-
-/**
- * @param fn function
- * @return space this
- */
-Space.prototype.every = function(fn) {
-  this.each(function(property, value, index) {
-    fn.call(this, property, value, index)
-    if (value instanceof Space)
-      value.every(fn)
-  })
-  return this
 }
 
 /**
@@ -1134,7 +1144,7 @@ Space.prototype.has = function(property) {
  * @return int
  */
 Space.prototype.indexOf = function(property) {
-  if (!this._index[property])
+  if (!this._propertyCounts[property])
     return -1;
   var length = this.length
   for (var i = 0; i < length; i++) {
@@ -1474,7 +1484,7 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
   if (!inPlace)
     return new Space(this).map(propertiesFn, valuesFn, deep)
 
-  this._index = {}
+  this._propertyCounts = {}
   this._cache = {}
   var length = this._pairs.length
   for (var i = 0; i < length; i++) {
@@ -1507,11 +1517,11 @@ Space.prototype.next = function(property) {
  * @return this
  */
 Space.prototype.off = function(eventName, fn) {
-  if (!this.events[eventName])
-    return true
-  for (var i in this.events[eventName]) {
-    if (this.events[eventName][i] === fn)
-      this.events[eventName].splice(i, 1)
+  if (!this._events || !this._events[eventName])
+    return this
+  for (var i in this._events[eventName]) {
+    if (this._events[eventName][i] === fn)
+      this._events[eventName].splice(i, 1)
   }
   return this
 }
@@ -1522,9 +1532,14 @@ Space.prototype.off = function(eventName, fn) {
  * @return this
  */
 Space.prototype.on = function(eventName, fn) {
-  if (!this.events[eventName])
-    this.events[eventName] = []
-  this.events[eventName].push(fn)
+  // We only create the events map when a listener is first set. Otherwise
+  // there is no need for it.
+  // StringMap<function[]> Event listeners
+  if (!this._events)
+    this._events = {}
+  if (!this._events[eventName])
+    this._events[eventName] = []
+  this._events[eventName].push(fn)
   return this
 }
 
@@ -1683,7 +1698,7 @@ Space.prototype._rename = function(oldName, newName) {
 Space.prototype.reload = function(content) {
   // todo, do not trigger patch if no change
   this._pairs = []
-  this._index = {}
+  this._propertyCounts = {}
   this._cache = {}
   this._load(content)
   this.trigger("reload")
@@ -1813,8 +1828,8 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
   else if (overwrite && this._pairs[index]) {
     var overwrittenProperty = this._pairs[index][0]
     this._pairs[index] = [property, value]
-    this._index[overwrittenProperty]--
-    if (this._index[overwrittenProperty] === 0)
+    this._propertyCounts[overwrittenProperty]--
+    if (this._propertyCounts[overwrittenProperty] === 0)
       delete this._cache[overwrittenProperty]
   }
   else if (index >= this.length)
@@ -1828,7 +1843,7 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
 }
 
 Space.prototype._updateIndexAndCache = function(property, value, index) {
-  var currentCount = this._index[property]
+  var currentCount = this._propertyCounts[property]
   if (!currentCount)
     // This is the first occurrence of property
     this._cache[property] = value
@@ -1847,12 +1862,12 @@ Space.prototype._updateIndexAndCache = function(property, value, index) {
       this._cache[property] = value
   }
 
-  this._index[property] = currentCount ? currentCount + 1 : 1
+  this._propertyCounts[property] = currentCount ? currentCount + 1 : 1
 }
 
 Space.prototype._reindex = function() {
   var length = this.length
-  this._index = {}
+  this._propertyCounts = {}
   this._cache = {}
   for (var i = 0; i < length; i++) {
     this._updateIndexAndCache(this._pairs[i][0], this._pairs[i][1], i)
@@ -2251,11 +2266,11 @@ Space.prototype._toXMLWithAttributes = function(property, spaceCount) {
  * @return this
  */
 Space.prototype.trigger = function(eventName) {
-  if (!this.events[eventName])
+  if (!this._events || !this._events[eventName])
     return this
   var args = Array.prototype.slice.call(arguments)
-  for (var i in this.events[eventName]) {
-    this.events[eventName][i].apply(this, args.slice(1))
+  for (var i in this._events[eventName]) {
+    this._events[eventName][i].apply(this, args.slice(1))
   }
   return this
 }

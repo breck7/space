@@ -549,7 +549,7 @@ test("events", function() {
   value.clear()
 
   // Assert
-  strictEqual(count, 5)
+  strictEqual(count, 5, "Expected count to equal 5.")
 
   // Event params
   // Arrange
