@@ -9,9 +9,6 @@ function Space(content) {
   // any[]
   this._values = []
 
-  // StringMap<int> Count of occurrences of property names in this instance.
-  this._propertyCounts = {}
-
   // StringMap<any> Cache of property/value pairs for quick access to the last value
   // for a given property or to check if a given property is set.
   this._cache = {}
@@ -20,7 +17,7 @@ function Space(content) {
   return this
 }
 
-Space.version = "0.11.1"
+Space.version = "0.11.2"
 
 /**
  * Delete items from an array
@@ -552,7 +549,6 @@ Space.prototype.append = function(property, value) {
 Space.prototype._clear = function() {
   this._properties = []
   this._values = []
-  this._propertyCounts = {}
   this._cache = {}
   return this
 }
@@ -641,28 +637,29 @@ Space.prototype._delete = function(property) {
     return this._deleteByProperty(property)
 }
 
+/**
+ * @param property The property name to search for
+ */
+Space.prototype._cacheUpdate = function(property) {
+  delete this._cache[property]
+  for (var i = this.length; i >= 0; i--) {
+    if (this._properties[i] === property) {
+      this._cache[property] = this._values[i]
+      return
+    }
+  }
+}
+
 Space.prototype._deleteByIndex = function(index) {
   if (this._properties[index] === undefined)
     return 0
-  var removedProperty = this._properties.splice(index, 1),
-      removedValue = this._values.splice(index, 1)
-  
-  this._propertyCounts[removedProperty]--
-  if (!this._propertyCounts[removedProperty]) {
-    delete this._cache[removedProperty]
-    delete this._propertyCounts[removedProperty]
-  } else if (removedValue !== this._cache[removedProperty]) {
-    // If the removed value is not the cached value.
-  } else {
-    // Update the cache with the preceding occurrence of property
-    var length = this.length
-    for (var i = index; i > 0; i--) {
-      if (this._properties[i] === removedProperty) {
-        this._cache[removedProperty] = this._values[i]
-        break
-      }
-    }
-  }
+
+  var removedProperty = this._properties.splice(index, 1)[0],
+      removedValue = this._values.splice(index, 1)[0]
+
+  // If deleted value matches the cached value we may need to update the cache
+  if (removedValue === this._cache[removedProperty])
+    this._cacheUpdate(removedProperty)
 
   return 1
 }
@@ -1143,8 +1140,8 @@ Space.prototype.has = function(property) {
  * @return int
  */
 Space.prototype.indexOf = function(property) {
-  if (!this._propertyCounts[property])
-    return -1;
+  if (!this.has(property))
+    return -1
   var length = this.length
   for (var i = 0; i < length; i++) {
     if (this._properties[i] === property)
@@ -1486,7 +1483,6 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
   if (!inPlace)
     return new Space(this).map(propertiesFn, valuesFn, deep)
 
-  this._propertyCounts = {}
   this._cache = {}
   var length = this.length
   for (var i = 0; i < length; i++) {
@@ -1498,7 +1494,7 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
     else if (valuesFn)
       this._values[i] = valuesFn(this._values[i], this._properties[i], oldName)
     
-    this._updateIndexAndCache(this._properties[i], this._values[i])
+    this._updateCache(this._properties[i], this._values[i])
   }
   return this
 }
@@ -1701,7 +1697,6 @@ Space.prototype.reload = function(content) {
   // todo, do not trigger patch if no change
   this._properties = []
   this._values = []
-  this._propertyCounts = {}
   this._cache = {}
   this._load(content)
   this.trigger("reload")
@@ -1836,20 +1831,27 @@ Space.prototype._setByXPath = function(path, value) {
 }
 
 Space.prototype._setPair = function(property, value, index, overwrite) {
+  var length = this.length
+
   property = property.toString()
   if (index === undefined) {
     // If index is not provided this is an append operation
     this._properties.push(property)
     this._values.push(value)
-  } else if (overwrite && this._properties[index]) {
-    var overwrittenProperty = this._properties[index]
+  } else if (overwrite && index >= 0 && index < length) {
+    var overwrittenProperty = this._properties[index],
+        overwrittenValue = this._values[index],
+        cacheValue = this._cache[overwrittenProperty]
+    
     this._properties[index] = property
     this._values[index] = value
-    this._propertyCounts[overwrittenProperty]--
-    if (this._propertyCounts[overwrittenProperty] === 0)
-      delete this._cache[overwrittenProperty]
+
+    // If the overwritten value matches the cache value, we may need to update
+    // the cache
+    if (overwrittenValue === cacheValue)
+      this._cacheUpdate(overwrittenProperty)
   }
-  else if (index >= this.length) {
+  else if (index >= length) {
     // Perform an append
     this._properties.push(property)
     this._values.push(value)
@@ -1859,20 +1861,20 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
     this._values.splice(index, 0, value)
   }
 
-  this._updateIndexAndCache(property, value, index)
+  this._updateCache(property, value, index)
 }
 
-Space.prototype._updateIndexAndCache = function(property, value, index) {
-  var currentCount = this._propertyCounts[property]
-  if (!currentCount)
+Space.prototype._updateCache = function(property, value, index) {
+  var currentCachedValue = this._cache[property]
+  if (currentCachedValue === undefined || currentCachedValue === null)
     // This is the first occurrence of property
     this._cache[property] = value
   else if (index === undefined) {
-    // This is not the first occurrence of property but it IS an append and so last occurrence.
+    // "property" is already set but this is an append so use it as cached value.
     this._cache[property] = value
   }
-  else {
-    // This is not the first occurrence of property. If this is the last occurrence add to cache.
+  else if (currentCachedValue !== value) {
+    // "property" is already set so only use it as cached value if this is the last occurrence.
     for (var i = this.length - 1; i > index; i--) {
       if (this._properties[i] === property)
         break
@@ -1881,16 +1883,13 @@ Space.prototype._updateIndexAndCache = function(property, value, index) {
     if (i === index)
       this._cache[property] = value
   }
-
-  this._propertyCounts[property] = currentCount ? currentCount + 1 : 1
 }
 
 Space.prototype._reindex = function() {
   var length = this.length
-  this._propertyCounts = {}
   this._cache = {}
   for (var i = 0; i < length; i++) {
-    this._updateIndexAndCache(this._properties[i], this._values[i], i)
+    this._updateCache(this._properties[i], this._values[i], i)
   }
 }
 

@@ -1,3 +1,7 @@
+0.11.2 / 2015-03-15
+===================
+- Perf improvements. ~20% less memory from ditching propertiesCount.
+
 0.11.1 / 2015-03-15
 ===================
 - Added reverse method

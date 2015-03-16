@@ -2048,14 +2048,16 @@ test("union", function() {
 
 test("update", function() {
   // Arrange
-  var a = new Space("hello world")
+  var space = new Space("hello world")
+
   // Act
-  a.update(0, "hi", "mom")
+  space.update(0, "hi", "mom")
+
   // Assert
-  strictEqual(a.toString(), "hi mom\n")
-  strictEqual(a.indexOf("hello"), -1)
-  strictEqual(a.indexOf("hi"), 0)
-  strictEqual(a.get("hello"), undefined)
+  strictEqual(space.toString(), "hi mom\n")
+  strictEqual(space.indexOf("hello"), -1)
+  strictEqual(space.indexOf("hi"), 0)
+  strictEqual(space.get("hello"), undefined)
 })
 
 test("url methods", function() {
