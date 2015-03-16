@@ -51,23 +51,35 @@ test("start", function() {
   ok(true)
 })
 
+// Create globals for easy profiling in chrome dev tools
+var globalStr = getRandomSpace(10000, 0.2).toString()
+var globalSpace
+var globalNoNestStr = getRandomSpace(100000, 0).toString()
+var globalNoNest = new Space(globalNoNestStr)
+var globalObj = globalNoNest.toObject()
+var globalJsonTyped = globalNoNest.toJSON(true)
+var tinyStr = "hello world\nhi earth"
+var tinyObj = {"hello": "world", "hi" : "earth"}
+var tinyArray = ["hello", "world", "hi", "earth"]
+var tinySpace = new Space(tinyStr)
+
 test("load by string speed and mem tests", function() {
   speedcoach("start speed and mem tests")
-  var str = getRandomSpace(10000, 0.2).toString()
   
   Space._load2 = false
-  var a = new Space(str)
-  var a2 = new Space(str)
-  var a3 = new Space(str)
+  var a = new Space(globalStr)
   
   Space._load2 = true
-  var b = new Space(str)
-  var b2 = new Space(str)
-  var b3 = new Space(str)
+  var b = new Space(a)
+
+  globalSpace = new Space(globalStr)
+  var leafCount = 0
+  globalSpace.each(function (){leafCount++}, true)
 
   // Test json for comparison
   var jso = JSON.stringify(a.toObject())
   var parsed = JSON.parse(jso)
+  var toStringSpeed = getRandomSpace(10000, 0.2).toString()
   speedcoach("end speed and mem tests")
   ok(true)
 })
