@@ -935,6 +935,12 @@ test("indexOf", function() {
   // Assert
   strictEqual(space.indexOf("hello"), 0)
   strictEqual(space.indexOf("hello2"), -1)
+
+  // Act
+  space.set("color", "")
+
+  // Assert
+  strictEqual(space.indexOf("color"), 1)
 })
 
 test("insert", function() {

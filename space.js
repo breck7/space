@@ -17,7 +17,7 @@ function Space(content) {
   return this
 }
 
-Space.version = "0.11.2"
+Space.version = "0.11.3"
 
 /**
  * Delete items from an array
@@ -1140,7 +1140,7 @@ Space.prototype.has = function(property) {
  * @return int
  */
 Space.prototype.indexOf = function(property) {
-  if (!this.has(property))
+  if (this._cache[property] === undefined)
     return -1
   var length = this.length
   for (var i = 0; i < length; i++) {
