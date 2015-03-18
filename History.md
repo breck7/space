@@ -1,3 +1,9 @@
+0.11.4 / 2015-03
+===================
+- Protect against following circular paths when loading from objects.
+- delete(property: string) now deletes all occurrences of property in instance.
+- Removed protection against prototype.js overwriting hasOwnProperty. If someone is using prototype.js with Space they'll need to compensate for that.
+
 0.11.3 / 2015-03-15
 ===================
 - Bug fix in indexOf

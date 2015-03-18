@@ -242,54 +242,75 @@ test("create", function() {
 
 test("delete", function() {
   // Arrange
-  var a = new Space()
-  a.set("name", "Breck")
+  var space = new Space()
+  space.set("name", "Breck")
 
   // Assert
-  strictEqual(a.get("name"), "Breck", "name is set")
-  strictEqual(a.length, 1, "length okay")
+  strictEqual(space.get("name"), "Breck", "name is set")
+  strictEqual(space.length, 1, "length okay")
 
   // Act
-  a.delete("name")
+  space.delete("name")
 
   // Assert
-  strictEqual(a.get("name"), undefined, "name is gone")
-  strictEqual(a.length, 0, "length okay")
+  strictEqual(space.get("name"), undefined, "name is gone")
+  strictEqual(space.length, 0, "length okay")
 
-  // Arrange/Assert
-  a.set("earth north_america united_states california san_francisco", "mission")
-  ok(a.get("earth north_america united_states california") instanceof Space)
-  strictEqual(a.get("earth north_america united_states california san_francisco"), "mission", "neighborhood is set")
-  strictEqual(a.get("earth north_america united_states california").length, 1, "length okay")
-  strictEqual(a.length, 1, "length okay")
+  // Test deep delete
+  // Arrange
+  space.set("earth north_america united_states california san_francisco", "mission")
+
+  // Assert
+  ok(space.get("earth north_america united_states california") instanceof Space)
+  strictEqual(space.get("earth north_america united_states california san_francisco"), "mission", "neighborhood is set")
+  strictEqual(space.get("earth north_america united_states california").length, 1, "length okay")
+  strictEqual(space.length, 1, "length okay")
+
+  // Act
+  var deleteResult = space.delete("earth north_america united_states california san_francisco")
+
+  // Assert
+  ok(deleteResult instanceof Space, "returns space")
+  strictEqual(space.get("earth north_america united_states california san_francisco"), undefined, "neighborhood is gone")
+
+  // Test deleting a non-existant property
+  // Arrange
+  space = new Space("property meta\n")
+
+  // Act
+  space.delete("content")
+
+  // Assert
+  strictEqual(space.get("property"), "meta", "delete a non existing entry works")
+
+  // Delete by int
+  // Arrange
+  space = new Space()
 
   // Act/Assert
-  ok(a.delete("earth north_america united_states california san_francisco") instanceof Space, "returns space")
-  strictEqual(a.get("earth north_america united_states california san_francisco"), undefined, "neighborhood is gone")
+  ok(space.delete(2))
 
   // Arrange
-  a = new Space("property meta\n")
+  space = new Space("hi\nhello world")
 
   // Act
-  a.delete("content")
+  space.delete(1)
 
   // Assert
-  strictEqual(a.get("property"), "meta", "delete a non existing entry works")
+  strictEqual(space.toString(), "hi\n")
 
+  // Delete a property that has multiple matches
   // Arrange
-  a = new Space()
+  space = new Space("time 123\ntime 456")
 
-  // Act/Assert
-  ok(a.delete(2))
-
-  // Arrange
-  a = new Space("hi\nhello world")
+  // Assert
+  strictEqual(space.length, 2)
 
   // Act
-  a.delete(1)
+  space.delete("time")
 
   // Assert
-  strictEqual(a.toString(), "hi\n")
+  strictEqual(space.length, 0)
 })
 
 test("duplicate properties", function () {
@@ -898,22 +919,6 @@ test("has", function() {
   strictEqual(space.has("world"), false)
 })
 
-test("hasOwnProperty bug", function() {
-  // Fix cases where hasOwnProperty has been overwritten by user's browser.
-  // Comes up with prototype.js.
-  // Arrange
-  var foo = {
-    bar: foo
-  }
-  foo.hasOwnProperty = null
-
-  // Act
-  space = new Space(foo)
-
-  // Assert
-  ok(space)
-})
-
 test("html dsl", function() {
   // Arrange
   var html = new Space("h1 hello world\nh1 hello world"),
@@ -1057,14 +1062,37 @@ test("loadFromArray", function() {
 
 test("loadFromObject", function() {
   // Arrange
-  var a = new Space(testStrings.json),
+  var space = new Space(testStrings.json),
       date = new Date(),
       time = date.getTime(),
-      b = new Space({ name: "John", date: date})
+      spaceWithDate = new Space({ name: "John", date: date})
   
   // Assert
-  strictEqual(a.get("lowestScore"), "-10")
-  strictEqual(b.get("date"), time.toString())
+  strictEqual(space.get("lowestScore"), "-10")
+  strictEqual(spaceWithDate.get("date"), time.toString())
+
+  // Arrange
+  // For now loading from a date just runs toString on date
+  var spaceFromDate = new Space(new Date())
+  var spaceWithFn = new Space(function(){})
+
+  // Assert
+  ok(spaceFromDate.length > 0)
+  ok(spaceWithFn.length > 0)
+
+  // Test against object with circular references
+  // Arrange
+  var a = {foo : "1"},
+      b = {bar: "2", ref: a}
+
+  // Act
+  // Create circular reference
+  a.c = b
+  space = new Space(a)
+
+  // Assert
+  strictEqual(space.get("c bar"), "2")
+  strictEqual(space.get("c ref"), undefined)
 })
 
 test("loadFromSpace", function() {

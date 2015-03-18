@@ -13,11 +13,10 @@ function Space(content) {
   // for a given property or to check if a given property is set.
   this._cache = {}
 
-  this._load(content)
-  return this
+  return this._load(content)
 }
 
-Space.version = "0.11.3"
+Space.version = "0.11.4"
 
 /**
  * Delete items from an array
@@ -637,19 +636,6 @@ Space.prototype._delete = function(property) {
     return this._deleteByProperty(property)
 }
 
-/**
- * @param property The property name to search for
- */
-Space.prototype._cacheUpdate = function(property) {
-  delete this._cache[property]
-  for (var i = this.length; i >= 0; i--) {
-    if (this._properties[i] === property) {
-      this._cache[property] = this._values[i]
-      return
-    }
-  }
-}
-
 Space.prototype._deleteByIndex = function(index) {
   if (this._properties[index] === undefined)
     return 0
@@ -659,7 +645,7 @@ Space.prototype._deleteByIndex = function(index) {
 
   // If deleted value matches the cached value we may need to update the cache
   if (removedValue === this._cache[removedProperty])
-    this._cacheUpdate(removedProperty)
+    this._updateCacheForProperty(removedProperty)
 
   return 1
 }
@@ -679,6 +665,8 @@ Space.prototype._deleteByXPath = function(xpath) {
 }
 
 /**
+ * Deletes a pair(s) from the instance.
+ *
  * If passed a string(or xpath), deletes the first matching pair.
  * If passed an int, deletes the pair at that index.
  *
@@ -686,9 +674,11 @@ Space.prototype._deleteByXPath = function(xpath) {
  * @return space this
  */
 Space.prototype["delete"] = function(property) {
-  if (this._delete(property))
-    this.trigger("delete", property)
-  return this.trigger("change")
+  var somethingChanged = false
+  while (this._delete(property)) {
+    somethingChanged = true
+  }
+  return somethingChanged ? this.trigger("delete", property).trigger("change") : this
 }
 
 /**
@@ -1254,19 +1244,21 @@ Object.defineProperty(Space.prototype, "length", {
 
 Space._load2 = true
 
-Space.prototype._load = function(content) {
+/**
+ * @param content any
+ * @param root? array
+ * @return this
+ */
+Space.prototype._load = function(content, root) {
+  if (!content)
+    return this
+
   // Load from string
   if (typeof content === "string") {
     if (!content.length)
       return this
 
-    if (Space._load2)
-      this._loadFromString2(content)
-
-    else
-      this._loadFromString(content)      
-
-    return this
+    return Space._load2 ? this._loadFromString2(content) : this._loadFromString(content)      
   }
 
   // Load from Space object
@@ -1281,39 +1273,46 @@ Space.prototype._load = function(content) {
     return this
   }
 
-  // Load from object
-  if (content instanceof Array)
-    this._loadFromArray(content)
-  else
-    this._loadFromObject(content)
+  // Loading from a Date or function is weird. Nevertheless, if it happens turn content into a string.
+  if (content instanceof Date || typeof content === "function")
+    return this._load(content.toString())
+
+  // If we load from object, create an array of inserted objects to avoid circular loops
+  if (!root)
+    root = [content]
+  
+  return this._loadFromObject(content, root)
 }
 
-Space.prototype._loadFromArray = function(array) {
-  for (var i in array) {
-    this._loadPair(i.toString(), array[i])
+Space.prototype._loadFromObject = function(content, root) {
+  for (var property in content) {
+    if (!content.hasOwnProperty(property))
+      continue
+    // Todo: wrap the below line in a try/catch to handle errors thrown
+    // in situations like new Space($("body")), as well at a levels param?
+    this._loadPair(property, content[property], root)
   }
+
+  return this
 }
 
-Space.prototype._loadPair = function(property, value) {
+Space.prototype._loadPair = function(property, value, root) {
+  var type = typeof value
   if (value === null)
     this._setPair(property, "null")
   else if (value === undefined)
     this._setPair(property, "")
-  else if (!(typeof value === "object"))
+  else if (type !== "object")
     this._setPair(property, value.toString())
   else if (value instanceof Date)
     this._setPair(property, value.getTime().toString())
-  else
-    this._setPair(property, new Space(value))
-}
-
-Space.prototype._loadFromObject = function(content) {
-  for (var property in content) {
-    // In case hasOwnProperty has been overwritten we
-    // call the original
-    if (!Object.prototype.hasOwnProperty.call(content, property))
-      continue
-    this._loadPair(property, content[property])
+  else if (value instanceof Space)
+    this._setPair(property, value.clone())
+  else if (type === "function")
+    this._setPair(property, value.toString())
+  else if (root.indexOf(value) === -1) {
+    root.push(value)
+    this._setPair(property, new Space()._load(value, root))
   }
 }
 
@@ -1639,7 +1638,7 @@ Space.prototype.pop = function() {
       value = this._getValueByProperty(property)
 
   result.set(property, value)
-  this._delete(property)
+  this._deleteByIndex(this.length - 1)
   return result
 }
 
@@ -1849,7 +1848,7 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
     // If the overwritten value matches the cache value, we may need to update
     // the cache
     if (overwrittenValue === cacheValue)
-      this._cacheUpdate(overwrittenProperty)
+      this._updateCacheForProperty(overwrittenProperty)
   }
   else if (index >= length) {
     // Perform an append
@@ -1882,6 +1881,19 @@ Space.prototype._updateCache = function(property, value, index) {
     // This is the new last value
     if (i === index)
       this._cache[property] = value
+  }
+}
+
+/**
+ * @param property The property name to search for
+ */
+Space.prototype._updateCacheForProperty = function(property) {
+  delete this._cache[property]
+  for (var i = this.length; i >= 0; i--) {
+    if (this._properties[i] === property) {
+      this._cache[property] = this._values[i]
+      return
+    }
   }
 }
 
