@@ -525,7 +525,7 @@ test("each", function() {
 
   // Test recursion
   // Arrange
-  space = new Space(testStrings.getByIndexPath)
+  space = new Space(testStrings.webpage)
   count = 0
 
   // Act
@@ -851,23 +851,6 @@ test("getAll", function() {
 
   // Assert
   strictEqual(each, "aa")
-})
-
-test("getByIndexPath", function() {
-  // Arrange
-  var space = new Space()
-  space.set("body header h1 title a", "hello")
-  space.set("body footer a", "hello")
-  space.set("body footer li", "world")
-
-  // Assert
-  strictEqual(space.getByIndexPath("0 1 1"), "world")
-
-  // Arrange
-  space = new Space(testStrings.getByIndexPath)
-
-  // Assert
-  strictEqual(space.getByIndexPath("1 2 0"), "main")
 })
 
 test("_getValueByIndex", function() {
@@ -1666,6 +1649,18 @@ test("set", function() {
   // Assert
   strictEqual(space.get("head style color"), "blue", "set should have worked")
 
+  // Test dupes
+  // Arrange
+  space.append("hello", "bob")
+
+  // Act
+  space.set("hello", "tim")
+
+  // Assert
+  // TODO: should set(foo,bar) change all occurrences of foo? Or just the first one, like now?
+  // Seems like it would make more sense to change all occurrences or change the last occurrences.
+  strictEqual(space.get("hello"), "bob", "Expected set to change last occurrence of property.")
+
   // TEST INT SCENARIOS
   // Arrange
   space = new Space()
@@ -1676,9 +1671,9 @@ test("set", function() {
   // Assert
   strictEqual(space.get(2), "hi")
   strictEqual(space.get("2"), "hi")
-  strictEqual(space.get("3"), 3)
+  strictEqual(space.get("3"), "3")
 
-  // TEST XPATH SCENARIOS
+  // TEST SPACEPATH SCENARIOS
   // Arrange
   space = new Space("style\n")
   // Act
@@ -1725,7 +1720,7 @@ test("set", function() {
   space.set("meta x", 1235123)
 
   // Assert
-  strictEqual(space.get("meta c"), 435)
+  strictEqual(space.get("meta c"), "435")
 
   // Arrange
   space = new Space("name John\nage\nfavoriteColors\n blue\n  blue1 1\n  blue2 2\n green\n red 1\n")
@@ -1735,26 +1730,6 @@ test("set", function() {
 
   // Assert
   strictEqual(space.get("favoriteColors blue"), "purple")
-})
-
-test("setByIndexPath", function() {
-  // Arrange
-  var space = new Space()
-  space.set("body header h1 title a", "hello")
-  space.set("body footer a", "hello")
-  space.set("body footer li", "world")
-
-  // Act
-  space.setByIndexPath("0 1 1", "mom")
-  // Assert
-  strictEqual(space.getByIndexPath("0 1 1"), "mom")
-
-  // Arrange
-  space = new Space("h1 hello world")
-  // Act
-  space.setByIndexPath("0", "mom")
-  // Assert
-  strictEqual(space.get("h1"), "mom")
 })
 
 test("shift", function() {
@@ -1955,7 +1930,7 @@ test("toString", function() {
   // Arrange
   var space = new Space("hello world")
   // Assert
-  strictEqual(space.toString(), "hello world\n")
+  strictEqual(space.toString(), "hello world\n", "Expected correct string.")
   // Act
   space.set("foo", "bar")
   // Assert
@@ -1977,7 +1952,7 @@ test("toString", function() {
   space.set("undefined", undefined)
   space.set("null", null)
   // Assert
-  strictEqual(space.toString(), "empty \nundefined \nnull \n")
+  strictEqual(space.toString(), "empty \nundefined undefined\nnull null\n")
 
   // Arrange
   var a = new Space("john\n age 5")
@@ -2030,18 +2005,18 @@ test("toXMLWithAttributes", function() {
 
 test("trim", function() {
   // Arrange
-  var space = new Space(testStrings.getByIndexPath)
+  var space = new Space(testStrings.webpage)
 
   // Test deep
   // Act/Assert
-  strictEqual(space.trim(true).toString(), testStrings.getByIndexPathTrimmed)
+  strictEqual(space.trim(true).toString(), testStrings.webpageTrimmed)
 
   // Arrange
-  space = new Space(testStrings.getByIndexPath)
+  space = new Space(testStrings.webpage)
 
   // Test shallow
   // Act/Assert
-  strictEqual(space.trim().toString(), testStrings.getByIndexPath.substr(5), "Expected almost same thing")
+  strictEqual(space.trim().toString(), testStrings.webpage.substr(5), "Expected almost same thing")
 })
 
 test("union", function() {

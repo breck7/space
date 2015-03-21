@@ -79,6 +79,7 @@ test("load by string speed and mem tests", function() {
   // Test json for comparison
   var jso = JSON.stringify(a.toObject())
   var parsed = JSON.parse(jso)
+  speedcoach("toString speed")
   var toStringSpeed = getRandomSpace(10000, 0.2).toString()
   speedcoach("end speed and mem tests")
   ok(true)

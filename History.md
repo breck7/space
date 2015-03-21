@@ -1,4 +1,11 @@
-0.11.4 / 2015-03
+0.12.0 / 2015-03-20
+===================
+- BREAKING: Renamed Space.isXPath to Space.isSpacePath.
+- BREAKING: Removed never used getByIndexPath and setByIndexPath methods.
+- BREAKING: Now space.set("foo", 2) !== space.get("foo"). We convert values to strings or space instances(if applicable).
+- Misc code cleanup.
+
+0.11.4 / 2015-03-17
 ===================
 - Protect against following circular paths when loading from objects.
 - delete(property: string) now deletes all occurrences of property in instance.
