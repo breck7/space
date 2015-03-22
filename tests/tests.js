@@ -895,11 +895,13 @@ test("getValues", function() {
 
 test("has", function() {
   // Arrange
-  space = new Space("hello world")
+  space = new Space("hello world\nnested\nfoo ")
 
   // Assert
   strictEqual(space.has("hello"), true)
   strictEqual(space.has("world"), false)
+  strictEqual(space.has("foo"), true)
+  strictEqual(space.has("nested"), true)
 })
 
 test("html dsl", function() {

@@ -16,7 +16,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.0"
+Space.version = "0.12.1"
 
 /**
  * Delete items from an array
@@ -1023,6 +1023,11 @@ Space.prototype._getValueByIndex = function(index) {
   return this._values[index]
 }
 
+/**
+ *
+ * @param property string
+ * @return string|space|undefined
+ */
 Space.prototype._getValueByProperty = function(property) {
   return this._cache[property]
 }
@@ -1123,11 +1128,15 @@ Space.prototype.getValues = function() {
 }
 
 /**
+ * Returns a boolean indicating whether the instance has a property named "property".
+ *
+ * Returns true if the instance has a property even if the value is empty.
+ *
  * @param string
  * @return bool
  */
 Space.prototype.has = function(property) {
-  return !!this._getValueByProperty(property)
+  return this._getValueByProperty(property) !== undefined
 }
 
 /**

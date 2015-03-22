@@ -1,3 +1,7 @@
+0.12.1 / 2015-03-22
+===================
+- Defined behavior for "has" method when value is empty.
+
 0.12.0 / 2015-03-20
 ===================
 - BREAKING: Renamed Space.isXPath to Space.isSpacePath.
