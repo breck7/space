@@ -668,7 +668,7 @@ domains\n\
   })
 
   // Assert
-  strictEqual(i, 20)
+  strictEqual(i, 20, "Expected every fn to execute 20 times.")
   strictEqual(obj.get("DOMAINS TEST.TEST.COM PAGES HOME SETTINGS").toString(), "DATA\n TITLE Hello, World\n")
 })
 

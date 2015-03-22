@@ -9,20 +9,19 @@ function Space(content) {
   // any[]
   this._values = []
 
-  // StringMap<any> Cache of property/value pairs for quick access to the last value
-  // for a given property or to check if a given property is set.
+  // StringMap<int> {property: index}
   this._cache = {}
 
   return this._load(content)
 }
 
-Space.version = "0.12.1"
+Space.version = "0.12.2"
 
 /**
  * Delete items from an array
  *
  * @param array
- * @param indexes int|array<int>
+ * @param indexes int|int[]
  * @return Array of removed values
  */
 Space.removeItems = function(array, indexes) {
@@ -656,16 +655,12 @@ Space.prototype._delete = function(property) {
 }
 
 Space.prototype._deleteByIndex = function(index) {
-  if (this._properties[index] === undefined)
+  if (this._values[index] === undefined)
     return 0
 
-  var removedProperty = this._properties.splice(index, 1)[0],
-      removedValue = this._values.splice(index, 1)[0]
-
-  // If deleted value matches the cached value we may need to update the cache
-  if (removedValue === this._cache[removedProperty])
-    this._updateCacheForProperty(removedProperty)
-
+  this._properties.splice(index, 1)[0]
+  this._values.splice(index, 1)[0]
+  this._reindex(index)
   return 1
 }
 
@@ -803,7 +798,7 @@ Space.prototype.diffOrder = function(space) {
  * @return space this
  */
 Space.prototype.each = function(fn, deep) {
-  var length = this._properties.length
+  var length = this.length
   for (var i = 0; i < length; i++) {
     if (deep && this._values[i] instanceof Space)
       this._values[i].each(fn, deep)
@@ -844,7 +839,7 @@ Space.prototype.every = function(fn) {
  */
 Space.prototype.filter = function(fn) {
   var result = new Space(),
-      length = this._properties.length
+      length = this.length
   for (var i = 0; i < length; i++) {
     if (fn.call(this, this._properties[i], this._values[i], i) === true)
       result.append(this._properties[i], this._values[i])
@@ -895,21 +890,21 @@ Space.prototype.first = function() {
  * @return string
  */
 Space.prototype.firstProperty = function() {
-  return this.length ? this._properties[0] : null
+  return this.length ? this._properties[0] : undefined
 }
 
 /**
- * @return any
+ * @return string|space|undefined
  */
 Space.prototype.firstValue = function() {
-  return this.length ? this._values[0] : null
+  return this.length ? this._values[0] : undefined
 }
 
 /**
  * Search the space for a given path (spacePath).
  *
  * @param string|int|space
- * @return any
+ * @return string|space|undefined
  */
 Space.prototype.get = function(query) {
   if (query === undefined || query === null)
@@ -950,19 +945,23 @@ Space.prototype.getArray = function(query) {
 }
 
 /**
- * @param int
- * @return any
+ * @param index int
+ * @return string|space|undefined
  */
 Space.prototype.getByIndex = function(index) {
   return this._getValueByIndex(index)
 }
 
 /**
- * @param space
+ * @param query space
  * @return any
  */
 Space.prototype.getBySpace = function(query) {
   return this._getValueBySpace(query)
+}
+
+Space.prototype._getCachedValue = function(property) {
+  return this._values[this._cache[property]]
 }
 
 /**
@@ -1029,7 +1028,7 @@ Space.prototype._getValueByIndex = function(index) {
  * @return string|space|undefined
  */
 Space.prototype._getValueByProperty = function(property) {
-  return this._cache[property]
+  return this._getCachedValue(property)
 }
 
 Space.prototype._getPropertyByIndex = function(index) {
@@ -1045,7 +1044,7 @@ Space.prototype._getPropertyByIndex = function(index) {
 /**
  * Returns a shallow array of all the properties.
  *
- * @return array<string>
+ * @return string[array]
  */
 Space.prototype.getProperties = function() {
   return this._properties.slice(0)
@@ -1121,7 +1120,7 @@ Space.prototype._getValueBySpace = function(space) {
 /**
  * Returns a shallow array of all the values.
  *
- * @return array<any>
+ * @return any[]
  */
 Space.prototype.getValues = function() {
   return this._values.slice(0)
@@ -1146,7 +1145,7 @@ Space.prototype.has = function(property) {
  * @return int
  */
 Space.prototype.indexOf = function(property) {
-  if (this._cache[property] === undefined)
+  if (!this.has(property))
     return -1
   var length = this.length
   for (var i = 0; i < length; i++) {
@@ -1194,23 +1193,25 @@ Space.prototype.isFlat = function() {
 }
 
 /**
- * Check whether the object has only unique properties
+ * Check whether the object has only unique properties.
  *
  * @param deep Whether to search recursively.
  * @return bool
  */
 Space.prototype.isStringMap = function(deep) {
   var length = this.length,
-      map = {}
+      map = {},
+      property,
+      value
 
   for (var i = 0; i < length; i++) {
-    var property = this._properties[i]
+    property = this._properties[i]
     if (map[property])
       return false
     map[property] = true
     if (!deep)
       continue
-    var value = this._values[i]
+    value = this._values[i]
     if ((!value instanceof Space))
       continue
     if (!value.isStringMap())
@@ -1238,7 +1239,7 @@ Space.prototype.last = function() {
  * @return int
  */
 Space.prototype.lastIndexOf = function(property) {
-  if (this._cache[property] === undefined)
+  if (!this.has(property))
     return -1
   var length = this.length
   for (var i = length - 1; i > 0; i--) {
@@ -1271,7 +1272,7 @@ Space.prototype.lastValue = function() {
  */
 Object.defineProperty(Space.prototype, "length", {
     get: function length() {
-      return this._properties.length
+      return this._values.length
     }
 })
 
@@ -1287,12 +1288,8 @@ Space.prototype._load = function(content, root) {
     return this
 
   // Load from string
-  if (typeof content === "string") {
-    if (!content.length)
-      return this
-
-    return Space._load2 ? this._loadFromString2(content) : this._loadFromString(content)      
-  }
+  if (typeof content === "string")
+    return Space._load2 ? this._loadFromString2(content) : this._loadFromString(this._sanitizeString(content))
 
   // Load from Space object
   if (content instanceof Space) {
@@ -1457,6 +1454,19 @@ Space.prototype._loadFromString2 = function(string) {
   return this;
 }
 
+Space.prototype._sanitizeString = function(string) {
+  // Space always start on a property. Eliminate whitespace at beginning of string
+  string = string.replace(/^\s*/, "")
+
+  /* Eliminate Windows \r characters.*/
+  string = string.replace("\r", "")
+
+  /** Space does not have useless lines*/
+  string = string.replace(/\n\n+/, "\n")
+
+  return string
+}
+
 /**
  * Construct the Space from a string.
  *
@@ -1464,36 +1474,15 @@ Space.prototype._loadFromString2 = function(string) {
  * @return space
  */
 Space.prototype._loadFromString = function(string) {
-  // Space always start on a property. Eliminate whitespace at beginning of string
-  string = string.replace(/^\s*/, "")
-
-  /* Eliminate Windows \r characters.*/
-  string = string.replace("\r", "")
-
-  /* Eliminate newlines at end of string.*/
-  //  string = string.replace(/\n[\n ]*$/, "")
-
-  /** Space does not have useless lines*/
-  string = string.replace(/\n\n+/, "\n")
-
-  // Workaround for browsers without negative look ahead
-  /*
-  var spaces_without_delimiter = string.split(/\n([^ ])/),
-      spaces = [spaces_without_delimiter[0]]
-  
-  // Now we recombine spaces.
-  for (var i = 1; i < spaces_without_delimiter.length; i = i + 2) {
-    spaces.push(spaces_without_delimiter[i] + spaces_without_delimiter[i+1])
-  }
-  */
   var spaces = string.split(/\n(?! )/g),
+      length = spaces.length,
       matches,
       space
 
-  for (var i in spaces) {
+  for (var i = 0; i < length; i++) {
     space = spaces[i]
     if (matches = space.match(/^([^ ]+)(\n|$)/)) // Space
-      this._setPair(matches[1], new Space(space.substr(matches[1].length).replace(/\n /g, "\n")))
+      this._setPair(matches[1], new Space()._loadFromString(space.substr(matches[1].length).replace(/\n /g, "\n")))
     else if (matches = space.match(/^([^ ]+) /)) // Leaf
       this._setPair(matches[1], space.substr(matches[1].length + 1).replace(/\n /g, "\n"))
   }
@@ -1515,7 +1504,6 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
   if (!inPlace)
     return new Space(this).map(propertiesFn, valuesFn, deep)
 
-  this._cache = {}
   var length = this.length
   for (var i = 0; i < length; i++) {
     var oldName = this._properties[i]
@@ -1525,9 +1513,8 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
       this._values[i].map(propertiesFn, valuesFn, deep, inPlace)
     else if (valuesFn)
       this._values[i] = valuesFn(this._values[i], this._properties[i], oldName)
-    
-    this._updateCache(this._properties[i], this._values[i])
   }
+  this._reindex()
   return this
 }
 
@@ -1842,81 +1829,41 @@ Space.prototype._setBySpacePath = function(path, value) {
 }
 
 Space.prototype._setPair = function(property, value, index, overwrite) {
-  var length = this.length
+  var length = this.length,
+      isSpace = value instanceof Space
 
-  if (typeof value !== "string" && !(value instanceof Space))
+  if (typeof value !== "string" && !isSpace)
     value = String(value)
 
   property = property.toString()
-  if (index === undefined) {
-    // If index is not provided this is an append operation
+  if (index === undefined || index >= length) {
+    // If index is not provided or invalid perform an append
     this._properties.push(property)
     this._values.push(value)
-  } else if (overwrite && index >= 0 && index < length) {
-    var overwrittenProperty = this._properties[index],
-        overwrittenValue = this._values[index],
-        cacheValue = this._cache[overwrittenProperty]
-    
+
+    // It's an append so we don't need to reindex the whole object so return early
+    this._cache[property] = length
+    return
+  } else if (overwrite && index >= 0) {
+    // Perform an update
     this._properties[index] = property
     this._values[index] = value
-
-    // If the overwritten value matches the cache value, we may need to update
-    // the cache
-    if (overwrittenValue === cacheValue)
-      this._updateCacheForProperty(overwrittenProperty)
-  }
-  else if (index >= length) {
-    // Perform an append
-    this._properties.push(property)
-    this._values.push(value)
   } else {
     // Perform an insert
     this._properties.splice(index, 0, property)
     this._values.splice(index, 0, value)
   }
 
-  this._updateCache(property, value, index)
+  this._reindex(index)
 }
 
-Space.prototype._updateCache = function(property, value, index) {
-  var currentCachedValue = this._cache[property]
-  if (currentCachedValue === undefined || currentCachedValue === null)
-    // This is the first occurrence of property
-    this._cache[property] = value
-  else if (index === undefined) {
-    // "property" is already set but this is an append so use it as cached value.
-    this._cache[property] = value
-  }
-  else if (currentCachedValue !== value) {
-    // "property" is already set so only use it as cached value if this is the last occurrence.
-    for (var i = this.length - 1; i > index; i--) {
-      if (this._properties[i] === property)
-        break
-    }
-    // This is the new last value
-    if (i === index)
-      this._cache[property] = value
-  }
-}
-
-/**
- * @param property The property name to search for
- */
-Space.prototype._updateCacheForProperty = function(property) {
-  delete this._cache[property]
-  for (var i = this.length; i >= 0; i--) {
-    if (this._properties[i] === property) {
-      this._cache[property] = this._values[i]
-      return
-    }
-  }
-}
-
-Space.prototype._reindex = function() {
+Space.prototype._reindex = function(startAt) {
   var length = this.length
-  this._cache = {}
-  for (var i = 0; i < length; i++) {
-    this._updateCache(this._properties[i], this._values[i], i)
+  startAt = startAt || 0     
+  if (!startAt)
+    this._cache = {}
+  for (var i = startAt; i < length; i++) {
+    this._cache[this._properties[i]] = i
   }
 }
 
@@ -1928,8 +1875,8 @@ Space.prototype._reindex = function() {
 Space.prototype.shift = function() {
   if (!this.length)
     return null
-  var property = this._getPropertyByIndex(0)
-  var result = new Space()
+  var property = this._getPropertyByIndex(0),
+      result = new Space()
   result.set(property, this.get(property))
   this._deleteByIndex(0)
   return result

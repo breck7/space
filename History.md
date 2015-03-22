@@ -1,3 +1,7 @@
+0.12.2 / 2015-03-22
+===================
+- Code cleanup and slight peformance tweaks.
+
 0.12.1 / 2015-03-22
 ===================
 - Defined behavior for "has" method when value is empty.
