@@ -1054,7 +1054,7 @@ test("loadFromObject", function() {
       spaceWithDate = new Space({ name: "John", date: date})
   
   // Assert
-  strictEqual(space.get("lowestScore"), "-10")
+  strictEqual(space.get("lowestScore"), -10)
   strictEqual(spaceWithDate.get("date"), time.toString())
 
   // Arrange
@@ -1687,7 +1687,7 @@ test("set", function() {
   // Assert
   strictEqual(space.get(2), "hi")
   strictEqual(space.get("2"), "hi")
-  strictEqual(space.get("3"), "3")
+  strictEqual(space.get("3"), 3)
 
   // TEST SPACEPATH SCENARIOS
   // Arrange
@@ -1736,7 +1736,7 @@ test("set", function() {
   space.set("meta x", 1235123)
 
   // Assert
-  strictEqual(space.get("meta c"), "435")
+  strictEqual(space.get("meta c"), 435)
 
   // Arrange
   space = new Space("name John\nage\nfavoriteColors\n blue\n  blue1 1\n  blue2 2\n green\n red 1\n")

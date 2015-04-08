@@ -1,3 +1,7 @@
+0.12.4 / 2015-04-07
+===================
+- Undid change from 0.12.0. space.set("foo", 2) now preserves number types.
+
 0.12.3 / 2015-04-07
 ===================
 - Added getPath, getParent, and getRoot methods

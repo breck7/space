@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.3"
+Space.version = "0.12.4"
 
 /**
  * Delete items from an array
@@ -348,17 +348,16 @@ Space._pairToString = function(property, value, spaces) {
 
   // If the value is a space, concatenate it
   if (value instanceof Space)
-    string += "\n" + value._toString(spaces + 1)
+    return string + "\n" + value._toString(spaces + 1)
+
+  value = value.toString()
 
   // multiline string
-  else if (value.match(/\n/))
-    string += " " + value.replace(/\n/g, "\n" + Space.strRepeat(" ", spaces + 1)) + "\n"
+  if (value.match(/\n/))
+    return string + " " + value.replace(/\n/g, "\n" + Space.strRepeat(" ", spaces + 1)) + "\n"
 
   // Plain string
-  else
-    string += " " + value + "\n"
-
-  return string
+  return string + " " + value + "\n"
 }
 
 /**
@@ -1402,7 +1401,7 @@ Space.prototype._loadPair = function(property, value, root) {
   else if (value === undefined)
     this._setPair(property, "")
   else if (type !== "object")
-    this._setPair(property, value.toString())
+    this._setPair(property, value)
   else if (value instanceof Date)
     this._setPair(property, value.getTime().toString())
   else if (value instanceof Space)
@@ -1927,7 +1926,7 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
     isSpace = true
   }
 
-  if (valueType !== "string" && !isSpace)
+  if (valueType !== "string" && valueType !== "number" && !isSpace)
     value = String(value)
 
   if (isSpace)
@@ -2180,7 +2179,7 @@ Space.prototype._toObject = function() {
       v = true
     else if (value === "null")
       v = null
-    else if (value.match(/^[\-\.]?[0-9]+[0-9\.]*$/))
+    else if (typeof value === "number" || value.match(/^[\-\.]?[0-9]+[0-9\.]*$/))
       v = parseFloat(value)
     else
       v = value
