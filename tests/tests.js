@@ -639,37 +639,26 @@ test("event bubbling", function() {
 
 test("every", function() {
   // Arrange
-  var i = 0,
-      obj = new Space("user\n\
-name Aristotle\n\
-admin false\n\
-stage\n\
- name home\n\
- domain test.test.com\n\
-pro false\n\
-domains\n\
- test.test.com\n\
-  images\n\
-  blocks\n\
-  users\n\
-  stage home\n\
-  pages\n\
-   home\n\
-    settings\n\
-     data\n\
-      title Hello, World\n\
-    block1\n\
-     content Hello world\n")
+  var everyCount = 0,
+      everyLeafCount = 0,
+      everyObj = new Space(testStrings.every),
+      leafsOnlyObj = new Space(testStrings.every)
 
   // Act
-  obj.every(function(property, value) {
+  everyObj.every(function(property, value) {
     this.rename(property, property.toUpperCase())
-    i++
+    everyCount++
+  })
+  leafsOnlyObj.everyLeaf(function(property, value) {
+    this.rename(property, property.toUpperCase())
+    everyLeafCount++
   })
 
   // Assert
-  strictEqual(i, 20, "Expected every fn to execute 20 times.")
-  strictEqual(obj.get("DOMAINS TEST.TEST.COM PAGES HOME SETTINGS").toString(), "DATA\n TITLE Hello, World\n")
+  strictEqual(everyCount, 20, "Expected every fn to execute 20 times.")
+  strictEqual(everyObj.get("DOMAINS TEST.TEST.COM PAGES HOME SETTINGS").toString(), "DATA\n TITLE Hello, World\n")
+  strictEqual(everyLeafCount, 8, "Expected every leaf fn to execute 8 times.")
+  strictEqual(leafsOnlyObj.get("domains test.test.com pages home settings data TITLE").toString(), "Hello, World")
 })
 
 test("filter", function() {
@@ -728,11 +717,11 @@ test("firstValue", function() {
 
 test("fromCsv", function() {
   // Arrange
-  var space = Space.fromCsv(testStrings.toCsvResult)
+  var space = Space.fromCsv(testStrings.csv)
 
   // Assert
-  strictEqual(space.toString(), testStrings.toDelimited)
-  strictEqual(space.toCsv(), testStrings.toCsvResult)
+  strictEqual(space.toString(), testStrings.delimited)
+  strictEqual(space.toCsv(), testStrings.csv, "Expected toCsv to output same data as fromCsv")
 
   // Arrange
   space = Space.fromCsv("Age,Birth Place,Country\n12,Brockton,USA")
@@ -773,20 +762,20 @@ test("fromHeredoc", function() {
 
 test("fromSsv", function() {
   // Arrange/Act
-  var a = Space.fromSsv(testStrings.toSsvResult)
+  var a = Space.fromSsv(testStrings.ssv)
 
   // Assert
-  strictEqual(a.toString(), testStrings.toDelimited)
-  strictEqual(a.toSsv(), testStrings.toSsvResult)
+  strictEqual(a.toString(), testStrings.delimited)
+  strictEqual(a.toSsv(), testStrings.ssv)
 })
 
 test("fromTsv", function() {
   // Arrange/Act
-  var a = Space.fromTsv(testStrings.toTsvResult)
+  var a = Space.fromTsv(testStrings.tsv)
   
   // Assert
-  strictEqual(a.toString(), testStrings.toDelimited)
-  strictEqual(a.toTsv(), testStrings.toTsvResult)
+  strictEqual(a.toString(), testStrings.delimited)
+  strictEqual(a.toTsv(), testStrings.tsv)
 })
 
 if (!isNode) {
@@ -883,6 +872,18 @@ test("get expecting a branch but hitting a leaf", function() {
 
   // Assert
   strictEqual(undefined, value.get("posts branch"))
+})
+
+test("getPath", function() {
+  // Arrange
+  var space = new Space(testStrings.every)
+  var parent = space.get("domains test.test.com pages home settings") 
+  var child = space.get("domains test.test.com pages home settings data")
+
+  // Assert
+  strictEqual(child.getPath(), "domains test.test.com pages home settings data")
+  strictEqual(child.getRoot(), space)
+  strictEqual(child.getParent(), parent)
 })
 
 test("getValues", function() {
@@ -1078,6 +1079,14 @@ test("loadFromObject", function() {
   // Assert
   strictEqual(space.get("c bar"), "2")
   strictEqual(space.get("c ref"), undefined)
+
+  // Arrange
+  space = new Space()
+  space.set("docs", testStrings.json2)
+
+  // Assert
+  //console.log(space.toString())
+  strictEqual(space.toString(), testStrings.json2space)
 })
 
 test("loadFromSpace", function() {
@@ -1135,6 +1144,11 @@ test("loadFromString", function() {
   var f = new Space("a b\n\n\n")
   // Assert
   strictEqual(f.toString(), "a b\n", "Expected extra newlines at end of string to be trimmed")
+
+  // Arrange
+  var g = new Space("hi\n     somewhat invalid")
+  // Assert
+  strictEqual(g.get("hi somewhat"), "invalid")
 })
 
 test("loadFromString extra spaces", function() {
@@ -1732,6 +1746,14 @@ test("set", function() {
 
   // Assert
   strictEqual(space.get("favoriteColors blue"), "purple")
+
+  // Act
+  space.set("     invalid", "test")
+  space.set("  \n   invalid2", "test2")
+  
+  // Assert
+  strictEqual(space.get("invalid"), "test", "Expected extra spaces in path to be sanitized")
+  strictEqual(space.get("invalid2"), "test2", "Expected newlines in path to be sanitized")
 })
 
 test("shift", function() {
@@ -1774,9 +1796,9 @@ test("split", function() {
 
 test("toCsv", function() {
   // Arrange
-  var a = new Space(testStrings.toDelimited)
+  var a = new Space(testStrings.delimited)
   // Act/Assert
-  strictEqual(a.toCsv(), testStrings.toCsvResult)
+  strictEqual(a.toCsv(), testStrings.csv)
 })
 
 // Test this only in node.js
@@ -1923,9 +1945,9 @@ test("toQueryString", function() {
 })
 
 test("toSsv", function() {
-  var a = new Space(testStrings.toDelimited)
+  var a = new Space(testStrings.delimited)
   // Assert
-  strictEqual(a.toSsv(), testStrings.toSsvResult)
+  strictEqual(a.toSsv(), testStrings.ssv)
 })
 
 test("toString", function() {
@@ -1985,9 +2007,9 @@ test("toString", function() {
 
 test("toTsv", function() {
   // Arrange
-  var a = new Space(testStrings.toDelimited)
+  var a = new Space(testStrings.delimited)
   // Assert
-  strictEqual(a.toTsv(), testStrings.toTsvResult)
+  strictEqual(a.toTsv(), testStrings.tsv)
 })
 
 test("toXML", function() {

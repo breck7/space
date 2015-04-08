@@ -1,3 +1,10 @@
+0.12.3 / 2015-04-07
+===================
+- Added getPath, getParent, and getRoot methods
+- Added everyLeaf method
+- Returning false in your fn passed to every now breaks early
+- Fixed bug where set(property, someObject) would not convert someObject to space
+
 0.12.2 / 2015-03-22
 ===================
 - Code cleanup and slight peformance tweaks.

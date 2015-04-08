@@ -64,6 +64,37 @@ html
    content hi
 */})
 
+testStrings.json2 = [{"id":755,"settings":"123"},{"id":756,"settings":"456"}]
+testStrings.json2space = multiline(function () {/*docs
+ 0
+  id 755
+  settings 123
+ 1
+  id 756
+  settings 456
+*/})
+
+testStrings.every = "user\n\
+name Aristotle\n\
+admin false\n\
+stage\n\
+ name home\n\
+ domain test.test.com\n\
+pro false\n\
+domains\n\
+ test.test.com\n\
+  images\n\
+  blocks\n\
+  users\n\
+  stage home\n\
+  pages\n\
+   home\n\
+    settings\n\
+     data\n\
+      title Hello, World\n\
+    block1\n\
+     content Hello world\n"
+
 testStrings.toXmlResult = "<html><head></head><body><div></div><div><class>main</class><content>yo</content>" +
   "</div><div><class>footer</class><content>hi</content></div></body></html>"
 
@@ -148,10 +179,10 @@ endbody
 date 2/25/2014
 */})
 
-testStrings.toDelimited = multiline(function () {/*0
+testStrings.delimited = multiline(function () {/*0
+testStrings.delimited = multiline(function () {/*0
  id 1
- title One 
-  plus one
+ title Some book
  summary An expose, on the result of one "plus" one
 1
  id 2
@@ -179,9 +210,8 @@ x language
 y stargazers_counter
 */})
 
-testStrings.toCsvResult = multiline(function () {/*id,title,summary
-1,"One 
-plus one","An expose, on the result of one ""plus"" one"
+testStrings.csv = multiline(function () {/*id,title,summary
+1,Some book,"An expose, on the result of one ""plus"" one"
 2,"The answer, my friend, is...","""Two"""
 */})
 
@@ -190,15 +220,13 @@ mike,321,blue
 al,1214,green
 */})
 
-testStrings.toSsvResult = multiline(function () {/*id title summary
-1 "One 
-plus one" "An expose, on the result of one ""plus"" one"
+testStrings.ssv = multiline(function () {/*id title summary
+1 "Some book" "An expose, on the result of one ""plus"" one"
 2 "The answer, my friend, is..." """Two"""
 */})
 
-testStrings.toTsvResult = "id\ttitle\tsummary\n\
-1\t\"One \n\
-plus one\"\t\"An expose, on the result of one \"\"plus\"\" one\"\n\
+testStrings.tsv = "id\ttitle\tsummary\n\
+1\tSome book\t\"An expose, on the result of one \"\"plus\"\" one\"\n\
 2\tThe answer, my friend, is...\t\"\"\"Two\"\"\"\n"
 
 testStrings.json = {

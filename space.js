@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.2"
+Space.version = "0.12.3"
 
 /**
  * Delete items from an array
@@ -348,7 +348,7 @@ Space._pairToString = function(property, value, spaces) {
 
   // If the value is a space, concatenate it
   if (value instanceof Space)
-    string += "\n" + value.toString(spaces + 1)
+    string += "\n" + value._toString(spaces + 1)
 
   // multiline string
   else if (value.match(/\n/))
@@ -818,15 +818,43 @@ Object.defineProperty(Space.prototype, "events", {
 })
 
 /**
- * @param fn function
+ * Apply a function to every line in the instance.
+ *
+ * If fn returns false the method will immediately return.
+ *
+ * @param fn (property: string, value: string, index: int) => boolean|void
  * @return space this
  */
 Space.prototype.every = function(fn) {
+  this._every(fn)
+  return this
+}
+
+Space.prototype._every = function(fn, leafsOnly) {
+  var result = true
   this.each(function(property, value, index) {
-    fn.call(this, property, value, index)
-    if (value instanceof Space)
-      value.every(fn)
+    var isSpace = value instanceof Space
+    if (!isSpace || !leafsOnly)
+      result = fn.call(this, property, value, index)
+    if (result === false)
+      return false
+    if (isSpace)
+      result = value._every(fn, leafsOnly)
+    return result
   })
+  return result
+}
+
+/**
+ * Apply a function to every leaf in the instance.
+ *
+ * If fn returns false the method will immediately return.
+ *
+ * @param fn (property: string, value: string, index: int) => boolean|void
+ * @return space this
+ */
+Space.prototype.everyLeaf = function(fn) {
+  this._every(fn, true)
   return this
 }
 
@@ -950,6 +978,47 @@ Space.prototype.getArray = function(query) {
  */
 Space.prototype.getByIndex = function(index) {
   return this._getValueByIndex(index)
+}
+
+/**
+/**
+ * @return space Or null if there is no parent
+ */
+Space.prototype.getParent = function() {
+  return this._parent || null
+}
+
+/**
+ * @return string Space path to this instance if it has a parent
+ */
+Space.prototype.getPath = function() {
+  var parent = this._parent
+  var path = ""
+  var child = this
+  var first = ""
+  while (parent) {
+    parent.each(function (k, v) {
+      if (v === child) {
+        path = k + first + path
+        first = " "
+        return false
+      }
+    })
+    child = parent
+    parent = parent._parent
+  }
+  return path
+}
+
+/**
+ * @return space
+ */
+Space.prototype.getRoot = function() {
+  var parent = this._parent
+  while (parent._parent) {
+    parent = parent._parent
+  }
+  return parent || this
 }
 
 /**
@@ -1276,7 +1345,7 @@ Object.defineProperty(Space.prototype, "length", {
     }
 })
 
-Space._load2 = true
+Space._load2 = false
 
 /**
  * @param content any
@@ -1474,17 +1543,17 @@ Space.prototype._sanitizeString = function(string) {
  * @return space
  */
 Space.prototype._loadFromString = function(string) {
-  var spaces = string.split(/\n(?! )/g),
-      length = spaces.length,
+  var pairs = string.split(/\n(?! )/g),
+      length = pairs.length,
       matches,
-      space
+      pair
 
   for (var i = 0; i < length; i++) {
-    space = spaces[i]
-    if (matches = space.match(/^([^ ]+)(\n|$)/)) // Space
-      this._setPair(matches[1], new Space()._loadFromString(space.substr(matches[1].length).replace(/\n /g, "\n")))
-    else if (matches = space.match(/^([^ ]+) /)) // Leaf
-      this._setPair(matches[1], space.substr(matches[1].length + 1).replace(/\n /g, "\n"))
+    pair = pairs[i]
+    if (matches = pair.match(/^([^ ]+)(\n|$)/)) // Space
+      this._setPair(matches[1], new Space()._loadFromString(pair.substr(matches[1].length).replace(/\n /g, "\n").replace(/^\n +/, "\n")))
+    else if (matches = pair.match(/^([^ ]+) /)) // Leaf
+      this._setPair(matches[1], pair.substr(matches[1].length + 1).replace(/\n /g, "\n"))
   }
   return this
 }
@@ -1792,11 +1861,18 @@ Space.prototype.set = function(property, value, index, noEvents) {
   return this
 }
 
+Space.prototype._sanitizeSpacePath = function(path) {
+  return path.toString().replace(/\n/g, "").replace(/^ +/, "").replace(/  /g, "")
+}
+
 Space.prototype._setBySpacePath = function(path, value) {
+  // Sanitize path
+  path = path ? this._sanitizeSpacePath(path) : false
+  
   if (!path)
     return null
   
-  var generations = path.toString().split(/ /g),
+  var generations = path.split(/ /g),
       currentContext = this,
       currentPath,
       index,
@@ -1828,14 +1904,35 @@ Space.prototype._setBySpacePath = function(path, value) {
   return this
 }
 
+/**
+ * @param property string
+ * @param value string|space
+ * @param index int
+ * @param overwrite boolean
+ * @return void
+ */
 Space.prototype._setPair = function(property, value, index, overwrite) {
-  var length = this.length,
-      isSpace = value instanceof Space
+  // Sanitize property
+  // property = property.toString().replace(/( |\n)/g, "")
+  property = property.toString()
+  if (!property)
+    return
 
-  if (typeof value !== "string" && !isSpace)
+  var length = this.length,
+      isSpace = value instanceof Space,
+      valueType = typeof value
+
+  if (!isSpace && valueType === "object" && value) {
+    value = new Space(value)
+    isSpace = true
+  }
+
+  if (valueType !== "string" && !isSpace)
     value = String(value)
 
-  property = property.toString()
+  if (isSpace)
+    value._parent = this
+
   if (index === undefined || index >= length) {
     // If index is not provided or invalid perform an append
     this._properties.push(property)
@@ -2145,8 +2242,11 @@ Space.prototype.toSsv = function() {
 /**
  * @return string
  */
-Space.prototype.toString = function(spaces) {
-  spaces = spaces || 0
+Space.prototype.toString = function() {
+  return this._toString(0)
+}
+
+Space.prototype._toString = function(spaces) {
   var string = "",
       length = this.length
 
