@@ -1,3 +1,8 @@
+0.12.5 / 2015-04-09
+===================
+- Refactored internal implementation of _properties
+- Removed static methods pathBranch, pathLeaf, removeItems and isSpacePath
+
 0.12.4 / 2015-04-07
 ===================
 - Undid change from 0.12.0. space.set("foo", 2) now preserves number types.

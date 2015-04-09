@@ -942,7 +942,7 @@ test("insert", function() {
   space.insert("hi", "mom", 0)
 
   // Assert
-  strictEqual(space.indexOf("hi"), 0)
+  strictEqual(space.indexOf("hi"), 0, "Expected hi at position 0")
 
   // Insert using an index longer than the current object
   // Act
@@ -1412,16 +1412,6 @@ test("patch", function() {
   ok(a.patch(""), "If nothing passed dont error.")
   ok(a.patch(false), "If nothing passed dont error.")
   strictEqual(a.toString(), "hello world\n")
-})
-
-test("path functions", function() {
-  // Assert
-  strictEqual(Space.pathLeaf("football"), "football")
-  strictEqual(Space.pathLeaf("page header"), "header")
-  strictEqual(Space.pathLeaf("page header content"), "content")
-  strictEqual(Space.pathBranch("football"), "")
-  strictEqual(Space.pathBranch("page header"), "page")
-  strictEqual(Space.pathBranch("page header content"), "page header")
 })
 
 test("pop", function() {
