@@ -240,6 +240,23 @@ test("create", function() {
   strictEqual(count, 1)
 })
 
+test("deepLength", function() {
+  // Arrange
+  var value = new Space("hello world\nhi mom")
+  // Assert
+  strictEqual(value.deepLength(), 2)
+
+  // Arrange
+  var value = new Space(testStrings.renameAll)
+  // Assert
+  strictEqual(value.deepLength(), 12)
+
+  // Arrange
+  var value = new Space("hello world\nhi mom\n how are you")
+  // Assert
+  strictEqual(value.deepLength(), 2)  
+})
+
 test("delete", function() {
   // Arrange
   var space = new Space()

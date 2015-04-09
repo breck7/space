@@ -10,7 +10,7 @@ install:
 	cd ..; sudo npm install -g space/; npm install space/
 
 nodeperf:
-	node tests/node-perf-test.js
+	node --expose-gc tests/perf.js
 
 perf:
 	open tests/perf.html

@@ -1,3 +1,7 @@
+0.12.6 / 2015-04-09
+===================
+- Added deepLength method
+
 0.12.5 / 2015-04-09
 ===================
 - Refactored internal implementation of _properties

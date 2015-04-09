@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.5"
+Space.version = "0.12.6"
 
 /**
  * @param property string
@@ -781,6 +781,19 @@ Space.prototype.diffOrder = function(space) {
       diff._setPair(property, new Space())
   })
   return diff
+}
+
+/**
+ * Return the number of pairs in the object including all nested pairs.
+ *
+ * @return number
+ */
+Space.prototype.deepLength = function() {
+  var length = 0
+  this.every(function () {
+    length++
+  })
+  return length
 }
 
 /**

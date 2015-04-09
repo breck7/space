@@ -1,17 +1,18 @@
-QUnit.module("Space")
-
-var isNode = typeof require !== "undefined",
-    _chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
+var isNode = typeof require !== "undefined"
+var _chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
 
 if (isNode) {
-  var fs = require("fs"),
-      speedcoach = require("./speedcoach")
+  var Space = require("../space.js")
+  var speedcoach = require("./speedcoach")
+} else {
+  var global = {}
+  global.gc = function () {}
 }
 
 function getRandomString (min, max) {
-  var string = "",
-      length = (Math.round(Math.random() * (max - min))) + min,
-      randomNumber
+  var string = ""
+  var length = (Math.round(Math.random() * (max - min))) + min
+  var randomNumber
   
   for (var i = 0; i < length; i++) {
     randomNumber = Math.floor(Math.random() * _chars.length)
@@ -21,12 +22,11 @@ function getRandomString (min, max) {
   return string
 }
 
-// Experimental method for quickly generating perf test data
 function getRandomSpace (rows, depthOdds) {
-  var space = new Space(),
-      depthOdds = depthOdds || 0,
-      property = "",
-      value = ""
+  var space = new Space()
+  var depthOdds = depthOdds || 0
+  var property = ""
+  var value = ""
 
   while (rows > 0) {
     property = getRandomString(3, 6)
@@ -46,63 +46,61 @@ function getRandomSpace (rows, depthOdds) {
   return space
 }
 
-test("start", function() {
-  speedcoach("start")
-  ok(true)
-})
+speedcoach("start")
 
-// Create globals for easy profiling in chrome dev tools
-var globalStr = getRandomSpace(10000, 0.2).toString()
-var globalSpace
-var globalNoNestStr = getRandomSpace(100000, 0).toString()
-var globalNoNest = new Space(globalNoNestStr)
-var globalObj = globalNoNest.toObject()
-var globalJsonTyped = globalNoNest.toJSON(true)
-var tinyStr = "hello world\nhi earth"
-var tinyObj = {"hello": "world", "hi" : "earth"}
-var tinyArray = ["hello", "world", "hi", "earth"]
-var tinySpace = new Space(tinyStr)
+global.gc()
+speedcoach("new spaceFromRandomStringWithNesting")
+var spaceFromRandomStringWithNesting = getRandomSpace(10000, 0.2)
+console.log("spaceFromRandomStringWithNesting deepLength: " + spaceFromRandomStringWithNesting.deepLength())
 
-test("load by string speed and mem tests", function() {
-  speedcoach("start speed and mem tests")
-  
-  Space._load2 = false
-  var a = new Space(globalStr)
-  
-  Space._load2 = true
-  var b = new Space(a)
+global.gc()
+speedcoach("spaceFromRandomStringWithNesting.toString()")
+var spaceFromRandomStringWithNestingToString = spaceFromRandomStringWithNesting.toString()
+console.log("spaceFromRandomStringWithNestingToString length: " + spaceFromRandomStringWithNestingToString.length)
 
-  globalSpace = new Space(globalStr)
-  var leafCount = 0
-  globalSpace.each(function (){leafCount++}, true)
+global.gc()
+speedcoach("new spaceFromRandomStringWithoutNesting")
+var spaceFromRandomStringWithoutNesting = getRandomSpace(10000, 0)
+console.log("spaceFromRandomStringWithoutNesting deepLength: " + spaceFromRandomStringWithoutNesting.deepLength())
 
-  // Test json for comparison
-  var jso = JSON.stringify(a.toObject())
-  var parsed = JSON.parse(jso)
-  speedcoach("toString speed")
-  var toStringSpeed = getRandomSpace(10000, 0.2).toString()
-  speedcoach("end speed and mem tests")
-  ok(true)
-})
+global.gc()
+speedcoach("spaceFromRandomStringWithoutNesting.toString()")
+var spaceFromRandomStringWithoutNestingToString = spaceFromRandomStringWithoutNesting.toString()
+console.log("spaceFromRandomStringWithoutNestingToString length: " + spaceFromRandomStringWithoutNestingToString.length)
 
-test("patch performance test", function() {
-  // Arrange
-  var space = new Space()
+global.gc()
+speedcoach("create repeatingSpaceString of root length 100K by repeating simple 9line space object with 2 levels of nesting")
+var tinyStr = "country US\npopulation 300M\nneighbors\n country\n  name Canada\n  pop 50M\n country\n  name Mexico\n  pop 150M\n"
+var repeatingSpaceString = ""
+for (var i = 0; i < 100000; i++) {
+ repeatingSpaceString += tinyStr
+}
+console.log("repeatingSpaceString length: " + repeatingSpaceString.length)
 
-  // Act
-  for (var i = 0; i < 1000; i++) {
-    var patch = new Space()
-    patch.set(Math.random(), new Space("foobar hello\nworld world\nnested\n element 1\n element2\n  foobar hi"))
-    patch.set(Math.random(), "foobar")
-    space.patch(patch)
-  }
+global.gc()
+speedcoach("create space from repeatingSpaceString")
+var repeatingSpace = new Space(repeatingSpaceString)
+console.log("repeatingSpace deepLength: " + repeatingSpace.deepLength())
 
-  // Assert
-  strictEqual(space.length, 2000)
-})
+global.gc()
+speedcoach("test each from repeatingSpace")
+var leafCount = 0
+repeatingSpace.each(function (){leafCount++}, true)
 
-test("end", function() {
-  speedcoach("end")
-  speedcoach.print()
-  ok(true)
-})
+global.gc()
+speedcoach("create jsonFromRepeatingSpace")
+var jsonFromRepeatingSpace = repeatingSpace.toJSON()
+console.log("jsonFromRepeatingSpace length: " + jsonFromRepeatingSpace.length)
+
+global.gc()
+speedcoach("create spaceFromJson")
+var spaceFromJson = new Space(jsonFromRepeatingSpace)
+console.log("spaceFromJson string deepLength: " + spaceFromJson.deepLength())
+
+global.gc()
+speedcoach("end")
+
+if (isNode)
+  console.log(speedcoach.getCsv())
+else
+  document.write("<pre>" + speedcoach.getCsv() + "</pre>")
