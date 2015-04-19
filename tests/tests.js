@@ -896,10 +896,12 @@ test("getPath", function() {
   var space = new Space(testStrings.every)
   var parent = space.get("domains test.test.com pages home settings") 
   var child = space.get("domains test.test.com pages home settings data")
+  var simple = new Space("foo bar")
 
   // Assert
   strictEqual(child.getPath(), "domains test.test.com pages home settings data")
   strictEqual(child.getRoot(), space)
+  strictEqual(simple.getRoot(), simple)
   strictEqual(child.getParent(), parent)
 })
 

@@ -1,3 +1,7 @@
+0.12.7 / 2015-04-19
+===================
+- Fixed null ref in getRoot method
+
 0.12.6 / 2015-04-09
 ===================
 - Added deepLength method

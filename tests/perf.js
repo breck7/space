@@ -2,10 +2,10 @@ var isNode = typeof require !== "undefined"
 var _chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz"
 
 if (isNode) {
-  var Space = require("../space.js")
-  var speedcoach = require("./speedcoach")
+  Space = require("../space.js")
+  speedcoach = require("./speedcoach")
 } else {
-  var global = {}
+  global = {}
   global.gc = function () {}
 }
 

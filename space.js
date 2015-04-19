@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.6"
+Space.version = "0.12.7"
 
 /**
  * @param property string
@@ -1025,6 +1025,8 @@ Space.prototype.getPath = function() {
  */
 Space.prototype.getRoot = function() {
   var parent = this._parent
+  if (!parent)
+    return this
   while (parent._parent) {
     parent = parent._parent
   }

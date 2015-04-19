@@ -9,11 +9,8 @@ beautify:
 install:
 	cd ..; sudo npm install -g space/; npm install space/
 
-nodeperf:
-	node --expose-gc tests/perf.js
-
 perf:
-	open tests/perf.html
+	open tests/perf.html; node --expose-gc tests/perf.js;
 
 publish:
 	npm publish

@@ -1,6 +1,6 @@
 {
   "name": "space",
-  "version": "0.12.6",
+  "version": "0.12.7",
   "description": "A lightweight language for objects",
   "main": "./space.js",
   "scripts": {
