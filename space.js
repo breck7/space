@@ -1278,7 +1278,7 @@ Space.prototype.isFlat = function() {
 /**
  * Check whether the object has only unique properties.
  *
- * @param deep Whether to search recursively.
+ * @param deep bool Whether to search recursively. Default is false.
  * @return bool
  */
 Space.prototype.isStringMap = function(deep) {
@@ -2221,6 +2221,10 @@ Space.prototype._toObject = function() {
  *
  * Note: when guessTypes is true, toJSON will never return empty arrays, only
  * empty objects, if one is encountered. Handle appropriately.
+ *
+ * Note: native JS objects cannot have dupe keys while space instances can. It
+ * may be prudent to use the isStringMap method to ensure you toObject returns what
+ * you'd expect.
  *
  * @param guessTypes? Whether to scan for arrays and numbers and convert to predicted type.
  * @return object
