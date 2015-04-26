@@ -1,3 +1,7 @@
+0.12.8 / 2015-04-26
+===================
+- Added extract, replace and renameObjects methods
+
 0.12.7 / 2015-04-19
 ===================
 - Fixed null ref in getRoot method

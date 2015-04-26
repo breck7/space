@@ -678,6 +678,18 @@ test("every", function() {
   strictEqual(leafsOnlyObj.get("domains test.test.com pages home settings data TITLE").toString(), "Hello, World")
 })
 
+test("extract", function() {
+  // Arrange
+  var value = new Space(testStrings.filter)
+
+  // Act
+  var result = value.extract("age")
+
+  // Assert
+  strictEqual(result.length, 4)
+  strictEqual(result.get("age"), "21")
+})
+
 test("filter", function() {
   // Arrange
   var value = new Space(testStrings.filter),
@@ -1598,6 +1610,18 @@ test("renameAll", function() {
   strictEqual(space.toString().match(/firstName/g).length, 5)
 })
 
+test("renameObjects", function() {
+  // Arrange
+  var space = new Space(testStrings.renameObjects)
+
+  // Act
+  space.renameObjects("email")
+
+  // Assert
+  strictEqual(space.get("johndoe@email.com name"), "John Doe")
+  strictEqual(space.get("maryjane@email.com name"), "Mary Jane")
+})
+
 test("reorder", function() {
   // Arrange
   var a = new Space("hello world\n")
@@ -1638,6 +1662,17 @@ test("reorder", function() {
   // Assert
   strictEqual(a.diffOrder(b).toString(), "b\n value\n content\n", "diff order correct")
   strictEqual(a.patchOrder(a.diffOrder(b)).toString(), b.toString(), "recursive order patch")
+})
+
+test("replace", function() {
+  // Arrange
+  var space = new Space(testStrings.filter)
+
+  // Act
+  space.replace(/age/g, "currentAge")
+
+  // Assert
+  strictEqual(space.extract("currentAge").length, 4)
 })
 
 test("reverse", function() {

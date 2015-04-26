@@ -225,6 +225,20 @@ testStrings.ssv = multiline(function () {/*id title summary
 2 "The answer, my friend, is..." """Two"""
 */})
 
+testStrings.ssv = multiline(function () {/*id title summary
+1 "Some book" "An expose, on the result of one ""plus"" one"
+2 "The answer, my friend, is..." """Two"""
+*/})
+
+testStrings.renameObjects = multiline(function () {/*
+0
+ name John Doe
+ email johndoe@email.com
+1
+ name Mary Jane
+ email maryjane@email.com
+*/})
+
 testStrings.tsv = "id\ttitle\tsummary\n\
 1\tSome book\t\"An expose, on the result of one \"\"plus\"\" one\"\n\
 2\tThe answer, my friend, is...\t\"\"\"Two\"\"\"\n"

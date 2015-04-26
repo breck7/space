@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.7"
+Space.version = "0.12.8"
 
 /**
  * @param property string
@@ -851,6 +851,35 @@ Space.prototype._every = function(fn, leafsOnly) {
     return result
   })
   return result
+}
+
+/**
+ * Scan the entire object and return a new space instance composed of
+ * every pair where the key matches one of the passed properties.
+ *
+ * @param string Space delimited string of properties. i.e. "date name pageviews"
+ * @return space
+ */
+Space.prototype.extract = function (properties) {
+  var props = properties.split(" ")
+  var propKey = {}
+  var matches = new Space()
+
+  props.forEach(function (val) {
+    propKey[val] = true
+  })
+
+  this._extract(propKey, matches)
+  return matches
+}
+
+Space.prototype._extract = function (propKey, matches) {
+  this.each(function (property, value) {
+    if (propKey[property])
+      matches.append(property, value)
+    else if (value instanceof Space)
+      value._extract(propKey, matches)
+  })
 }
 
 /**
@@ -1841,6 +1870,49 @@ Space.prototype.renameAll = function(oldName, newName, recursive) {
       value.renameAll(oldName, newName, recursive)
   })
   return this
+}
+
+/**
+ * Iterate through instance and if the value is a Space instance
+ * rename its property to a value within that instance.
+ *
+ * For example:
+ *
+ * 0
+ *  name John Doe
+ *  email johndoe@email.com
+ *
+ * space.renameObjects("email")
+ *
+ * transforms this into:
+ *
+ * johndoe@email.com
+ *  name John Doe
+ * 
+ * @param string property
+ * @return this
+ */
+Space.prototype.renameObjects = function (property) {
+  this.each(function (prop, value, index) {
+    if (!(value instanceof Space))
+      return true
+    var newKey = value.get(property)
+    this._setProperty(index, newKey)
+    value["delete"](property)
+  })
+  this._reindex()
+  return this
+}
+
+/**
+ * Treat the instance as a string and reload it after the replace operation.
+ *
+ * @param search string|regex Search string
+ * @param replacement string Replacement string
+ * @return this
+ */
+Space.prototype.replace = function (search, replacement) {
+  return this.reload(this.toString().replace(search, replacement))
 }
 
 /**
