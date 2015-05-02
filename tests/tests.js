@@ -214,7 +214,7 @@ test("concat", function() {
   // Arrange
   var a = new Space("hello world"),
       b = new Space("hi mom")
-  
+
   // Act
   a.concat(b)
 
@@ -254,7 +254,7 @@ test("deepLength", function() {
   // Arrange
   var value = new Space("hello world\nhi mom\n how are you")
   // Assert
-  strictEqual(value.deepLength(), 2)  
+  strictEqual(value.deepLength(), 2)
 })
 
 test("delete", function() {
@@ -400,7 +400,7 @@ test("diff of subclasses", function() {
 
   // Assert
   strictEqual(patch.toString(), "z-index 0\n")
-  
+
   // Act
   e["z-index"] = 0
   patch = d.diff(e)
@@ -638,7 +638,7 @@ test("event bubbling", function() {
   // Arrange
   var count = 0,
       cafe = new Space("name Haus\nmenu\n coffee\n  light\n   price 2.50\n  dark\n   price 3\n")
-  
+
   cafe
     .get("menu coffee light")
     .on("change", function() {
@@ -745,8 +745,9 @@ test("firstValue", function() {
 })
 
 test("fromCsv", function() {
-  // Arrange
+  // Arrange/Act
   var space = Space.fromCsv(testStrings.csv)
+  var withQuotes = Space.fromCsv("\"Date\",\"Age\"\n\"123\",\"\345\"")
 
   // Assert
   strictEqual(space.toString(), testStrings.delimited)
@@ -764,6 +765,9 @@ test("fromCsv", function() {
 
   // Assert
   strictEqual(space.toString(), "")
+
+  // Assert
+  strictEqual(withQuotes.get("0 Date"), "123", "Expected quotes to be handled properly")
 })
 
 test("fromCsv no headers", function() {
@@ -801,7 +805,7 @@ test("fromSsv", function() {
 test("fromTsv", function() {
   // Arrange/Act
   var a = Space.fromTsv(testStrings.tsv)
-  
+
   // Assert
   strictEqual(a.toString(), testStrings.delimited)
   strictEqual(a.toTsv(), testStrings.tsv)
@@ -844,7 +848,7 @@ test("get", function() {
   // Test get with duplicate properties
   // Arrange
   space = new Space("height 45px\nheight 50px\nwidth 56px")
-  
+
   // Assert
   strictEqual(space.length, 3)
 
@@ -906,7 +910,7 @@ test("get expecting a branch but hitting a leaf", function() {
 test("getPath", function() {
   // Arrange
   var space = new Space(testStrings.every)
-  var parent = space.get("domains test.test.com pages home settings") 
+  var parent = space.get("domains test.test.com pages home settings")
   var child = space.get("domains test.test.com pages home settings data")
   var simple = new Space("foo bar")
 
@@ -1083,7 +1087,7 @@ test("loadFromObject", function() {
       date = new Date(),
       time = date.getTime(),
       spaceWithDate = new Space({ name: "John", date: date})
-  
+
   // Assert
   strictEqual(space.get("lowestScore"), -10)
   strictEqual(spaceWithDate.get("date"), time.toString())
@@ -1277,7 +1281,7 @@ test("multiline", function() {
   // Assert
   strictEqual(e.get("brave"), "new\nworld\n", "ml value end with nl correct")
   strictEqual(e.toString(), "brave new\n world\n \n", "multiline ends with a nl")
-  
+
   // Arrange
   var f = new Space("brave new\n world\n \n ")
   // Assert
@@ -1588,7 +1592,7 @@ test("rename", function() {
   // Arrange
   var b = new Space(testStrings.renameTest)
   originalString = b.toString()
-  
+
   // Act
   b.rename("dimensions", "columns")
 
@@ -1794,7 +1798,7 @@ test("set", function() {
   // Act
   space.set("     invalid", "test")
   space.set("  \n   invalid2", "test2")
-  
+
   // Assert
   strictEqual(space.get("invalid"), "test", "Expected extra spaces in path to be sanitized")
   strictEqual(space.get("invalid2"), "test2", "Expected newlines in path to be sanitized")
@@ -1940,7 +1944,7 @@ test("toJSON", function() {
   // Assert
   strictEqual(a.toJSON(), "{\"hello\":\"world\"}")
 
-  // Act  
+  // Act
   a.set("b", b)
   // Assert
   strictEqual(a.toJSON(), "{\"hello\":\"world\",\"b\":{\"foo\":\"bar\"}}")

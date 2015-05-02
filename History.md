@@ -1,3 +1,8 @@
+0.12.9 / 2015-05-02
+===================
+- Fixed bug in fromDelimited when passed string begins with quote
+- Lint cleanup
+
 0.12.8 / 2015-04-26
 ===================
 - Added extract, replace and renameObjects methods

@@ -15,7 +15,7 @@ children
   first-name Sue
   children
    child
-    first-name Abe      
+    first-name Abe
 */})
 
 testStrings.filter = multiline(function () {/*
@@ -191,7 +191,7 @@ testStrings.delimited = multiline(function () {/*0
 */})
 
 testStrings.renameTest = multiline(function () {/*title b on GitHub
-description 
+description
 hideLabels true
 public true
 arrangeables stargazers_count created_at forks_count open_issues_count language

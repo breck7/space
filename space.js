@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.8"
+Space.version = "0.12.9"
 
 /**
  * @param property string
@@ -129,13 +129,13 @@ Space.fromCsv = function (str, hasHeaders) {
  * @return space
  */
 Space.fromDelimiter = function (str, delimiter, hasHeaders) {
-  var length = str.length,
-      currentItem = "",
-      currentPosition = 0,
-      inQuote = false,
-      rows = [[]],
-      space = new Space(),
-      currentRow = 0
+  var length = str.length
+  var currentItem = ""
+  var inQuote = str.substr(0, 1) === "\""
+  var currentPosition = inQuote ? 1 : 0
+  var rows = [[]]
+  var space = new Space()
+  var currentRow = 0
 
   hasHeaders = hasHeaders !== false
 
@@ -240,7 +240,7 @@ Space.fromTsv = function (str, hasHeaders) {
 Space._parseXml2 = function (str) {
   var el = document.createElement("div")
   el.innerHTML = str
-  return el 
+  return el
 }
 
 Space._initializeXmlParser = function () {
@@ -280,7 +280,7 @@ Space.fromXml = function (str) {
   catch (e) {
     return Space._fromXml(Space._parseXml2(str)).get("children")
   }
-  
+
 }
 
 Space._fromXml = function (xml) {
@@ -393,14 +393,14 @@ Space.toFile = function(filepath, spaceObj, options, callback, async) {
 
 Space._ajaxRequest = function(url, callback, spaceObj) {
   var request = new XMLHttpRequest()
-  
+
   request.onreadystatechange = function() {
       if (request.readyState == 4 && request.status == 200)
         callback(new Space(request.responseText))
       else if (request.readyState == 4)
         callback(null, "Error Code: " + request.status + ". " +  request.statusText)
   }
-  
+
   request.open(spaceObj ? "POST" : "GET", url, true)
   if (spaceObj)
     request.setRequestHeader("Content-type", "text/plain")
@@ -759,7 +759,7 @@ Space.prototype.diff = function(space) {
 Space.prototype.diffOrder = function(space) {
   if (!(space instanceof Space))
     space = new Space(space)
-  
+
   var diff = new Space(),
       me = this
 
@@ -1425,7 +1425,7 @@ Space.prototype._load = function(content, root) {
   // If we load from object, create an array of inserted objects to avoid circular loops
   if (!root)
     root = [content]
-  
+
   return this._loadFromObject(content, root)
 }
 
@@ -1505,13 +1505,13 @@ Space.prototype._loadFromString2 = function(string) {
           valueSpaceCount = spaceCount
       } else if (c === "\n") {
         inProperty = false
-        
+
         // this handles extra spaces
         if (spaceCount >= maxOpenDepth)
           spaceCount = maxOpenDepth
         else
           maxOpenDepth = spaceCount
-        
+
         maxOpenDepth = spaceCount + 1
         objects[maxOpenDepth] = new Space()
         objects[spaceCount]._setPair(currentProperty, objects[maxOpenDepth])
@@ -1550,7 +1550,7 @@ Space.prototype._loadFromString2 = function(string) {
       }
     } else if (c === "\n") {
       // ignore blank lines
-      
+
     } else if (c === " ") {
       spaceCount++
     } else {
@@ -1888,7 +1888,7 @@ Space.prototype.renameAll = function(oldName, newName, recursive) {
  *
  * johndoe@email.com
  *  name John Doe
- * 
+ *
  * @param string property
  * @return this
  */
@@ -1959,10 +1959,10 @@ Space.prototype._sanitizeSpacePath = function(path) {
 Space.prototype._setBySpacePath = function(path, value) {
   // Sanitize path
   path = path ? this._sanitizeSpacePath(path) : false
-  
+
   if (!path)
     return null
-  
+
   var generations = path.split(/ /g),
       currentContext = this,
       currentPath,
@@ -1974,7 +1974,7 @@ Space.prototype._setBySpacePath = function(path, value) {
   for (var i = 0; i < generationsLength; i++) {
     currentPath = generations[i]
     isLeaf = (i === (generations.length - 1))
-    
+
     // If path is already set, continue
     if (!isLeaf && currentContext._getValueByProperty(currentPath) instanceof Space) {
       currentContext = currentContext.get(currentPath)
@@ -2049,7 +2049,7 @@ Space.prototype._reindex = function(startAt) {
   var length = this.length
       properties = this._getProperties()
 
-  startAt = startAt || 0     
+  startAt = startAt || 0
   if (!startAt)
     this._cache = {}
   for (var i = startAt; i < length; i++) {
@@ -2372,7 +2372,7 @@ Space.prototype.toURL = function() {
 }
 
 /**
- * @param pretty? boolean 
+ * @param pretty? boolean
  * @return string
  */
 Space.prototype.toXML = function(pretty) {
@@ -2382,7 +2382,7 @@ Space.prototype.toXML = function(pretty) {
 Space.prototype._toXML = function(spaceCount) {
   var xml = "",
       spaces = spaceCount === -1 ? "" : Space._strRepeat(" ", spaceCount)
-  
+
   this.each(function(property, value) {
     xml += spaces + "<" + property + ">"
     if (!(value instanceof Space))
@@ -2396,7 +2396,7 @@ Space.prototype._toXML = function(spaceCount) {
 }
 
 /**
- * @param pretty? boolean 
+ * @param pretty? boolean
  * @return string
  */
 Space.prototype.toXMLWithAttributes = function(pretty) {
@@ -2414,7 +2414,7 @@ Space.prototype._toXMLWithAttributes = function(property, spaceCount) {
     if (prop === "children")
       return true
     if (value && value.replace)
-      attributesStr += " " + prop + "=\"" + value.replace("\"", "\\\"") + "\"" 
+      attributesStr += " " + prop + "=\"" + value.replace("\"", "\\\"") + "\""
     else
       attributesStr += " " + prop
   })
