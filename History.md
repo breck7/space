@@ -1,3 +1,7 @@
+0.12.10 / 2015-05-05
+===================
+- Added sortBy method
+
 0.12.9 / 2015-05-02
 ===================
 - Fixed bug in fromDelimited when passed string begins with quote

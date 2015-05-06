@@ -1828,6 +1828,31 @@ test("sort", function() {
   strictEqual(space.tableOfContents(), "bob john susy")
 })
 
+test("sortBy", function() {
+  // Arrange
+  var space = new Space("john\n age 5\nsusy\n age 6\nbob\n age 10\nsam\n age 21\nbrian\n age 6")
+  // Assert
+  strictEqual(space.tableOfContents(), "john susy bob sam brian")
+
+  // Act
+  space.sortBy("age")
+
+  // Assert
+  strictEqual(space.tableOfContents(), "bob sam john susy brian")
+
+  // Act
+  space.sortBy("age", parseFloat)
+
+  // Assert
+  strictEqual(space.tableOfContents(), "john susy brian bob sam")
+
+  // Act
+  space.sortBy("age", parseFloat)
+
+  // Assert
+  strictEqual(space.tableOfContents(), "john susy brian bob sam", "Expected stable sort")
+})
+
 test("split", function() {
   // Arrange
   var a = new Space(testStrings.splitTest)

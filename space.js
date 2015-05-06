@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.9"
+Space.version = "0.12.10"
 
 /**
  * @param property string
@@ -2073,22 +2073,79 @@ Space.prototype.shift = function() {
 }
 
 /**
- * @param fn({property: string, value: any}, {property: string, value: any}) => int Return -1|0|1
+ * Sorts the instance using the passed comparison function.
+ *
+ * Pair Interface:
+ * { property: string, value: any}
+ *
+ * @param fn (pairA: Pair, pairB: Pair) => <-1|0|1>
  * @return space this
  */
 Space.prototype.sort = function(fn) {
-  var sortable = [],
-      properties = this._getProperties(),
-      length = this.length
+  var sortable = []
+  var properties = this._getProperties()
+  var length = this.length
 
   for (var i = 0; i < length; i++) {
-    sortable.push({property: properties[i], value: this._values[i]})
+    sortable.push({property: properties[i], value: this._values[i], index: i})
   }
+
   sortable.sort(fn)
+
   this._clear()
   for (var i = 0; i < length; i++) {
     this._setPair(sortable[i].property, sortable[i].value)
   }
+  return this
+}
+
+/**
+ * Useful for sorting a collection of space objects.
+ *
+ * For example:
+ *
+ * john
+ *  age 20
+ * mary
+ *  age 24
+ *
+ * space.sortBy("age")
+ *
+ * Performs a stable sort.
+ *
+ * @param property string Space path to sort on.
+ * @param parseFn? (value: any) => any Function to run each value through before comparison.
+ * @return space this
+ */
+Space.prototype.sortBy = function (property, parseFn) {
+  // todo: if I had a reference to the parent object here, I could
+  // create a stable sort
+  // javascript sort is not necessarily stable
+  this.sort(function(pairA, pairB) {
+    var pairAIsSpace = pairA.value instanceof Space
+    var pairBIsSpace = pairB.value instanceof Space
+
+    if (!pairBIsSpace && !pairAIsSpace)
+      return 0
+    else if (!pairAIsSpace)
+      return -1
+    else if (!pairBIsSpace)
+      return 1
+
+    var av = pairA.value.get(property)
+    var bv = pairB.value.get(property)
+
+    if (parseFn) {
+      av = parseFn(av)
+      bv = parseFn(bv)
+    }
+
+    if (av === bv)
+      return 0
+    else if (av > bv)
+      return 1
+    return -1
+  })
   return this
 }
 
