@@ -2182,6 +2182,14 @@ test("web methods", function() {
   ok(Space.toUrl)
 })
 
+test("windows return chars", function() {
+  // Arrange
+  var space = new Space("one\n\r\n\rtwo\n\r\n\r\n\rthree")
+
+  // Assert
+  strictEqual(space.length, 3)
+})
+
 test("version", function() {
   // Assert
   ok(Space.version)

@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.10"
+Space.version = "0.12.11"
 
 /**
  * @param property string
@@ -1574,7 +1574,7 @@ Space.prototype._sanitizeString = function(string) {
   string = string.replace(/^\s*/, "")
 
   /* Eliminate Windows \r characters.*/
-  string = string.replace("\r", "")
+  string = string.replace(/\r/g, "")
 
   /** Space does not have useless lines*/
   string = string.replace(/\n\n+/, "\n")
