@@ -1,3 +1,7 @@
+0.12.12 / 2015-05-17
+====================
+- Fixed bug in fromCSV
+
 0.12.11 / 2015-05-11
 ====================
 - Fixed bug where only first \r was being removed

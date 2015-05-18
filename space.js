@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.11"
+Space.version = "0.12.12"
 
 /**
  * @param property string
@@ -168,8 +168,11 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders) {
     } else {
       if (c !== "\"")
         currentItem += c
-      else if (str[currentPosition + 1] !== "\"")
+      else if (str[currentPosition + 1] !== "\"") {
         inQuote = false
+        if (currentPosition + 1 === length)
+          rows[currentRow].push(currentItem)
+      }
       else {
         currentItem += "\""
         currentPosition++ // Jump 2
@@ -178,8 +181,8 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders) {
     currentPosition++
   }
 
-  var headerRow = rows[0],
-      numberOfColumns = headerRow.length
+  var headerRow = rows[0]
+  var numberOfColumns = headerRow.length
 
 
   if (!hasHeaders) {

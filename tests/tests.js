@@ -768,6 +768,12 @@ test("fromCsv", function() {
 
   // Assert
   strictEqual(withQuotes.get("0 Date"), "123", "Expected quotes to be handled properly")
+
+  // Arrange
+  space = Space.fromCsv("height\n\"32,323\"")
+
+  // Assert
+  strictEqual(space.get("0 height"), "32,323")
 })
 
 test("fromCsv no headers", function() {
