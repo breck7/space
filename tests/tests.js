@@ -273,8 +273,19 @@ test("delete", function() {
   strictEqual(space.get("name"), undefined, "name is gone")
   strictEqual(space.length, 0, "length okay")
 
+  // Act
+  space.set("name", "Breck")
+  space.set("age", "100")
+  space.set("table", "true")
+  space.delete("age")
+
+  // Assert
+  strictEqual(space.get("age"), undefined, "age is gone")
+  strictEqual(space.length, 2, "expected 2 elements remaining")
+
   // Test deep delete
   // Arrange
+  space = new Space()
   space.set("earth north_america united_states california san_francisco", "mission")
 
   // Assert

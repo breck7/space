@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.12.12"
+Space.version = "0.12.13"
 
 /**
  * @param property string
@@ -630,8 +630,22 @@ Space.prototype._deleteByIndex = function(index) {
 
   this._deleteProperty(index)
   this._values.splice(index, 1)
-  this._reindex(index)
+  this._reindex()
   return 1
+}
+
+Space.prototype._deleteByProperty = function(property) {
+  var index = this.indexOf(property)
+  return index === -1 ? 0 : this._deleteByIndex(index)
+}
+
+Space.prototype._deleteBySpacePath = function(spacePath) {
+  // Get parent
+  var parts = spacePath.split(/ /)
+  var child = parts.pop()
+  var parent = this.get(parts.join(" "))
+
+  return parent instanceof Space ? parent._delete(child) : 0
 }
 
 Space.prototype._deleteProperty = function(index) {
@@ -652,26 +666,12 @@ Space.prototype._setProperty = function(index, property) {
   return this._getProperties()
 }
 
-Space.prototype._deleteByProperty = function(property) {
-  var index = this.indexOf(property)
-  return index === -1 ? 0 : this._deleteByIndex(index)
-}
-
 Space.prototype._clearProperties = function() {
   this._properties = []
 }
 
 Space.prototype._reverseProperties = function() {
   this._properties.reverse()
-}
-
-Space.prototype._deleteBySpacePath = function(spacePath) {
-  // Get parent
-  var parts = spacePath.split(/ /),
-      child = parts.pop(),
-      parent = this.get(parts.join(" "))
-
-  return parent instanceof Space ? parent._delete(child) : 0
 }
 
 /**
@@ -2012,9 +2012,9 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
   if (!property)
     return
 
-  var length = this.length,
-      isSpace = value instanceof Space,
-      valueType = typeof value
+  var length = this.length
+  var isSpace = value instanceof Space
+  var valueType = typeof value
 
   if (!isSpace && valueType === "object" && value) {
     value = new Space(value)
@@ -2050,7 +2050,7 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
 
 Space.prototype._reindex = function(startAt) {
   var length = this.length
-      properties = this._getProperties()
+  var properties = this._getProperties()
 
   startAt = startAt || 0
   if (!startAt)
