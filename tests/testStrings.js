@@ -18,6 +18,23 @@ children
     first-name Abe
 */})
 
+testStrings.mergeDuplicates = multiline(function () {/*
+file
+ one
+file
+ two
+file
+ four
+*/})
+
+testStrings.deleteDuplicates = multiline(function () {/*
+file one
+file
+ two
+file
+ four
+*/})
+
 testStrings.filter = multiline(function () {/*
 john
  age 21

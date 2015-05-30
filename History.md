@@ -1,3 +1,14 @@
+0.14.0 / 2015-05-29
+====================
+- BREAKING: Removed unionSingle static method
+- BREAKING: Removed diffOrder, patchOrder, lastIndexOf, getCud methods
+- BREAKING: Renamed wrap method nest
+- Added mergeDuplicates and deleteDuplicates methods
+- Added "last" parameter to indexOf method instead of having lastIndexOf method
+- Added "reverse" parameter to each to iterate in reverse order
+- Swapped match() calls with indexOf() calls for better perf
+- Code cleanup: switched to verbose var declarations
+
 0.12.13 / 2015-05-24
 ====================
 - Fixed bug in delete method

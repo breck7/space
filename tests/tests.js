@@ -212,8 +212,8 @@ test("clone", function() {
 
 test("concat", function() {
   // Arrange
-  var a = new Space("hello world"),
-      b = new Space("hi mom")
+  var a = new Space("hello world")
+  var b = new Space("hi mom")
 
   // Act
   a.concat(b)
@@ -225,7 +225,7 @@ test("concat", function() {
 test("create", function() {
   // Arrange
   var a = new Space("hello world")
-      count = 0
+  var count = 0
 
   a.on("create", function(property, value) {
     count++
@@ -238,6 +238,35 @@ test("create", function() {
   // Assert
   strictEqual(a.get("foo"), "bar")
   strictEqual(count, 1)
+})
+
+test("deleteDuplicates", function() {
+  // Arrange
+  var value = new Space(testStrings.deleteDuplicates)
+
+  // Assert
+  strictEqual(value.length, 3)
+
+  // Act
+  value.deleteDuplicates()
+
+  // Assert
+  strictEqual(value.length, 1)
+})
+
+test("mergeDuplicates", function() {
+  // Arrange
+  var value = new Space(testStrings.mergeDuplicates)
+
+  // Assert
+  strictEqual(value.length, 3)
+
+  // Act
+  value.mergeDuplicates()
+
+  // Assert
+  strictEqual(value.length, 1)
+  strictEqual(value.deepLength(), 4)
 })
 
 test("deepLength", function() {
@@ -372,9 +401,9 @@ test("diff of subclasses", function() {
 
   Block.prototype = new Space()
 
-  var a = new Space("hello world"),
-      b = new Space("hello mom"),
-      c = new Space("first John")
+  var a = new Space("hello world")
+  var b = new Space("hello mom")
+  var c = new Space("first John")
 
   // Assert
   strictEqual(a.diff(b).toString(), "hello mom\n")
@@ -469,24 +498,10 @@ test("diff of subclasses", function() {
   ok(!diff.get("body foobar id"), "id did not get set")
 })
 
-test("diffOrder", function() {
-  // Arrange
-  var a = new Space("body\n content hello world\n value Hi\n"),
-      b = new Space("body\n value Hi\n content hello world\n"),
-      c = new Space("hi world\nhello bob\nyo man\nhola dude"),
-      d = new Space("hi world\nhello bob\nhola dude\nyo man"),
-      e = new Space("hi world\nhello bob\nhola dude\nyo man")
-
-  // Act/Assert
-  strictEqual(a.diffOrder(b).toString(), "body\n value\n content\n", "different")
-  strictEqual(d.diffOrder(e).toString(), "", "no diff")
-  strictEqual(d.diffOrder(c).toString(), "hi\nhello\nyo\nhola\n", "different")
-})
-
 test("diff between a blank property/value and empty object", function() {
   // Arrange
-  var a = new Space("hi "),
-      b = new Space("hi\n")
+  var a = new Space("hi ")
+  var b = new Space("hi\n")
 
   // Assert
   strictEqual(a.get("hi"), "", "hi is equal to empty string")
@@ -500,9 +515,9 @@ test("diff between a blank property/value and empty object", function() {
 
 test("duplicate property with getArray", function() {
   // Arrange
-  var spaceWithDupe = "height 45px\nheight 50px\nwidth 56px",
-      value = new Space(spaceWithDupe),
-      spaceWithoutDupe = new Space("height 25px")
+  var spaceWithDupe = "height 45px\nheight 50px\nwidth 56px"
+  var value = new Space(spaceWithDupe)
+  var spaceWithoutDupe = new Space("height 25px")
 
   // Assert
   strictEqual(value.getArray("height").length, 2)
@@ -514,17 +529,17 @@ test("duplicate property with getArray", function() {
 
 test("each", function() {
   // Arrange
-  var value = new Space("hello world\nhi mom"),
-      count = 0,
-      string = ""
+  var value = new Space("hello world\nhi mom")
+  var count = 0
+  var result = ""
 
   // Act/Assert
   strictEqual(value.each(function(property, value) {
-    string += property.toUpperCase()
-    string += value.toUpperCase()
-    string += this.length
+    result += property.toUpperCase()
+    result += value.toUpperCase()
+    result += this.length
   }).length, 2, "test chaining")
-  strictEqual(string, "HELLOWORLD2HIMOM2")
+  strictEqual(result, "HELLOWORLD2HIMOM2")
 
   // Test that returning false breaks out of each
   // Arrange
@@ -540,8 +555,8 @@ test("each", function() {
   strictEqual(count, 1)
 
   // Arrange
-  var space = new Space("hello world\nhi world"),
-      i = 0
+  var space = new Space("hello world\nhi world")
+  var i = 0
 
   // Act
   space.each(function(property, value, index) {
@@ -563,13 +578,26 @@ test("each", function() {
 
   // Assert
   strictEqual(count, 11)
+
+  // Test reverse
+  // Arrange
+  space = new Space("1 1\n2 2\n")
+  result = ""
+
+  // Act
+  space.each(function (k, v) {
+    result += k
+  }, undefined, true)
+
+  // Assert
+  strictEqual(result, "21")
 })
 
 test("events", function() {
   // Arrange
-  var value = new Space("hello world\nhi mom"),
-      result = "",
-      popsMethod = function() {
+  var value = new Space("hello world\nhi mom")
+  var result = ""
+  var popsMethod = function() {
         result = "pops"
       }
 
@@ -592,8 +620,8 @@ test("events", function() {
   strictEqual(result, "")
 
   // Arrange
-  var count = 0,
-      inc = function() {
+  var count = 0
+  var inc = function() {
         count++
       }
 
@@ -615,11 +643,11 @@ test("events", function() {
 
   // Event params
   // Arrange
-  var a = new Space("hello world"),
-      b = "",
-      c = "",
-      setCount = 0,
-      changeCount  = 0
+  var a = new Space("hello world")
+  var b = ""
+  var c = ""
+  var setCount = 0
+  var changeCount  = 0
 
   a.on("set", function(property, value) {
     b = value
@@ -647,8 +675,8 @@ test("events", function() {
 
 test("event bubbling", function() {
   // Arrange
-  var count = 0,
-      cafe = new Space("name Haus\nmenu\n coffee\n  light\n   price 2.50\n  dark\n   price 3\n")
+  var count = 0
+  var cafe = new Space("name Haus\nmenu\n coffee\n  light\n   price 2.50\n  dark\n   price 3\n")
 
   cafe
     .get("menu coffee light")
@@ -667,10 +695,10 @@ test("event bubbling", function() {
 
 test("every", function() {
   // Arrange
-  var everyCount = 0,
-      everyLeafCount = 0,
-      everyObj = new Space(testStrings.every),
-      leafsOnlyObj = new Space(testStrings.every)
+  var everyCount = 0
+  var everyLeafCount = 0
+  var everyObj = new Space(testStrings.every)
+  var leafsOnlyObj = new Space(testStrings.every)
 
   // Act
   everyObj.every(function(property, value) {
@@ -703,8 +731,8 @@ test("extract", function() {
 
 test("filter", function() {
   // Arrange
-  var value = new Space(testStrings.filter),
-      c = 0
+  var value = new Space(testStrings.filter)
+  var c = 0
 
   // Act
   value.filter(function(property, value) {
@@ -876,8 +904,8 @@ test("get", function() {
 
 test("getAll", function() {
   // Arrange
-  var value = new Space("hello world\nhello world"),
-      each = ""
+  var value = new Space("hello world\nhello world")
+  var each = ""
 
   // Assert
   ok(value.getAll("hello") instanceof Space)
@@ -902,18 +930,6 @@ test("_getValueByIndex", function() {
   strictEqual(value._getValueByIndex(2), "friend")
   strictEqual(value._getValueByIndex(3), undefined)
   strictEqual(value._getValueByIndex(-1), "friend")
-})
-
-test("getCud", function() {
-  // Arrange
-  var a = new Space("name John\nage 25\nstate California")
-  var b = new Space("name John\nage 22\nhometown Brockton")
-
-  // Act
-  var diff = a.getCud(b)
-
-  // Assert
-  strictEqual(diff.toString(), "created\n hometown Brockton\nupdated\n age 22\ndeleted\n state\n")
 })
 
 test("get expecting a branch but hitting a leaf", function() {
@@ -948,7 +964,7 @@ test("getValues", function() {
 
 test("has", function() {
   // Arrange
-  space = new Space("hello world\nnested\nfoo ")
+  var space = new Space("hello world\nnested\nfoo ")
 
   // Assert
   strictEqual(space.has("hello"), true)
@@ -973,7 +989,7 @@ test("html dsl", function() {
 
 test("indexOf", function() {
   // Arrange
-  space = new Space("hello world")
+  var space = new Space("hello world")
 
   // Assert
   strictEqual(space.indexOf("hello"), 0)
@@ -984,11 +1000,18 @@ test("indexOf", function() {
 
   // Assert
   strictEqual(space.indexOf("color"), 1)
+
+  // Act
+  space.append("hello", "world")
+
+  // Assert
+  strictEqual(space.indexOf("hello"), 0)
+  strictEqual(space.indexOf("hello", true), 2)
 })
 
 test("insert", function() {
   // Arrange
-  space = new Space("hello world")
+  var space = new Space("hello world")
 
   // Act
   space.insert("hi", "mom", 0)
@@ -1015,8 +1038,8 @@ test("insert", function() {
 
 test("isEmpty", function() {
   // Arrange
-  var a = new Space(),
-      b = new Space("john\n age 5\nsusy\n age 6\nbob\n age 10")
+  var a = new Space()
+  var b = new Space("john\n age 5\nsusy\n age 6\nbob\n age 10")
 
   // Assert
   strictEqual(a.isEmpty(), true)
@@ -1100,10 +1123,10 @@ test("loadFromArray", function() {
 
 test("loadFromObject", function() {
   // Arrange
-  var space = new Space(testStrings.json),
-      date = new Date(),
-      time = date.getTime(),
-      spaceWithDate = new Space({ name: "John", date: date})
+  var space = new Space(testStrings.json)
+  var date = new Date()
+  var time = date.getTime()
+  var spaceWithDate = new Space({ name: "John", date: date})
 
   // Assert
   strictEqual(space.get("lowestScore"), -10)
@@ -1120,8 +1143,8 @@ test("loadFromObject", function() {
 
   // Test against object with circular references
   // Arrange
-  var a = {foo : "1"},
-      b = {bar: "2", ref: a}
+  var a = {foo : "1"}
+  var b = {bar: "2", ref: a}
 
   // Act
   // Create circular reference
@@ -1311,6 +1334,19 @@ test("multiline", function() {
   // Assert
   strictEqual(g.get("brave"), "\nnew\nworld\n\n", "set ml works")
   strictEqual(g.toString(), "brave \n new\n world\n \n \n", "set ml works")
+})
+
+test("nest", function() {
+  // Arrange
+  var value = new Space("hello world\nhi earth")
+
+  // Act
+  value.nest("greetings")
+
+  // Assert
+  strictEqual(value.get("greetings hello"), "world")
+  strictEqual(value.get("greetings hi"), "earth")
+  strictEqual(value.toString(), "greetings\n hello world\n hi earth\n")
 })
 
 test("next", function() {
@@ -1581,10 +1617,10 @@ test("reload", function() {
 
 test("rename", function() {
   // Arrange
-  var a = new Space("john\n age 5\nsusy\n age 6\ncandy bar\nx 123\ny 45\n"),
-      originalLength = a.length,
-      originalString = a.toString(),
-      index = a.indexOf("john")
+  var a = new Space("john\n age 5\nsusy\n age 6\ncandy bar\nx 123\ny 45\n")
+  var originalLength = a.length
+  var originalString = a.toString()
+  var index = a.indexOf("john")
 
   // Assert
   strictEqual(index, 0, "index okay")
@@ -1625,7 +1661,7 @@ test("renameAll", function() {
   strictEqual(space.toString().match(/first-name/g).length, 5)
 
   // Act
-  space.renameAll("first-name", "firstName", true)
+  space.rename("first-name", "firstName", true, true)
 
   // Assert
   strictEqual(space.toString().match(/firstName/g).length, 5)
@@ -1664,25 +1700,6 @@ test("reorder", function() {
 
   // Assert
   strictEqual(a.tableOfContents(), "yo hello hola hi", "order correct")
-
-  // Act
-  a.patchOrder("hello\nhi\nhola\nyo")
-  // Assert
-  strictEqual(a.tableOfContents(), "hello hi hola yo", "order correct")
-
-  // Act
-  a.patchOrder("yo\nhola\nhi\nhello")
-  // Assert
-  strictEqual(a.tableOfContents(), "yo hola hi hello", "order correct")
-  strictEqual(a.get("yo"), "pal", "types okay")
-
-  // Recursive
-  // Arrange
-  a = new Space("b\n content hi\n value foobar")
-  var b = new Space("b\n value foobar\n content hi")
-  // Assert
-  strictEqual(a.diffOrder(b).toString(), "b\n value\n content\n", "diff order correct")
-  strictEqual(a.patchOrder(a.diffOrder(b)).toString(), b.toString(), "recursive order patch")
 })
 
 test("replace", function() {
