@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.14.0"
+Space.version = "0.15.0"
 
 /**
  * @param property string
@@ -72,43 +72,6 @@ Space.fromHeredoc = function(content, start, end) {
   Space._removeItems(lines, linesToDelete)
 
   return new Space(lines.join("\n"))
-}
-
-/**
- * Node.js only
- *
- * Reads a file from disk and returns a space object synchronously or asynchronously.
- * If no callback is provided will return synchronously, otherwise asynchronously.
- *
- * @param string filepath
- * @param options object|function
- * @param callback function
- * @return space|null
- */
-Space.fromFile = function(filepath, options, callback) {
-  if (typeof require === "undefined")
-    throw new Error("fromFile only works with node.js")
-
-  if (typeof fs === "undefined")
-    fs = require("fs")
-
-  if (typeof options === "function") {
-    callback = options
-    options = null
-  }
-
-  if (!options) {
-    options = "utf8"
-  }
-
-  if (!callback)
-    return new Space(fs.readFileSync(filepath, options))
-
-  return fs.readFile(filepath, options, function (err, data) {
-    if (err)
-      return callback(err)
-    return callback(err, new Space(data))
-  })
 }
 
 /**
@@ -181,7 +144,6 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders) {
 
   var headerRow = rows[0]
   var numberOfColumns = headerRow.length
-
 
   if (!hasHeaders) {
     // If str has no headers, create them as 0,1,2,3
@@ -359,108 +321,6 @@ Space._removeItems = function(array, indexes) {
     removedValues.push(array.splice(indexes[i], 1))
 
   return removedValues
-}
-
-/**
- * Node.js only
- *
- * Writes a space object to disk either synchronously or asynchronously.
- * If no callback is provided will return synchronously, otherwise asynchronously.
- *
- * @param string filepath
- * @param spaceObj space
- * @param options? object|function
- * @param callback? function
- * @param async? boolean Whether to force an async operation
- * @return Result of writeFile or writeFileSync
- */
-Space.toFile = function(filepath, spaceObj, options, callback, async) {
-  if (typeof require === "undefined")
-    throw new Error("toFile only works with node.js")
-
-  if (typeof fs === "undefined")
-    fs = require("fs")
-
-  if (typeof options === "function") {
-    callback = options
-    options = null
-  }
-
-  if (!async && !callback)
-    return fs.writeFileSync(filepath, spaceObj.toString(), options)
-
-  return fs.writeFile(filepath, spaceObj.toString(), options, callback)
-}
-
-Space._ajaxRequest = function(url, callback, spaceObj) {
-  var request = new XMLHttpRequest()
-
-  request.onreadystatechange = function() {
-      if (request.readyState == 4 && request.status == 200)
-        callback(new Space(request.responseText))
-      else if (request.readyState == 4)
-        callback(null, "Error Code: " + request.status + ". " +  request.statusText)
-  }
-
-  request.open(spaceObj ? "POST" : "GET", url, true)
-  if (spaceObj)
-    request.setRequestHeader("Content-type", "text/plain")
-  request.send(spaceObj ? spaceObj.toString() : null)
-}
-
-Space._nodeRequest = function(url, callback, spaceObj) {
-  if (typeof request === "undefined")
-    request = require("request")
-
-  if (spaceObj) {
-    var options = {
-        url: url,
-        method: "POST",
-        headers: {
-          contentType: "text/plain"
-        },
-        body: spaceObj.toString()
-      }
-
-    return request.post({url: url, formData: spaceObj.toString()}, callback)
-  }
-
-  return request.get(url, function (error, response, body) {
-    if (error)
-      return callback(null, error)
-    callback(new Space(body))
-  })
-}
-
-Space._isNode = function () {
-  return typeof require !== "undefined"
-}
-
-/**
- * Makes a get request to the provided url and calls a callback with (space object, error).
- *
- * @param string url
- * @param function callback
- */
-Space.fromUrl = function(url, callback) {
-  if (Space._isNode())
-    Space._nodeRequest(url, callback)
-  else
-    Space._ajaxRequest(url, callback)
-}
-
-/**
- * Makes a post request to the provided url and calls a callback with (data, error).
- *
- * @param string url
- * @param space spaceObj
- * @param function callback
- */
-Space.toUrl = function(url, spaceObj, callback) {
-  if (Space._isNode())
-    Space._nodeRequest(url, callback, spaceObj)
-  else
-    Space._ajaxRequest(url, callback, spaceObj)
 }
 
 /**
@@ -732,7 +592,7 @@ Space.prototype["delete"] = function(property) {
  *
  * b == a.patch(a.diff(b))
  *
- * todo: clean and refactor this.
+ * todo: clean and refactor this to return line based diffs.
  *
  * @param space The space to compare the instance against.
  * @return space
@@ -2408,6 +2268,8 @@ Space.prototype.toTsv = function() {
 }
 
 /**
+ * Returns instance as URI encoded string for use in URLs.
+ *
  * @return string
  */
 Space.prototype.toURL = function() {

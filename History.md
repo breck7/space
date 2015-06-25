@@ -1,5 +1,10 @@
+0.15.0 / 2015-06-25
+===================
+- BREAKING: Removed fromFile, toFile, fromUrl, toUrl methods
+- Code cleanup
+
 0.14.0 / 2015-05-29
-====================
+===================
 - BREAKING: Removed unionSingle static method
 - BREAKING: Removed diffOrder, patchOrder, lastIndexOf, getCud methods
 - BREAKING: Renamed wrap method nest

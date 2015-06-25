@@ -1908,53 +1908,6 @@ test("toCsv", function() {
   strictEqual(a.toCsv(), testStrings.csv)
 })
 
-// Test this only in node.js
-if (isNode) {
-  asyncTest("toFile and fromFile", 7, function() {
-
-    // Arrange
-    var fs = require("fs"),
-        obj = new Space("hello world"),
-        filename = "toFileTest.space"
-
-    // Act
-    Space.toFile(filename, obj)
-
-    // Assert
-    ok(fs.existsSync(filename), "Expected file to exist")
-
-    // Act
-    var fromFile = Space.fromFile(filename)
-
-    // Assert
-    ok(fromFile instanceof Space, "Expected space object")
-    strictEqual(fromFile.toString(), obj.toString(), "Expected equal space objects")
-
-    // Cleanup
-    fs.unlinkSync(filename)
-
-    // Act
-    Space.toFile(filename, obj, function (err) {
-
-      // Assert
-      ok(!err, "Expected no error")
-
-      // Act
-      Space.fromFile(filename, function (err, newObj) {
-        // Assert
-        ok(!err, "Expected no error")
-        ok(newObj instanceof Space, "Expected space object")
-        strictEqual(newObj.toString(), obj.toString(), "Expected equal space objects")
-
-        // Cleanup
-        fs.unlinkSync(filename)
-        start()
-      })
-    })
-
-  })
-}
-
 test("toggle", function() {
   // Arrange
   var a = new Space("on true")
@@ -2207,13 +2160,6 @@ test("url methods", function() {
   var b = new Space(decodeURIComponent(encoded))
   // Assert
   strictEqual(a.toString(), b.toString(), "toUrl worked")
-})
-
-test("web methods", function() {
-  // Assert
-  // TODO: write tests for node.js and browser.
-  ok(Space.fromUrl)
-  ok(Space.toUrl)
 })
 
 test("windows return chars", function() {
