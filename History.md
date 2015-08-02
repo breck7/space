@@ -1,3 +1,7 @@
+0.15.1 / 2015-08-02
+===================
+- Added getIndex method
+
 0.15.0 / 2015-06-25
 ===================
 - BREAKING: Removed fromFile, toFile, fromUrl, toUrl methods

@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.15.0"
+Space.version = "0.15.1"
 
 /**
  * @param property string
@@ -904,6 +904,23 @@ Space.prototype.getByIndex = function(index) {
 }
 
 /**
+ * @return int Returns index of this object in its parent or -1 if it's a root object.
+ */
+Space.prototype.getIndex = function() {
+  var parent = this.getParent()
+  var that = this
+  var index
+  if (!parent)
+    return -1
+  parent.each(function (k, v, i) {
+    if (v === that) {
+      index = i
+      return false
+    }
+  })
+  return index
+}
+
 /**
  * @return space Or null if there is no parent
  */

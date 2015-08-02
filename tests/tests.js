@@ -940,6 +940,17 @@ test("get expecting a branch but hitting a leaf", function() {
   strictEqual(undefined, value.get("posts branch"))
 })
 
+test("getIndex", function() {
+  // Arrange
+  var space = new Space("r1\n name bob\nr2\n name joe")
+  var child0 = space.get("r1")
+  var child1 = space.get("r2")
+
+  // Act/Assert
+  strictEqual(child0.getIndex(), 0, "Has correct index")
+  strictEqual(child1.getIndex(), 1, "Has correct index")
+})
+
 test("getPath", function() {
   // Arrange
   var space = new Space(testStrings.every)
