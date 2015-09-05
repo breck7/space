@@ -783,6 +783,18 @@ test("firstValue", function() {
   strictEqual(value.firstValue(), "world")
 })
 
+test("format", function() {
+  // Arrange
+  var str = "Hi {firstName} {lastName}! I hope you are enjoying the weather in {address city}!"
+  var person = new Space("firstName Tom\nlastName B\naddress\n city Boston")
+
+  // Act
+  var result = person.format(str)
+
+  // Assert
+  strictEqual(result, "Hi Tom B! I hope you are enjoying the weather in Boston!")
+})
+
 test("fromCsv", function() {
   // Arrange/Act
   var space = Space.fromCsv(testStrings.csv)
@@ -918,6 +930,17 @@ test("getAll", function() {
 
   // Assert
   strictEqual(each, "aa")
+})
+
+test("getColumn", function() {
+  // Arrange
+  var collection = new Space(testStrings.json2space)
+
+  // Act
+  var results = collection.get("docs").getColumn("settings")
+
+  // Assert
+  strictEqual(results.join(""), "123456")
 })
 
 test("_getValueByIndex", function() {

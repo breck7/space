@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.15.1"
+Space.version = "0.15.2"
 
 /**
  * @param property string
@@ -852,9 +852,23 @@ Space.prototype.firstValue = function() {
 }
 
 /**
+ * Fills out the passed string with values from the current instance.
+ *
+ * @param str string
+ * @return string
+ */
+Space.prototype.format = function(str) {
+  var that = this
+  return str.replace(/{([^\}]+)}/g, function(match, path) {
+    var value = that.get(path)
+    return value !== undefined ? value : ""
+  })
+}
+
+/**
  * Search the space for a given path (spacePath).
  *
- * @param string|int|space
+ * @param query string|int|space
  * @return string|space|undefined
  */
 Space.prototype.get = function(query) {
@@ -901,6 +915,22 @@ Space.prototype.getArray = function(query) {
  */
 Space.prototype.getByIndex = function(index) {
   return this._getValueByIndex(index)
+}
+
+/**
+ * Iterates over the space objects in the instance and for each gets the passed
+ * path and returns an array with the results.
+ *
+ * @param path
+ * @return any[]
+ */
+Space.prototype.getColumn = function(path) {
+  var arr = []
+  this.each(function (k, v) {
+    if (v instanceof Space)
+      arr.push(v.get(path))
+  })
+  return arr
 }
 
 /**

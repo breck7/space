@@ -1,3 +1,8 @@
+0.15.2 / 2015-09-04
+===================
+- Added format method
+- Added getColumn method
+
 0.15.1 / 2015-08-02
 ===================
 - Added getIndex method
