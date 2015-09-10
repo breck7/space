@@ -15,7 +15,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.15.2"
+Space.version = "0.15.3"
 
 /**
  * @param property string
@@ -588,6 +588,31 @@ Space.prototype["delete"] = function(property) {
 }
 
 /**
+ * Decreases the count of path by 1 or by a custom amount.
+ *
+ * @param path string
+ * @param amount? number Defaults to -1
+ * @return this
+ */
+Space.prototype.decrement = function(path, amount) {
+  return this.increment(path, amount || -1)
+}
+
+/**
+ * Return the number of pairs in the object including all nested pairs.
+ *
+ * @return number
+ */
+Space.prototype.deepLength = function() {
+  var length = 0
+
+  this.every(function () {
+    length++
+  })
+  return length
+}
+
+/**
  * Returns the difference between 2 spaces. The difference between 2 spaces is a space.
  *
  * b == a.patch(a.diff(b))
@@ -653,20 +678,6 @@ Space.prototype.diff = function(space) {
       diff._setPair(property, new Space(space))
   })
   return diff
-}
-
-/**
- * Return the number of pairs in the object including all nested pairs.
- *
- * @return number
- */
-Space.prototype.deepLength = function() {
-  var length = 0
-
-  this.every(function () {
-    length++
-  })
-  return length
 }
 
 /**
@@ -1127,6 +1138,35 @@ Space.prototype.getValues = function() {
 }
 
 /**
+ * A method for reducing a collection into groups.
+ *
+ * Returns a new collection of one instance for each unique value of "path".
+ *
+ * The passed callback will get called for each child instance. The first parameter
+ * to callback is the result group.
+ *
+ * @param path string
+ * @param fn? (group?: space, member?: space, key:string, value:string):void
+ * @return space
+ */
+Space.prototype.group = function(path, fn) {
+  var result = new Space()
+  var groups = {}
+  this.each(function (k, v, i) {
+    if (!(v instanceof Space))
+      return true
+    var value = v.get(path)
+    if (!groups[value]) {
+      groups[value] = new Space()
+      result.push(groups[value])
+    }
+    if (fn)
+      fn(groups[value], v, k, value)
+  })
+  return result
+}
+
+/**
  * Returns a boolean indicating whether the instance has a property named "property".
  *
  * Returns true if the instance has a property even if the value is empty.
@@ -1136,6 +1176,23 @@ Space.prototype.getValues = function() {
  */
 Space.prototype.has = function(property) {
   return this._getValueByProperty(property) !== undefined
+}
+
+/**
+ * Increases the count of path by 1 or by a custom amount.
+ *
+ * @param path string
+ * @param amount? number Defaults to 1
+ * @return this
+ */
+Space.prototype.increment = function(path, amount) {
+  amount = amount || 1
+  var value = this.get(path)
+  if (value === undefined)
+    value = 0
+
+  this.set(path, parseFloat(value) + amount)
+  return this
 }
 
 /**

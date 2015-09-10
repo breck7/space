@@ -46,6 +46,18 @@ bob
  age 21
 */})
 
+testStrings.group = multiline(function () {/*
+0
+ age 21
+ count 2
+1
+ age 3
+ count 1
+2
+ age 50
+ count 1
+*/})
+
 testStrings.webpage = multiline(function () {/*head
 body
  div

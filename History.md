@@ -1,3 +1,8 @@
+0.15.3 / 2015-09-09
+===================
+- Added increment and decrement methods
+- Added group method
+
 0.15.2 / 2015-09-04
 ===================
 - Added format method

@@ -240,6 +240,17 @@ test("create", function() {
   strictEqual(count, 1)
 })
 
+test("decrement", function() {
+  // Arrange
+  var a = new Space("car\n count 2")
+
+  // Act
+  a.decrement("car count")
+
+  // Assert
+  strictEqual(a.get("car count"), 1)
+})
+
 test("deleteDuplicates", function() {
   // Arrange
   var value = new Space(testStrings.deleteDuplicates)
@@ -996,6 +1007,35 @@ test("getValues", function() {
   strictEqual(html.getValues().join("\n"), "hello world\nhello world")
 })
 
+test("group", function() {
+  // Arrange
+  var value = new Space(testStrings.filter)
+
+  // Act
+  var result = value.group("age", function (group, member, key, value) {
+    group.set("age", value)
+    group.increment("count")
+  })
+
+  // Assert
+  strictEqual(result.length, 3)
+  strictEqual(result.toString(), new Space(testStrings.group).toString())
+
+  // Act
+  result = value.group("age")
+
+  // Assert
+  strictEqual(result.length, 3)
+
+  // Act
+  result = value.group("age", function (group, member, key, value) {
+    group.set(key, member)
+  })
+
+  // Assert
+  strictEqual(result.get("1 mairi age"), "3")
+})
+
 test("has", function() {
   // Arrange
   var space = new Space("hello world\nnested\nfoo ")
@@ -1019,6 +1059,29 @@ test("html dsl", function() {
 
   // Assert
   strictEqual(page, "<h1>hello world</h1><h1>hello world</h1>")
+})
+
+test("increment", function() {
+  // Arrange
+  var a = new Space("car\n count 2")
+
+  // Act
+  a.increment("car count")
+
+  // Assert
+  strictEqual(a.get("car count"), 3)
+
+  // Act
+  a.increment("car count", 10)
+
+  // Assert
+  strictEqual(a.get("car count"), 13)
+
+  // Act
+  a.increment("truck count")
+
+  // Assert
+  strictEqual(a.get("truck count"), 1)
 })
 
 test("indexOf", function() {
