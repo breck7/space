@@ -38,12 +38,16 @@ file
 testStrings.filter = multiline(function () {/*
 john
  age 21
+ height 123
 mairi
  age 3
+ height 341
 frank
  age 50
+ height 423
 bob
  age 21
+ height 123
 */})
 
 testStrings.group = multiline(function () {/*

@@ -10,12 +10,13 @@ function Space(content) {
   this._values = []
 
   // StringMap<int> {property: index}
+  // When there are multiple values with the same property, _cache stores the last value.
   this._cache = {}
 
   return this._load(content)
 }
 
-Space.version = "0.15.3"
+Space.version = "0.16.0"
 
 /**
  * @param property string
@@ -387,6 +388,16 @@ Space._unionSingle = function(spaceA, spaceB) {
 Space.prototype.append = function(property, value) {
   this._setPair(property, value)
   return this.trigger("append", property, value).trigger("change")
+}
+
+/**
+ * Return the value at a position.
+ *
+ * @param index int
+ * @return string|space|undefined
+ */
+Space.prototype.at = function(index) {
+  return this._getValueAt(index)
 }
 
 /**
@@ -810,25 +821,24 @@ Space.prototype.filter = function(fn) {
 }
 
 /**
- * Does a recursive search and returns a space object containing
- * space objects that have a pair where:
- *  property === propertyTest && value === valueTest
+ * Does a recursive search and returns a numbered space instance containing
+ * instances where instance.get(property) === value
  *
- * @param propertyTest string|int
- * @param valueTest string|int
- * @return space
+ * @param property string|int
+ * @param value string|int
+ * @return space A new ordered space instance containing matching instances by reference.
  */
-Space.prototype.find = function(propertyTest, valueTest) {
+Space.prototype.find = function(property, value) {
   // for now assume string test
   // search this one
   var matches = new Space()
-  if (this.get(propertyTest) === valueTest)
+  if (this.get(property) === value)
     matches.push(this)
-  this.each(function(property, value) {
-    if (!(value instanceof Space))
+  this.each(function(prop, val) {
+    if (!(val instanceof Space))
       return true
-    value
-      .find(propertyTest, valueTest)
+    val
+      .find(property, value)
       .each(function(k, v) {
         matches.push(v)
       })
@@ -877,15 +887,16 @@ Space.prototype.format = function(str) {
 }
 
 /**
- * Search the space for a given path (spacePath).
+ * Returns the value stored at the passed path. If there are multiple matches
+ * returns the last match. If there are no matches returns undefined.
  *
- * @param query string|int|space
+ * @param spacePath string
  * @return string|space|undefined
  */
-Space.prototype.get = function(query) {
-  if (query === undefined || query === null)
+Space.prototype.get = function(spacePath) {
+  if (spacePath === undefined || spacePath === null)
     return undefined
-  return this._getValueByString(query.toString())
+  return this._getValueByString(spacePath.toString())
 }
 
 /**
@@ -918,14 +929,6 @@ Space.prototype.getArray = function(query) {
     matches.push(value)
   })
   return matches
-}
-
-/**
- * @param index int
- * @return string|space|undefined
- */
-Space.prototype.getByIndex = function(index) {
-  return this._getValueByIndex(index)
 }
 
 /**
@@ -1022,7 +1025,7 @@ Space.prototype._getCachedValue = function(property) {
  * @param int
  * @return The matching value
  */
-Space.prototype._getValueByIndex = function(index) {
+Space.prototype._getValueAt = function(index) {
   // Passing -1 gets the last item, et cetera
   if (index < 0)
     index = this.length + index
@@ -1138,6 +1141,26 @@ Space.prototype.getValues = function() {
 }
 
 /**
+ * Grab multiple properties from the instance and return a new space instance containing
+ * just the desired properties.
+ *
+ * @param string[] Array of properties to grab. i.e. ["date", "name", "pageviews"]
+ * @return space
+ */
+Space.prototype.grab = function (properties) {
+  var result = new Space()
+  var that = this
+
+  properties.forEach(function (prop) {
+    var value = that.get(prop)
+    if (value)
+      result.set(prop, value)
+  })
+
+  return result
+}
+
+/**
  * A method for reducing a collection into groups.
  *
  * Returns a new collection of one instance for each unique value of "path".
@@ -1145,23 +1168,25 @@ Space.prototype.getValues = function() {
  * The passed callback will get called for each child instance. The first parameter
  * to callback is the result group.
  *
- * @param path string
- * @param fn? (group?: space, member?: space, key:string, value:string):void
+ * @param path string|string[]
+ * @param fn? (group?: space, member?: space, memberKey?: string, memberIndex?: int):void
  * @return space
  */
 Space.prototype.group = function(path, fn) {
+  if (typeof path === "string")
+    path = [path]
   var result = new Space()
   var groups = {}
   this.each(function (k, v, i) {
     if (!(v instanceof Space))
       return true
-    var value = v.get(path)
-    if (!groups[value]) {
-      groups[value] = new Space()
-      result.push(groups[value])
+    var groupKey = v.grab(path)
+    if (!groups[groupKey]) {
+      groups[groupKey] = new Space()
+      result.push(groups[groupKey])
     }
     if (fn)
-      fn(groups[value], v, k, value)
+      fn(groups[groupKey], v, k, i)
   })
   return result
 }
@@ -1592,7 +1617,7 @@ Space.prototype.mergeDuplicates = function() {
       matches[key] = index
     else {
       value.each(function (k, v) {
-        me.getByIndex(matches[key]).set(k, v)
+        me.at(matches[key]).set(k, v)
       })
       indexesToDelete.push(index)
     }

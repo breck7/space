@@ -121,6 +121,18 @@ test("append", function() {
   strictEqual(space.length, 4)
 })
 
+test("at", function() {
+  // Arrange
+  var value = new Space("hello world\nhow are you\nhola friend")
+
+  // Assert
+  strictEqual(value.at(0), "world")
+  strictEqual(value.at(1), "are you")
+  strictEqual(value.at(2), "friend")
+  strictEqual(value.at(3), undefined)
+  strictEqual(value.at(-1), "friend")
+})
+
 test("clear", function() {
   // Arrange/Act
   var space = new Space("hello world")
@@ -758,10 +770,22 @@ test("filter", function() {
 
 test("find", function() {
   // Arrange
-  var a = new Space("john\n age 5\nsusy\n age 6\nbob\n age 10")
+  var a = new Space("john\n age 5\nsusy\n age 6\nbob\n age 6\n color blue")
+
+  // Act/Assert
+  strictEqual(a.find("age", "5").length, 1)
+  strictEqual(a.find("age", "6").length, 2)
+  strictEqual(a.find("age", "6").find("color", "blue").length, 1)
+
+  // Test modifying find results
+  // Arrange
+  var john = a.find("age", "5").firstValue()
+
+  // Act
+  john.set("age", "6")
 
   // Assert
-  strictEqual(a.find("age", "5").length, 1)
+  strictEqual(a.find("age", "6").length, 3)
 })
 
 test("first", function() {
@@ -769,7 +793,7 @@ test("first", function() {
   var value = new Space("hello world\nhi mom")
 
   // Assert
-  strictEqual(value.getByIndex(0), "world")
+  strictEqual(value.at(0), "world")
 
   // Arrange
   value = new Space("hello world\nhi mom")
@@ -820,7 +844,7 @@ test("fromCsv", function() {
 
   // Assert
   strictEqual(space.length, 1)
-  strictEqual(space.getByIndex(0).get("Country"), "USA")
+  strictEqual(space.at(0).get("Country"), "USA")
 
   // Arrange
   space = Space.fromCsv("")
@@ -901,7 +925,7 @@ test("get", function() {
   space.set("2", "hi")
 
   // Assert
-  strictEqual(space.get(2), "hi", "Expected int to get casted to string and get value.")
+  strictEqual(space.get("2"), "hi", "Expected int strings to work.")
 
   // Assert
   // Test get with invalid values
@@ -910,8 +934,6 @@ test("get", function() {
   strictEqual(space.get(), undefined)
   strictEqual(space.get(null), undefined)
   strictEqual(space.get(""), undefined)
-  strictEqual(space.get(false), undefined)
-  strictEqual(space.get(true), undefined)
 
   // Test get with duplicate properties
   // Arrange
@@ -952,18 +974,6 @@ test("getColumn", function() {
 
   // Assert
   strictEqual(results.join(""), "123456")
-})
-
-test("_getValueByIndex", function() {
-  // Arrange
-  var value = new Space("hello world\nhow are you\nhola friend")
-
-  // Assert
-  strictEqual(value._getValueByIndex(0), "world")
-  strictEqual(value._getValueByIndex(1), "are you")
-  strictEqual(value._getValueByIndex(2), "friend")
-  strictEqual(value._getValueByIndex(3), undefined)
-  strictEqual(value._getValueByIndex(-1), "friend")
 })
 
 test("get expecting a branch but hitting a leaf", function() {
@@ -1007,13 +1017,25 @@ test("getValues", function() {
   strictEqual(html.getValues().join("\n"), "hello world\nhello world")
 })
 
+test("grab", function() {
+  // Arrange
+  var sample = new Space(testStrings.json)
+
+  // Act
+  var bundle = sample.grab(["firstName", "lastName"])
+
+  // Assert
+  strictEqual(bundle.length, 2)
+  strictEqual(bundle.get("lastName"), "Smith")
+})
+
 test("group", function() {
   // Arrange
   var value = new Space(testStrings.filter)
 
   // Act
-  var result = value.group("age", function (group, member, key, value) {
-    group.set("age", value)
+  var result = value.group("age", function (group, member) {
+    group.set("age", member.get("age"))
     group.increment("count")
   })
 
@@ -1028,12 +1050,23 @@ test("group", function() {
   strictEqual(result.length, 3)
 
   // Act
-  result = value.group("age", function (group, member, key, value) {
+  result = value.group("age", function (group, member, key) {
     group.set(key, member)
   })
 
   // Assert
   strictEqual(result.get("1 mairi age"), "3")
+
+  // Test grouping by multiple properties
+  // Act
+  result = value.group(["age", "height"], function (group, member) {
+    group.set("age", member.get("age"))
+    group.set("height", member.get("height"))
+  })
+
+  // Assert
+  strictEqual(result.length, 3)
+  strictEqual(result.at(0).get("age"), "21")
 })
 
 test("has", function() {
@@ -1121,7 +1154,7 @@ test("insert", function() {
   space.insert("test", "dad", 10)
 
   // Assert
-  strictEqual(space.getByIndex(2), "dad", "Expected insert at int greater than length to append")
+  strictEqual(space.at(2), "dad", "Expected insert at int greater than length to append")
   strictEqual(space.length, 3)
 
   // Insert using a negative index
@@ -1129,8 +1162,8 @@ test("insert", function() {
   space.insert("test2", "sister", -1)
 
   // Assert
-  strictEqual(space.getByIndex(2), "sister")
-  strictEqual(space.getByIndex(3), "dad")
+  strictEqual(space.at(2), "sister")
+  strictEqual(space.at(3), "dad")
 })
 
 test("isEmpty", function() {
@@ -1177,7 +1210,7 @@ test("last", function() {
   // Arrange
   var value = new Space("hello world\nhi mom")
   // Assert
-  strictEqual(value.getByIndex(-1), "mom")
+  strictEqual(value.at(-1), "mom")
 
   // Arrange
   var value = new Space("hello world\nhi mom")
@@ -1864,7 +1897,7 @@ test("set", function() {
   space.set(2, "hi")
   space.set(3, 3)
   // Assert
-  strictEqual(space.get(2), "hi")
+  strictEqual(space.get("2"), "hi")
   strictEqual(space.get("2"), "hi")
   strictEqual(space.get("3"), 3)
 

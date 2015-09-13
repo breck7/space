@@ -1,3 +1,9 @@
+0.16.0 / 2015-09-13
+===================
+- BREAKING: renamed "getByIndex" method to "at"
+- BREAKING: changed parameters to group method to allow grouping by multiple params
+- Added grab method
+
 0.15.3 / 2015-09-09
 ===================
 - Added increment and decrement methods
