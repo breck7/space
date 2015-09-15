@@ -860,6 +860,16 @@ test("fromCsv", function() {
 
   // Assert
   strictEqual(space.get("0 height"), "32,323")
+
+  // Test \r characters
+  // Arrange
+  var csv = "name,age\r\njoe,21\r\nbill,32\r\n"
+
+  // Act
+  var testCase = Space.fromCsv(csv)
+
+  // Assert
+  strictEqual(testCase.get("1 age"), "32")
 })
 
 test("fromCsv no headers", function() {

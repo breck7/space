@@ -16,7 +16,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.16.0"
+Space.version = "0.16.1"
 
 /**
  * @param property string
@@ -103,7 +103,11 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders) {
 
   while (currentPosition < length) {
     var c = str[currentPosition]
-    if (!inQuote) {
+
+    if (c === "\r") {
+      // Ignore return chars
+    }
+    else if (!inQuote) {
       if (c === delimiter) {
         rows[currentRow].push(currentItem)
         currentItem = ""

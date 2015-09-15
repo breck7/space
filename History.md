@@ -1,3 +1,7 @@
+0.16.1 / 2015-09-14
+===================
+- Fixed bug in fromDelimiter method where \r were not ignored.
+
 0.16.0 / 2015-09-13
 ===================
 - BREAKING: renamed "getByIndex" method to "at"
