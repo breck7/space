@@ -16,7 +16,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.16.1"
+Space.version = "0.17.0"
 
 /**
  * @param property string
@@ -851,32 +851,6 @@ Space.prototype.find = function(property, value) {
 }
 
 /**
- * Return the first property/value pair as a space object.
- * Returns an empty space instance if current instance is empty.
- *
- * @return space
- */
-Space.prototype.first = function() {
-  if (!this.length)
-    return new Space()
-  return new Space().set(this._getProperties()[0], this._values[0])
-}
-
-/**
- * @return string
- */
-Space.prototype.firstProperty = function() {
-  return this.length ? this._getProperties()[0] : undefined
-}
-
-/**
- * @return string|space|undefined
- */
-Space.prototype.firstValue = function() {
-  return this.length ? this._values[0] : undefined
-}
-
-/**
  * Fills out the passed string with values from the current instance.
  *
  * @param str string
@@ -1319,36 +1293,6 @@ Space.prototype.isStringMap = function(deep) {
 }
 
 /**
- * Return the last property/value pair as a space object.
- *
- * @return space
- */
-Space.prototype.last = function() {
-  if (!this.length)
-    return new Space()
-  var lastIndex = this.length - 1
-  return new Space().set(this._getProperties()[lastIndex], this._values[lastIndex])
-}
-
-/**
- * @return string
- */
-Space.prototype.lastProperty = function() {
-  if (!this.length)
-    return null
-  return this._getProperties()[this.length - 1]
-}
-
-/**
- * @return any
- */
-Space.prototype.lastValue = function() {
-  if (!this.length)
-    return null
-  return this._values[this.length - 1]
-}
-
-/**
  * @return int
  */
 Object.defineProperty(Space.prototype, "length", {
@@ -1686,6 +1630,18 @@ Space.prototype.on = function(eventName, fn) {
   return this
 }
 
+/**
+ * Return the property/value pair at passed index as a space object.
+ *
+ * @param index int
+ * @return space
+ */
+Space.prototype.pairAt = function(index) {
+  if (!this.length)
+    return new Space()
+  return new Space().set(this.propertyAt(index), this.at(index))
+}
+
 Space.prototype._patch = function(patch) {
   if (!(patch instanceof Space))
     patch = new Space(patch)
@@ -1775,6 +1731,21 @@ Space.prototype.prepend = function(property, value) {
  */
 Space.prototype.prev = function(name) {
   return this._getPropertyByIndex(this.indexOf(name) - 1)
+}
+
+/**
+ * Returns property at passed position
+ *
+ * @param index int
+ * @return string|undefined
+ */
+Space.prototype.propertyAt = function(index) {
+  if (!this.length)
+    return undefined
+  // Passing -1 gets the last item, et cetera
+  if (index < 0)
+    index = this.length + index
+  return this._getProperties()[index]
 }
 
 /**
@@ -2438,7 +2409,7 @@ Space.prototype._toXML = function(spaceCount) {
  * @return string
  */
 Space.prototype.toXMLWithAttributes = function(pretty) {
-  return this.firstValue()._toXMLWithAttributes(this.firstProperty(), pretty ? 0 : -1)
+  return this.at(0)._toXMLWithAttributes(this.propertyAt(0), pretty ? 0 : -1)
 }
 
 Space.prototype._toXMLWithAttributes = function(property, spaceCount) {
@@ -2519,6 +2490,16 @@ Space.prototype.trim = function(recursive) {
 Space.prototype.update = function(index, property, value) {
   this._setPair(property, value, index, true)
   return this
+}
+
+/**
+ * Alias of "at"
+ *
+ * @param index int
+ * @return string|space|undefined
+ */
+Space.prototype.valueAt = function(index) {
+  return this.at(index)
 }
 
 // Export Space for use in Node.js

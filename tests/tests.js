@@ -779,7 +779,7 @@ test("find", function() {
 
   // Test modifying find results
   // Arrange
-  var john = a.find("age", "5").firstValue()
+  var john = a.find("age", "5").at(0)
 
   // Act
   john.set("age", "6")
@@ -799,7 +799,7 @@ test("first", function() {
   value = new Space("hello world\nhi mom")
 
   // Assert
-  strictEqual(value.first().toString(), "hello world\n")
+  strictEqual(value.pairAt(0).toString(), "hello world\n")
 })
 
 test("firstProperty", function() {
@@ -807,7 +807,7 @@ test("firstProperty", function() {
   var value = new Space("hello world\nhi mom")
 
   // Assert
-  strictEqual(value.firstProperty(), "hello")
+  strictEqual(value.propertyAt(0), "hello")
 })
 
 test("firstValue", function() {
@@ -815,7 +815,7 @@ test("firstValue", function() {
   var value = new Space("hello world\nhi mom")
 
   // Assert
-  strictEqual(value.firstValue(), "world")
+  strictEqual(value.at(0), "world")
 })
 
 test("format", function() {
@@ -1225,21 +1225,21 @@ test("last", function() {
   // Arrange
   var value = new Space("hello world\nhi mom")
   // Assert
-  strictEqual(value.last().toString(), "hi mom\n")
+  strictEqual(value.pairAt(-1).toString(), "hi mom\n")
 })
 
 test("lastProperty", function() {
   // Arrange
   var value = new Space("hello world\nhi mom")
   // Assert
-  strictEqual(value.lastProperty(), "hi")
+  strictEqual(value.propertyAt(-1), "hi")
 })
 
 test("lastValue", function() {
   // Arrange
   var value = new Space("hello world\nhi mom")
   // Assert
-  strictEqual(value.lastValue(), "mom")
+  strictEqual(value.valueAt(-1), "mom")
 })
 
 test("loadFromArray", function() {

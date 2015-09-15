@@ -1,3 +1,8 @@
+0.17.0 / 2015-09-15
+===================
+- BREAKING: Removed last, lastValue, lastProperty, first, firstValue, firstProperty methods.
+- Added propertyAt, pairAt, valueAt methods.
+
 0.16.1 / 2015-09-14
 ===================
 - Fixed bug in fromDelimiter method where \r were not ignored.
