@@ -1,3 +1,8 @@
+0.18.0 / 2015-09-22
+===================
+- BREAKING: "delete" method no longer accepts ints, use deleteAt method instead.
+- Added deleteAt method
+
 0.17.0 / 2015-09-15
 ===================
 - BREAKING: Removed last, lastValue, lastProperty, first, firstValue, firstProperty methods.

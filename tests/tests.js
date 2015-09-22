@@ -363,22 +363,6 @@ test("delete", function() {
   // Assert
   strictEqual(space.get("property"), "meta", "delete a non existing entry works")
 
-  // Delete by int
-  // Arrange
-  space = new Space()
-
-  // Act/Assert
-  ok(space.delete(2))
-
-  // Arrange
-  space = new Space("hi\nhello world")
-
-  // Act
-  space.delete(1)
-
-  // Assert
-  strictEqual(space.toString(), "hi\n")
-
   // Delete a property that has multiple matches
   // Arrange
   space = new Space("time 123\ntime 456")
@@ -391,6 +375,42 @@ test("delete", function() {
 
   // Assert
   strictEqual(space.length, 0)
+})
+
+test("delete at", function () {
+  // Arrange
+  space = new Space()
+
+  // Act/Assert
+  ok(space.deleteAt(2))
+
+  // Arrange
+  space = new Space("hi\nhello world")
+
+  // Act
+  space.deleteAt(1)
+
+  // Assert
+  strictEqual(space.toString(), "hi\n")
+
+  // Act
+  space.deleteAt(0)
+
+  // Assert
+  strictEqual(space.length, 0)
+
+  // Arrange
+  space.reload("name bob\nage 30\nheight 21")
+
+  // Assert
+  strictEqual(space.length, 3)
+
+  // Act
+  space.deleteAt([0,2,4])
+
+  // Assert
+  strictEqual(space.length, 1)
+  strictEqual(space.get("age"), "30")
 })
 
 test("duplicate properties", function () {

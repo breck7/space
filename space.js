@@ -16,7 +16,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.17.0"
+Space.version = "0.18.0"
 
 /**
  * @param property string
@@ -514,9 +514,7 @@ Space.prototype.deleteDuplicates = function(recursive) {
 }
 
 Space.prototype._delete = function(property) {
-  if (typeof property === "number")
-    return this._deleteByIndex(property)
-  else if (Space._isSpacePath(property.toString()))
+  if (Space._isSpacePath(property))
     return this._deleteBySpacePath(property)
   else
     return this._deleteByProperty(property)
@@ -585,24 +583,6 @@ Space.prototype._reverseProperties = function() {
 }
 
 /**
- * Deletes a pair(s) from the instance.
- *
- * If passed a string(or spacePath), deletes the first matching pair.
- * If passed an int, deletes the pair at that index.
- *
- * @param property string|int|spacePath
- * @return space this
- */
-Space.prototype["delete"] = function(property) {
-  var somethingChanged = false
-
-  while (this._delete(property)) {
-    somethingChanged = true
-  }
-  return somethingChanged ? this.trigger("delete", property).trigger("change") : this
-}
-
-/**
  * Decreases the count of path by 1 or by a custom amount.
  *
  * @param path string
@@ -625,6 +605,40 @@ Space.prototype.deepLength = function() {
     length++
   })
   return length
+}
+
+/**
+ * Deletes a pair(s) from the instance.
+ *
+ * Deletes all matching pairs.
+ *
+ * @param property string|spacePath
+ * @return space this
+ */
+Space.prototype["delete"] = function(property) {
+  var somethingChanged = false
+
+  while (this._delete(property)) {
+    somethingChanged = true
+  }
+  return somethingChanged ? this.trigger("delete", property).trigger("change") : this
+}
+
+/**
+ * Deletes a pair(s) from the instance at the passed index.
+ *
+ * If passed an array, deletes all items in that array.
+ *
+ * @param index int|int[]
+ * @return space this
+ */
+Space.prototype.deleteAt = function(index) {
+  var somethingChanged = false
+  if (typeof index === "number")
+    somethingChanged = this._deleteByIndex(index)
+  else if (index && index.length)
+    somethingChanged = this._deleteByIndexes(index)
+  return somethingChanged ? this.trigger("delete", index).trigger("change") : this
 }
 
 /**
