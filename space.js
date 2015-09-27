@@ -16,7 +16,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.18.1"
+Space.version = "0.19.0"
 
 /**
  * @param property string
