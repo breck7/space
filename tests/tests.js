@@ -556,20 +556,6 @@ test("diff between a blank property/value and empty object", function() {
   strictEqual(b.toString(), "hi\n")
 })
 
-test("duplicate property with getArray", function() {
-  // Arrange
-  var spaceWithDupe = "height 45px\nheight 50px\nwidth 56px"
-  var value = new Space(spaceWithDupe)
-  var spaceWithoutDupe = new Space("height 25px")
-
-  // Assert
-  strictEqual(value.getArray("height").length, 2)
-  strictEqual(value.getArray("height")[1], "50px")
-  strictEqual(spaceWithoutDupe.getArray("height").length, 1)
-  strictEqual(spaceWithoutDupe.getArray("height")[0], "25px")
-  strictEqual(spaceWithoutDupe.getArray("width").length, 0)
-})
-
 test("each", function() {
   // Arrange
   var value = new Space("hello world\nhi mom")
@@ -993,6 +979,31 @@ test("getAll", function() {
 
   // Assert
   strictEqual(each, "aa")
+})
+
+test("getArray", function() {
+  // Test dupes
+  // Arrange
+  var spaceWithDupe = "height 45px\nheight 50px\nwidth 56px"
+  var value = new Space(spaceWithDupe)
+  var spaceWithoutDupe = new Space("height 25px")
+
+  // Assert
+  strictEqual(value.getArray("height").length, 2)
+  strictEqual(value.getArray("height")[1], "50px")
+  strictEqual(spaceWithoutDupe.getArray("height").length, 1)
+  strictEqual(spaceWithoutDupe.getArray("height")[0], "25px")
+  strictEqual(spaceWithoutDupe.getArray("width").length, 0)
+
+  // Test recursive
+  // Arrange
+  var html = new Space("html\n table\n  table\n   id 2")
+
+  // Act
+  var result = html.getArray("table", true)
+
+  // Assert
+  strictEqual(result.length, 2)
 })
 
 test("getColumn", function() {

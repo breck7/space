@@ -16,7 +16,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.18.0"
+Space.version = "0.18.1"
 
 /**
  * @param property string
@@ -894,7 +894,7 @@ Space.prototype.get = function(spacePath) {
 /**
  * Get all pairs with a matching property as a space object.
  *
- * @param string|int|space
+ * @param query? string|int|space
  * @return space
  */
 Space.prototype.getAll = function(query) {
@@ -910,24 +910,30 @@ Space.prototype.getAll = function(query) {
 /**
  * Get all pairs with a matching property as an array.
  *
- * @param string|int|space
+ * @param query string|int|space
+ * @param recursive? Whether to do a recursive search. Default is true
  * @return array
  */
-Space.prototype.getArray = function(query) {
+Space.prototype.getArray = function(query, recursive) {
   var matches = []
-  this.each(function(property, value) {
-    if (property !== query)
-      return true
-    matches.push(value)
-  })
+  this._getArray(query, recursive === undefined ? true : recursive, matches)
   return matches
+}
+
+Space.prototype._getArray = function(query, recursive, matches) {
+  this.each(function(property, value) {
+    if (property === query)
+      matches.push(value)
+    if (recursive && value instanceof Space)
+      value._getArray(query, true, matches)
+  })
 }
 
 /**
  * Iterates over the space objects in the instance and for each gets the passed
  * path and returns an array with the results.
  *
- * @param path
+ * @param path string
  * @return any[]
  */
 Space.prototype.getColumn = function(path) {
