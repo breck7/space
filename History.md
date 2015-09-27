@@ -1,3 +1,7 @@
+0.19.0 / 2015-09-27
+===================
+- BREAKING: Added recursive param to getArray. Made it recursive by default.
+
 0.18.0 / 2015-09-22
 ===================
 - BREAKING: "delete" method no longer accepts ints, use deleteAt method instead.
