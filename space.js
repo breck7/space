@@ -96,13 +96,18 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders) {
   var inQuote = str.substr(0, 1) === "\""
   var currentPosition = inQuote ? 1 : 0
   var rows = [[]]
+  var nextChar
+  var isLastChar
   var space = new Space()
   var currentRow = 0
+  var c
 
   hasHeaders = hasHeaders !== false
 
   while (currentPosition < length) {
-    var c = str[currentPosition]
+    c = str[currentPosition]
+    isLastChar = currentPosition + 1 === length
+    nextChar = str[currentPosition + 1]
 
     if (c === "\r") {
       // Ignore return chars
@@ -111,32 +116,32 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders) {
       if (c === delimiter) {
         rows[currentRow].push(currentItem)
         currentItem = ""
-        if (str[currentPosition + 1] === "\"") {
+        if (nextChar === "\"") {
           inQuote = true
-          currentPosition++
+          currentPosition++ // Jump 2
         }
       }
       else if (c === "\n") {
         rows[currentRow].push(currentItem)
         currentItem = ""
         currentRow++
-        if (str[currentPosition + 1])
+        if (nextChar)
           rows[currentRow] = []
-        if (str[currentPosition + 1] === "\"") {
+        if (nextChar === "\"") {
           inQuote = true
-          currentPosition++
+          currentPosition++ // Jump 2
         }
       }
-      else if (currentPosition === length - 1)
+      else if (isLastChar)
         rows[currentRow].push(currentItem + c)
       else
         currentItem += c
     } else {
       if (c !== "\"")
         currentItem += c
-      else if (str[currentPosition + 1] !== "\"") {
+      else if (nextChar !== "\"") {
         inQuote = false
-        if (currentPosition + 1 === length)
+        if (isLastChar)
           rows[currentRow].push(currentItem)
       }
       else {
