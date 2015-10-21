@@ -1,3 +1,7 @@
+0.19.1 / 2015-10-21
+===================
+- sortBy can now take an array of properties to sort on
+
 0.19.0 / 2015-09-27
 ===================
 - BREAKING: Added recursive param to getArray. Made it recursive by default.

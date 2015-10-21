@@ -97,6 +97,21 @@ html
    content hi
 */})
 
+testStrings.sortByMultiple = multiline(function () {/*
+state
+ name Error
+ date 4/1/10
+ key a
+state
+ name Success
+ date 2/2/11
+ key b
+state
+ name Error
+ date 1/3/32
+ key c
+*/})
+
 testStrings.json2 = [{"id":755,"settings":"123"},{"id":756,"settings":"456"}]
 testStrings.json2space = multiline(function () {/*docs
  0

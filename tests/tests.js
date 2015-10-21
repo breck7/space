@@ -2056,6 +2056,22 @@ test("sortBy", function() {
 
   // Assert
   strictEqual(space.tableOfContents(), "john susy brian bob sam", "Expected stable sort")
+
+  // Sort by multiple properties
+  // Arrange
+  space = new Space(testStrings.sortByMultiple)
+
+  // Act
+  space.sortBy(["name", "date"])
+
+  // Assert
+  strictEqual(space.getColumn("key").join(""), "cab")
+
+  // Act
+  space.sortBy(["name", "key"])
+
+  // Assert
+  strictEqual(space.getColumn("key").join(""), "acb")
 })
 
 test("split", function() {

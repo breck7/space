@@ -16,7 +16,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.0"
+Space.version = "0.19.1"
 
 /**
  * @param property string
@@ -2086,14 +2086,15 @@ Space.prototype.sort = function(fn) {
  *
  * Performs a stable sort.
  *
- * @param property string Space path to sort on.
- * @param parseFn? (value: any) => any Function to run each value through before comparison.
+ * @param propertyOrProps string|string[] Space path to sort on.
+ * @param parseFnOrFns? (value: any)=>any|(value: any)=>any[] Function to run each value through before comparison.
  * @return space this
  */
-Space.prototype.sortBy = function (property, parseFn) {
-  // todo: if I had a reference to the parent object here, I could
-  // create a stable sort
-  // javascript sort is not necessarily stable
+Space.prototype.sortBy = function (propertyOrProps, parseFnOrFns) {
+  propertyOrProps = propertyOrProps instanceof Array ? propertyOrProps : [propertyOrProps]
+  parseFnOrFns = parseFnOrFns instanceof Array ? parseFnOrFns : [parseFnOrFns]
+
+  var propertiesLength = propertyOrProps.length
   this.sort(function(pairA, pairB) {
     var pairAIsSpace = pairA.value instanceof Space
     var pairBIsSpace = pairB.value instanceof Space
@@ -2105,19 +2106,24 @@ Space.prototype.sortBy = function (property, parseFn) {
     else if (!pairBIsSpace)
       return 1
 
-    var av = pairA.value.get(property)
-    var bv = pairB.value.get(property)
+    for (i = 0; i < propertiesLength; i++) {
+      var property = propertyOrProps[i]
+      var parseFn = parseFnOrFns[i]
 
-    if (parseFn) {
-      av = parseFn(av)
-      bv = parseFn(bv)
+      var av = pairA.value.get(property)
+      var bv = pairB.value.get(property)
+
+      if (parseFn) {
+        av = parseFn(av)
+        bv = parseFn(bv)
+      }
+
+      if (av > bv)
+        return 1
+      else if (av < bv)
+        return -1
     }
-
-    if (av === bv)
-      return 0
-    else if (av > bv)
-      return 1
-    return -1
+    return 0
   })
   return this
 }
