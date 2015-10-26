@@ -6,7 +6,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.2"
+Space.version = "0.19.3"
 
 /**
  * @param property string
@@ -167,13 +167,18 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
   var result = new Space()
   var resultProps = result._getProperties()
   var resultValues = result._getValues()
+  var headerCache = {}
+
+  for (var i = 0; i < numberOfColumns; i++) {
+    headerCache[headerRow[i]] = i
+  }
 
   var rowCount = rows.length
   var rowIndex = 0
   for (var i = (hasHeaders ? 1 : 0); i < rowCount; i++) {
     var obj = new Space()
 
-    obj._setType(headerRow)
+    obj._setType(headerRow, headerCache)
     obj._setValues(rows[i])
     resultProps.push(rowIndex)
     resultValues.push(obj)
@@ -412,6 +417,7 @@ Space.prototype._clear = function() {
   delete this._values
   delete this._cache
   delete this._type
+  delete this._typeCache
   return this
 }
 
@@ -568,6 +574,7 @@ Space.prototype._dropType = function() {
     return;
   this._properties = this._type.slice()
   delete this._type
+  delete this._typeCache
 }
 
 Space.prototype._getProperties = function() {
@@ -593,8 +600,9 @@ Space.prototype._setValues = function(values) {
   this._values = values
 }
 
-Space.prototype._setType = function(arr) {
+Space.prototype._setType = function(arr, cache) {
   this._type = arr
+  this._typeCache = cache
 }
 
 Space.prototype._reverseProperties = function() {
@@ -1154,7 +1162,7 @@ Space.prototype._getValueBySpace = function(space) {
 Space.prototype._getCache = function() {
   // StringMap<int> {property: index}
   // When there are multiple values with the same property, _cache stores the last value.
-  return this._cache || this._makeCache()
+  return this._typeCache || this._cache || this._makeCache()
 }
 
 /**
@@ -1836,6 +1844,7 @@ Space.prototype.reload = function(content) {
   delete this._values
   delete this._cache
   delete this._type
+  delete this._typeCache
   this._load(content)
   this.trigger("reload")
   return this
