@@ -856,7 +856,7 @@ test("fromCsv", function() {
   space = Space.fromCsv("")
 
   // Assert
-  strictEqual(space.toString(), "")
+  strictEqual(space.toString(), "", "Expected empty string to be handled correctly")
 
   // Assert
   strictEqual(withQuotes.get("0 Date"), "123", "Expected quotes to be handled properly")
@@ -867,6 +867,16 @@ test("fromCsv", function() {
   // Assert
   strictEqual(space.get("0 height"), "32,323")
 
+  // Test quote escaping
+  // Arrange
+  var csvWithQuotes = "name,favoriteChar\nbob,\"\"\".\""
+
+  // Act
+  space = Space.fromCsv(csvWithQuotes)
+
+  // Assert
+  strictEqual(space.toString(), "0\n name bob\n favoriteChar \".\n", "Four double quotes should return one double quote")
+
   // Test \r characters
   // Arrange
   var csv = "name,age\r\njoe,21\r\nbill,32\r\n"
@@ -876,6 +886,13 @@ test("fromCsv", function() {
 
   // Assert
   strictEqual(testCase.get("1 age"), "32")
+
+    // Act
+  testCase.get("1").delete("name")
+
+  // Assert
+  strictEqual(testCase.get("0").toString(), "name joe\nage 21\n", "property change should not affect other objects")
+  strictEqual(testCase.get("1 name"), undefined, "property should be gone")
 })
 
 test("fromCsv no headers", function() {

@@ -1,3 +1,11 @@
+0.19.2 / 2015-10-25
+===================
+- Internal performance improvements
+- Added _setType for sharing an array across objects
+- _cache is now computed only when/if requested, not on every write
+- _properties and _values are set only when/if needed
+- fromDelimited now runs in 70% less time and uses 40% less memory on benchmark suite
+
 0.19.1 / 2015-10-21
 ===================
 - sortBy can now take an array of properties to sort on
