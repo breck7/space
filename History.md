@@ -1,3 +1,7 @@
+0.19.4 / 2015-10-28
+===================
+- Internal cleanup
+
 0.19.3 / 2015-10-25
 ===================
 - Added _typeCache for better performance when using fromDelimited

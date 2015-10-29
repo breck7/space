@@ -1914,6 +1914,18 @@ test("reverse", function() {
   // Assert
   strictEqual(space.toString(), "hey dad\nhey sis\nhi mom\n")
   strictEqual(space.get("hey"), "sis")
+
+  // Test reverse when using internal types
+
+  // Arrange
+  space = Space.fromCsv("name,age\nbill,20\nmike,40\ntim,30")
+
+  // Act
+  space.at(0).reverse()
+
+  // Assert
+  strictEqual(space.at(0).propertyAt(0), "age", "Expected reversed properties")
+  strictEqual(space.at(1).propertyAt(0), "name", "Expected unchanged properties")
 })
 
 test("set", function() {
