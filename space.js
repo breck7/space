@@ -6,7 +6,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.4"
+Space.version = "0.19.5"
 
 /**
  * @param property string
@@ -170,19 +170,14 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
   var headerIndex = {}
 
   var type = {}
-  type.index = {}
   type.properties = headerRow
-
-  for (var i = 0; i < numberOfColumns; i++) {
-    type.index[headerRow[i]] = i
-  }
 
   var rowCount = rows.length
   var rowIndex = 0
   for (var i = (hasHeaders ? 1 : 0); i < rowCount; i++) {
     var obj = new Space()
 
-    obj._setWithType(type, rows[i])
+    obj.setWithType(type, rows[i])
     resultProps.push(rowIndex)
     resultValues.push(obj)
     rowIndex++
@@ -190,8 +185,8 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
 
   var collectionType = {}
   collectionType.properties = resultProps
-  collectionType.index = resultProps
-  result._setWithType(collectionType, resultValues)
+  collectionType.index = resultProps // In this case index is identical to array
+  result.setWithType(collectionType, resultValues)
 
   return result
 }
@@ -214,6 +209,26 @@ Space.fromSsv = function (str, hasHeaders) {
  */
 Space.fromTsv = function (str, hasHeaders) {
   return Space.fromDelimiter(str, "\t", hasHeaders)
+}
+
+/**
+ * Iterates over an array of strings
+ *
+ * @param properties string[] Array of properties to build index from
+ * @param index? Optional existing object to use for index
+ * @param startAt? int Optionally only (re)index part of the array.
+ * @return StringMap<int> For example: {name: 0, age: 1}
+ */
+Space.makeIndex = function (properties, index, startAt) {
+  var length = properties.length
+  index = index || {}
+  startAt = startAt || 0
+
+  for (var i = startAt || 0; i < length; i++) {
+    index[properties[i]] = i
+  }
+
+  return index
 }
 
 Space._parseXml2 = function (str) {
@@ -1576,18 +1591,9 @@ Space.prototype._loadFromString = function(string) {
 }
 
 Space.prototype._makeIndex = function(startAt) {
-  var length = this.length
-  var properties = this._getProperties()
-  startAt = startAt || 0
-
-  if (!startAt || !this._index)
+  if (!this._index || !startAt)
     this._index = {}
-
-  for (var i = startAt; i < length; i++) {
-    this._index[properties[i]] = i
-  }
-
-  return this._index
+  return Space.makeIndex(this._getProperties(), this._index, startAt)
 }
 
 /**
@@ -2078,16 +2084,20 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
  * A faster and more memory efficient way to set values on an instance.
  *
  * Note that type is getting set by reference so if type changes this
- * instance will be affected. Usually negatively :).
+ * instance will be affected. Usually negatively :). Use with caution.
  *
- * @param type {properties: string[], index: StringMap<int>}
+ * @param type {properties: string[], index?: StringMap<int>}
  * @param values any[]
  * @return space this
  */
-Space.prototype._setWithType = function (type, values) {
+Space.prototype.setWithType = function (type, values) {
   // Clear first if this is not a new object.
   if (this._values)
     this._clear()
+
+  // If index is not provided initialize it
+  if (!type.index)
+    type.index = Space.makeIndex(type.properties)
 
   this._type = type
   this._values = values

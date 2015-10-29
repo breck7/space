@@ -1,6 +1,11 @@
+0.19.5 / 2015-10-28
+===================
+- Added static makeIndex method
+- Added public setWithType method
+
 0.19.4 / 2015-10-28
 ===================
-- Internal cleanup
+- Internal: cleanup of internal types
 
 0.19.3 / 2015-10-25
 ===================
