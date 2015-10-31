@@ -1,3 +1,8 @@
+0.19.6 / 2015-10-30
+===================
+- Re-added handling of int inputs to get
+- Added inPlace? param to filter method
+
 0.19.5 / 2015-10-28
 ===================
 - Added static makeIndex method

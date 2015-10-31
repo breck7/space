@@ -772,6 +772,15 @@ test("filter", function() {
 
   // Assert
   strictEqual(c, 1, "filter worked")
+
+  // Arrange
+  var filterInPlace = new Space(testStrings.filter)
+
+  // Act
+  filterInPlace.filter(function (k, v, i) { return v.get("age") === "50"}, true)
+
+  // Assert
+  strictEqual(filterInPlace.length, 1)
 })
 
 test("find", function() {
@@ -978,6 +987,14 @@ test("get", function() {
   // Act/Assert
   // When getting a duplicate property last item should win
   strictEqual(space.get("height"), "50px", "Expected to get last value in instance with duplicate property.")
+
+  // todo: remove ability of get to take non-strings
+  // Arrange
+  var spaceWithNumbers = new Space("1 bob\n0 brenda")
+
+  // Act/Assert
+  strictEqual(spaceWithNumbers.get(0), "brenda")
+  strictEqual(spaceWithNumbers.get(1), "bob")
 })
 
 test("getAll", function() {

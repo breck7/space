@@ -6,7 +6,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.5"
+Space.version = "0.19.6"
 
 /**
  * @param property string
@@ -408,6 +408,10 @@ Space._unionSingle = function(spaceA, spaceB) {
   return union
 }
 
+Space.prototype._append = function(property, value) {
+  this._setPair(property, value)
+}
+
 /**
  * Add a property & value to the bottom of the space object.
  *
@@ -416,7 +420,7 @@ Space._unionSingle = function(spaceA, spaceB) {
  * @return space this
  */
 Space.prototype.append = function(property, value) {
-  this._setPair(property, value)
+  this._append(property, value)
   return this.trigger("append", property, value).trigger("change")
 }
 
@@ -861,13 +865,16 @@ Space.prototype.everyLeaf = function(fn) {
 }
 
 /**
- * Returns a new space object with only the pairs that return true when
- * passed to the supplied filter function.
+ * Returns a space object with only the pairs that return true when
+ * passed to the supplied filter function. Returns new object unless inPlace param is true.
  *
  * @param fn function
+ * @param inPlace? boolean Default is false. Pass true to edit this instance.
  * @return space
  */
-Space.prototype.filter = function(fn) {
+Space.prototype.filter = function(fn, inPlace) {
+  if (inPlace)
+    return this._filterInPlace(fn)
   var result = new Space()
   var length = this.length
   var properties = this._getProperties()
@@ -875,9 +882,25 @@ Space.prototype.filter = function(fn) {
 
   for (var i = 0; i < length; i++) {
     if (fn.call(this, properties[i], values[i], i) === true)
-      result.append(properties[i], values[i])
+      result._append(properties[i], values[i])
   }
   return result
+}
+
+Space.prototype._filterInPlace = function(fn) {
+  this._dropType()
+  var properties = this._getProperties()
+  var values = this._getValues()
+
+  for (var i = this.length - 1; i >= 0 ; i--) {
+    if (fn.call(this, properties[i], values[i], i) !== true) {
+      properties.splice(i, 1)
+      values.splice(i, 1)
+    }
+  }
+
+  delete this._index
+  return this
 }
 
 /**
@@ -924,11 +947,13 @@ Space.prototype.format = function(str) {
  * Returns the value stored at the passed path. If there are multiple matches
  * returns the last match. If there are no matches returns undefined.
  *
+ * todo: don't handle non string inputs or handle them differently.
+ *
  * @param spacePath string
  * @return string|space|undefined
  */
 Space.prototype.get = function(spacePath) {
-  if (!spacePath)
+  if (spacePath === undefined || spacePath === null)
     return undefined
   return this._getValueByString(spacePath.toString())
 }
