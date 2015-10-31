@@ -1,3 +1,7 @@
+0.19.7 / 2015-10-30
+===================
+- 2x speedup for fromCsv when string input has no quotes
+
 0.19.6 / 2015-10-30
 ===================
 - Re-added handling of int inputs to get

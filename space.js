@@ -6,7 +6,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.6"
+Space.version = "0.19.7"
 
 /**
  * @param property string
@@ -85,67 +85,79 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
   if (sanitizeString !== false && str.indexOf("\r") > -1)
     str = str.replace(/\r/g, "")
 
-  var length = str.length
-  var currentItem = ""
-  var inQuote = str.substr(0, 1) === "\""
-  var currentPosition = inQuote ? 1 : 0
   var rows = [[]]
-  var nextChar
-  var isLastChar
-  var currentRow = 0
-  var c
+  var strHasQuotes = str.indexOf("\"") > -1
 
-  hasHeaders = hasHeaders === false ? false : true
+  if (strHasQuotes) {
+    var length = str.length
+    var currentItem = ""
+    var inQuote = str.substr(0, 1) === "\""
+    var currentPosition = inQuote ? 1 : 0
+    var nextChar
+    var isLastChar
+    var currentRow = 0
+    var c
+    var nextCharIsQuote
 
-  while (currentPosition < length) {
-    c = str[currentPosition]
-    isLastChar = currentPosition + 1 === length
-    nextChar = str[currentPosition + 1]
+    while (currentPosition < length) {
+      c = str[currentPosition]
+      isLastChar = currentPosition + 1 === length
+      nextChar = str[currentPosition + 1]
+      isNextCharAQuote = nextChar === "\""
 
-    if (inQuote) {
-      if (c !== "\"")
-        currentItem += c
-      // If the current char is a " and the next char is not, it's the end of the quotes
-      else if (nextChar !== "\"") {
-        inQuote = false
-        if (isLastChar)
+      if (inQuote) {
+        if (c !== "\"")
+          currentItem += c
+        // Both the current and next char are ", so the " is escaped
+        else if (isNextCharAQuote) {
+          currentItem += nextChar
+          currentPosition++ // Jump 2
+        }
+        // If the current char is a " and the next char is not, it's the end of the quotes
+        else {
+          inQuote = false
+          if (isLastChar)
+            rows[currentRow].push(currentItem)
+        }
+      } else {
+        if (c === delimiter) {
           rows[currentRow].push(currentItem)
-      }
-      // Both the current and next char are ", so the " is escaped
-      else {
-        currentItem += "\""
-        currentPosition++ // Jump 2
-      }
-    } else {
-      if (c === delimiter) {
-        rows[currentRow].push(currentItem)
-        currentItem = ""
-        if (nextChar === "\"") {
-          inQuote = true
-          currentPosition++ // Jump 2
+          currentItem = ""
+          if (isNextCharAQuote) {
+            inQuote = true
+            currentPosition++ // Jump 2
+          }
         }
-      }
-      else if (c === "\n") {
-        rows[currentRow].push(currentItem)
-        currentItem = ""
-        currentRow++
-        if (nextChar)
-          rows[currentRow] = []
-        if (nextChar === "\"") {
-          inQuote = true
-          currentPosition++ // Jump 2
+        else if (c === "\n") {
+          rows[currentRow].push(currentItem)
+          currentItem = ""
+          currentRow++
+          if (nextChar)
+            rows[currentRow] = []
+          if (isNextCharAQuote) {
+            inQuote = true
+            currentPosition++ // Jump 2
+          }
         }
+        else if (isLastChar)
+          rows[currentRow].push(currentItem + c)
+        else
+          currentItem += c
       }
-      else if (isLastChar)
-        rows[currentRow].push(currentItem + c)
-      else
-        currentItem += c
+      currentPosition++
     }
-    currentPosition++
+  } else {
+    var lines = str.split(/\n/g)
+    var lineCount = lines.length
+    for (var i = 0; i < lineCount; i++) {
+      if (lines[i])
+        rows[i] = lines[i].split(/,/g)
+    }
   }
 
   var headerRow = rows[0]
   var numberOfColumns = headerRow.length
+  hasHeaders = hasHeaders === false ? false : true
 
   if (hasHeaders) {
     // Strip any spaces from column names in the header row.
