@@ -845,6 +845,28 @@ test("format", function() {
   strictEqual(result, "Hi Tom B! I hope you are enjoying the weather in Boston!")
 })
 
+test("fromArrayWithHeader", function() {
+  // Arrange
+  var data = [["name", "team"], ["tom", "ne"], ["kap", "sf"]]
+  var testCase = Space.fromArrayWithHeader(data)
+
+  // Act
+  var data2 = testCase.toArrayWithHeader()
+  var testCase2 = Space.fromArrayWithHeader(data2)
+
+  // Assert
+  strictEqual(testCase.get("1 name"), "kap")
+  strictEqual(testCase2.get("1 name"), "kap")
+  strictEqual(testCase2.get("1 color"), undefined)
+
+  // Act
+  testCase.set("1 color", "red")
+
+  // Assert
+  strictEqual(testCase.get("1 color"), "red")
+
+})
+
 test("fromCsv", function() {
   // Arrange/Act
   var space = Space.fromCsv(testStrings.csv)

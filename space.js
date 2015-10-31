@@ -6,7 +6,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.7"
+Space.version = "0.19.8"
 
 /**
  * @param property string
@@ -201,6 +201,39 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
   result.setWithType(collectionType, resultValues)
 
   return result
+}
+
+/**
+ * Initialize a space object from a Javascript array with a header like:
+ *
+ * [["name", "number"],
+ *  ["breck", "17"]]
+ *
+ * @param rows (string|int[])[]
+ * @return space
+ */
+Space.fromArrayWithHeader = function (rows) {
+  if (!rows.length)
+    return new Space()
+
+  var length = rows.length
+  var indexes = []
+  var childrenArray = []
+  var rowType = {}
+  rowType.properties = rows[0]
+
+  for (var i = 1; i < length; i++) {
+    var obj = new Space()
+    obj.setWithType(rowType, rows[i])
+
+    childrenArray.push(obj)
+    indexes.push(i - 1)
+  }
+  var collectionType = {}
+  collectionType.properties = indexes
+  collectionType.index = indexes
+
+  return new Space().setWithType(collectionType, childrenArray)
 }
 
 /**
@@ -2355,6 +2388,30 @@ Space.prototype.toDelimited = function(delimiter, header) {
       str += rowStr.substr(1) + "\n" // Chop the first comma and add newline
     })
   return str
+}
+
+/**
+ * Return this instance as a JS array in the shape of a CSV file.
+ *
+ * @param type? Type to get the header for. If not passed the first row's type will be used if present.
+ * @return (string|int[])[]
+ */
+Space.prototype.toArrayWithHeader = function (type) {
+  if (!this.length)
+    return []
+  var values = this._getValues()
+  type = type || values[0]._type
+
+  if (!type)
+    throw new Error("Currently only supported for instances set with type.")
+
+  var length = this.length
+  var result = [type.properties]
+  for (var i = 0; i < length; i++) {
+    if (values[i]._type === type)
+      result.push(values[i]._getValues())
+  }
+  return result
 }
 
 /**
