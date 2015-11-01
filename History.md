@@ -1,3 +1,7 @@
+0.19.9 / 2015-11-01
+===================
+- Added getType, getTypeIndex, getUnionType, flattenTypes and setType methods
+
 0.19.8 / 2015-10-31
 ===================
 - Added fromArrayWithHeader and toArrayWithHeader methods

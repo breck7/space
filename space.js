@@ -6,7 +6,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.8"
+Space.version = "0.19.9"
 
 /**
  * @param property string
@@ -975,6 +975,20 @@ Space.prototype.find = function(property, value) {
 }
 
 /**
+ * Set all child instances to the union type.
+ *
+ * @return space this
+ */
+Space.prototype.flattenTypes = function () {
+  var unionType = this.getUnionType()
+  this.each(function (k, v) {
+    if (v instanceof Space)
+      v.setType(unionType)
+  })
+  return this
+}
+
+/**
  * Fills out the passed string with values from the current instance.
  *
  * @param str string
@@ -1169,6 +1183,91 @@ Space.prototype._getPropertyByIndex = function(index) {
  */
 Space.prototype.getProperties = function() {
   return this._getProperties().slice(0)
+}
+
+/**
+ * Gets the type for an instance. If not set, will initialize it.
+ *
+ * @return Type
+ */
+Space.prototype.getType = function () {
+  if (this._type)
+    return this._type
+
+  this._type = {properties: this._properties || []}
+  this._type.index = Space.makeIndex(this._properties)
+
+  delete this._properties
+  delete this._index
+
+  return this._type
+}
+
+/**
+ * Returns a StringMap of all types in this instance.
+ *
+ * Example return value: {"name age": Type, "color height weight" : Type}
+ *
+ * This method also sets a type on every instance and removes individual property
+ * arrays and caches as it goes, freeing up memory.
+ *
+ * @return StringMap<Type>
+ */
+Space.prototype.getTypeIndex = function() {
+  var index = {}
+  this.each(function (k, v, i) {
+    if (!(v instanceof Space))
+      return true
+    var type = v.getType()
+
+    if (type.key === undefined)
+      type.key = type.properties.join(" ")
+
+    var typeInIndex = index[type.key]
+
+    // If it's not in the index yet add it
+    if (!typeInIndex)
+      index[type.key] = type
+    // If it's a dupe remove the reference to the second occurrence
+    else if (typeInIndex && (typeInIndex !== type))
+      v._type = typeInIndex
+  })
+  return index
+}
+
+/**
+ * Return a Type that is a union of all child types.
+ *
+ * Note: treats all sub types as a set, so order is not necessarily respected and
+ * properties occur only once.
+ *
+ * @return type
+ */
+Space.prototype.getUnionType = function () {
+  if (!this.length)
+    return {properties: []}
+
+  var typeIndex = this.getTypeIndex()
+  var keys = Object.keys(typeIndex)
+  // If there's only one type return that
+  if (keys.length === 1)
+    return typeIndex[keys[0]]
+
+  var index = {}
+  var props = []
+  var type = {properties: props, index: index}
+
+  // Remove dupes
+  var properties = keys.join(" ").split(/ /g)
+  var length = properties.length
+  for (var i = 0; i < length; i++) {
+    if (index[properties[i]] === undefined) {
+      props.push(properties[i])
+      index[properties[i]] = props.length
+    }
+  }
+
+  return type
 }
 
 /**
@@ -1409,7 +1508,7 @@ Space.prototype.isFlat = function() {
 }
 
 /**
- * Check whether the object has only unique properties.
+ * Check whether the object has only unique properties (is a set).
  *
  * @param deep bool Whether to search recursively. Default is false.
  * @return bool
@@ -1447,8 +1546,6 @@ Object.defineProperty(Space.prototype, "length", {
     }
 })
 
-Space._load2 = false
-
 /**
  * @param content any
  * @param root? array
@@ -1460,7 +1557,7 @@ Space.prototype._load = function(content, root) {
 
   // Load from string
   if (typeof content === "string")
-    return Space._load2 ? this._loadFromString2(content) : this._loadFromString(this._sanitizeString(content))
+    return this._loadFromString(this._sanitizeString(content))
 
   // Load from Space object
   if (content instanceof Space) {
@@ -1515,114 +1612,6 @@ Space.prototype._loadPair = function(property, value, root) {
     root.push(value)
     this._setPair(property, new Space()._load(value, root))
   }
-}
-
-/**
- * Construct the Space from a string.
- *
- * @param string
- * @return space
- */
-Space.prototype._loadFromString2 = function(string) {
-  var currentProperty = ""
-  var currentValue = ""
-  var inProperty = ""
-  var inValue = ""
-  var spaceCount = 0
-  var maxOpenDepth = 0
-  var wasNewLine = false
-  var objects = {0 : this}
-  var valueSpaceCount = 0
-  var spacesToGo = 0
-  var started = false
-  var stringLength = string.length
-
-  for (var i = 0; i < stringLength; i++) {
-    var c = string[i]
-
-    if (c === "\r")
-      continue
-
-    if (!started && (c === "\n" || c === " "))
-      continue
-    else if (!started) {
-      inProperty = true
-      started = true
-    }
-
-    if (inProperty) {
-      if (c === " ") {
-        inProperty = false
-        inValue = true
-
-        if (spaceCount >= maxOpenDepth)
-          valueSpaceCount = maxOpenDepth
-        else
-          valueSpaceCount = spaceCount
-      } else if (c === "\n") {
-        inProperty = false
-
-        // this handles extra spaces
-        if (spaceCount >= maxOpenDepth)
-          spaceCount = maxOpenDepth
-        else
-          maxOpenDepth = spaceCount
-
-        maxOpenDepth = spaceCount + 1
-        objects[maxOpenDepth] = new Space()
-        objects[spaceCount]._setPair(currentProperty, objects[maxOpenDepth])
-        spaceCount = 0
-        // it is either an empty space or a space with pairs
-        // and it could be the end of a space
-        currentProperty = ""
-      } else {
-        currentProperty += c
-      }
-    } else if (inValue) {
-      if (spacesToGo && c === " ") {
-        spaceCount++
-        spacesToGo--
-      } else if (spacesToGo) {
-        // Ran out of space. We hit a property
-        objects[valueSpaceCount]._setPair(currentProperty, currentValue.substr(0, currentValue.length - 1))
-        currentValue = ""
-        inProperty = true
-        inValue = false
-        currentProperty = c
-        spacesToGo = 0
-      } else if (c === "\n") {
-        // it is either the end of the pair or it is part of a multiline
-        // it may be the end of a space
-        spacesToGo = valueSpaceCount + 1
-        spaceCount = 0
-        // Advance to the next non-newline
-        while (string[i + 1] === "\n") {
-          i++
-        }
-        if (i !== string.length - 1)
-          currentValue += c
-      } else {
-        currentValue += c
-      }
-    } else if (c === "\n") {
-      // ignore blank lines
-
-    } else if (c === " ") {
-      spaceCount++
-    } else {
-      inProperty = true
-      currentProperty = c
-    }
-  }
-
-  // If it ends on a space
-  if (inProperty)
-    objects[spaceCount]._setPair(currentProperty, new Space())
-
-  if (inValue)
-    objects[valueSpaceCount]._setPair(currentProperty, currentValue)
-
-  return this;
 }
 
 Space.prototype._sanitizeString = function(string) {
@@ -2057,6 +2046,29 @@ Space.prototype.set = function(property, value, index, noEvents) {
   return this
 }
 
+/**
+ * Changes the type of the instance
+ *
+ * @param type type
+ * @return this
+ */
+Space.prototype.setType = function(type) {
+  if (this._type === type)
+    return this
+  if (!this._values)
+    return this.setWithType(type)
+
+  var newProps = type.properties
+  var newVals = []
+  var that = this
+
+  newProps.forEach(function (columnName) {
+    newVals.push(that.get(columnName))
+  })
+
+  return this.setWithType(type, newVals)
+}
+
 Space.prototype._setBySpacePath = function(path, value) {
   // Sanitize path
   path = path ? this._sanitizeSpacePath(path) : false
@@ -2339,32 +2351,13 @@ Space.prototype.toDelimited = function(delimiter, header) {
   var regex = new RegExp("(\\n|\\\"|\\" + delimiter + ")")
   var escapeFunction = function (str) {
         // No escaping necessary
-        if (!str.match(regex))
-          return str
+        if (!str.match(regex)) return str
 
         // Surround the str with "" and replace any " with ""
         return "\"" + str.replace(/\"/g, "\"\"") + "\""
       }
   var rows = []
-  var header = header || []
-  var headerIndex = {}
-
-  // If header not provided, build it
-  if (!header.length) {
-    this.each(function (property, row) {
-      //  We expect value to be an instance of space
-      if (!(row instanceof Space))
-        return true
-
-      row.each(function (column, value) {
-        if (headerIndex[column])
-          return true
-
-        header.push(column)
-        headerIndex[column] = true
-      })
-    })
-  }
+  var header = header || this.getUnionType().properties
 
   // Build the header row
   header.forEach(function (columnName) {
@@ -2374,36 +2367,42 @@ Space.prototype.toDelimited = function(delimiter, header) {
   str = str.substr(1) + "\n" // Chop the first comma and add newline
 
   this.each(function (property, row) {
-      //  We expect value to be an instance of space
-      if (!(row instanceof Space))
-        return true
+    //  We expect value to be an instance of space
+    if (!(row instanceof Space))
+      return true
 
-      var rowStr = ""
+    var rowStr = ""
 
-      header.forEach(function (columnName) {
-          var v = row.get(columnName) || ""
-          rowStr += delimiter + escapeFunction(v.toString())
-      })
-
-      str += rowStr.substr(1) + "\n" // Chop the first comma and add newline
+    header.forEach(function (columnName) {
+      var v = row.get(columnName) || ""
+      rowStr += delimiter + escapeFunction(v.toString())
     })
+
+    str += rowStr.substr(1) + "\n" // Chop the first comma and add newline
+  })
   return str
 }
 
 /**
  * Return this instance as a JS array in the shape of a CSV file.
  *
- * @param type? Type to get the header for. If not passed the first row's type will be used if present.
+ * @param type? Type to get the header for. If not passed the first type will be used.
  * @return (string|int[])[]
  */
 Space.prototype.toArrayWithHeader = function (type) {
   if (!this.length)
     return []
   var values = this._getValues()
-  type = type || values[0]._type
-
-  if (!type)
-    throw new Error("Currently only supported for instances set with type.")
+  if (!type) {
+    // Get first type.
+    this.each(function (k, v) {
+      type = v instanceof Space && v.getType()
+      if (type)
+        return false
+    })
+    if (!type)
+      return []
+  }
 
   var length = this.length
   var result = [type.properties]

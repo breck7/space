@@ -865,6 +865,15 @@ test("fromArrayWithHeader", function() {
   // Assert
   strictEqual(testCase.get("1 color"), "red")
 
+  // Try with flattenTypes
+  // Assert
+  strictEqual(testCase.toArrayWithHeader()[0].length, 2, "Should be two properties")
+
+  // Act
+  testCase.flattenTypes()
+
+  // Assert
+  strictEqual(testCase.toArrayWithHeader()[0].length, 3, "Should be three properties")
 })
 
 test("fromCsv", function() {
@@ -1104,6 +1113,33 @@ test("getPath", function() {
   strictEqual(child.getRoot(), space)
   strictEqual(simple.getRoot(), simple)
   strictEqual(child.getParent(), parent)
+})
+
+test("getTypeIndex", function() {
+  // Arrange
+  var space = new Space(testStrings.filter)
+
+  // Act
+  var typeIndex = space.getTypeIndex()
+
+  // Act/Assert
+  strictEqual(Object.keys(typeIndex).length, 1, "Has correct number of keys")
+  strictEqual(typeIndex["age height"].properties[1], "height", "Type is correct")
+})
+
+test("getUnionType", function() {
+  // Arrange
+  var space = new Space(testStrings.filter)
+
+  // Act
+  var type = space.getUnionType().properties
+  space.set("frank weight", 12)
+  var type2 = space.getUnionType().properties
+
+  // Assert
+  strictEqual(type.length, 2, "Original type has correct number of properties")
+  strictEqual(type2.length, 3, "New type has correct number of properties")
+  strictEqual(type2[2], "weight", "New type is correct")
 })
 
 test("getValues", function() {
@@ -1387,7 +1423,6 @@ test("loadFromObject", function() {
   space.set("docs", testStrings.json2)
 
   // Assert
-  //console.log(space.toString())
   strictEqual(space.toString(), testStrings.json2space)
 })
 
@@ -2160,7 +2195,7 @@ test("toCsv", function() {
   // Arrange
   var a = new Space(testStrings.delimited)
   // Act/Assert
-  strictEqual(a.toCsv(), testStrings.csv)
+  strictEqual(a.toCsv(), testStrings.csv, "Expected correct csv")
 })
 
 test("toggle", function() {
