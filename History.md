@@ -1,3 +1,7 @@
+0.19.10 / 2015-11-01
+===================
+- Fixed bug in fromDelimiter method
+
 0.19.9 / 2015-11-01
 ===================
 - Added getType, getTypeIndex, getUnionType, flattenTypes and setType methods

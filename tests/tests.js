@@ -974,6 +974,14 @@ test("fromTsv", function() {
   // Assert
   strictEqual(a.toString(), testStrings.delimited)
   strictEqual(a.toTsv(), testStrings.tsv)
+
+  // Test simple path
+  // Act
+  var b = Space.fromTsv("color\tage\theight\nred\t2\t23")
+
+  // Assert
+  strictEqual(b.get("0 age"), "2")
+  strictEqual(b.get("0 height"), "23")
 })
 
 if (!isNode) {

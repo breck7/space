@@ -6,7 +6,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.9"
+Space.version = "0.19.10"
 
 /**
  * @param property string
@@ -151,7 +151,7 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
     var lineCount = lines.length
     for (var i = 0; i < lineCount; i++) {
       if (lines[i])
-        rows[i] = lines[i].split(/,/g)
+        rows[i] = lines[i].split(delimiter)
     }
   }
 
