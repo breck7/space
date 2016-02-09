@@ -1,5 +1,9 @@
+0.19.11 / 2016-02-09
+====================
+- Fixed bug where multiple newline sanitizing wasn't global
+
 0.19.10 / 2015-11-01
-===================
+====================
 - Fixed bug in fromDelimiter method
 
 0.19.9 / 2015-11-01

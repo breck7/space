@@ -287,6 +287,18 @@ testStrings.renameObjects = multiline(function () {/*
  email maryjane@email.com
 */})
 
+testStrings.newLines = multiline(function () {/*
+tree
+ palm
+  green true
+
+  location Cali
+ pine
+
+  location Maine
+bush foo
+*/})
+
 testStrings.tsv = "id\ttitle\tsummary\n\
 1\tSome book\t\"An expose, on the result of one \"\"plus\"\" one\"\n\
 2\tThe answer, my friend, is...\t\"\"\"Two\"\"\"\n"

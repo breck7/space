@@ -1494,6 +1494,9 @@ test("loadFromString", function() {
   var g = new Space("hi\n     somewhat invalid")
   // Assert
   strictEqual(g.get("hi somewhat"), "invalid")
+
+  var testCase = new Space(testStrings.newLines)
+  strictEqual(testCase.toString().split("\n").length, 8, "All blank lines are removed")
 })
 
 test("loadFromString extra spaces", function() {
