@@ -102,11 +102,6 @@ domains
 test("append", () => {
   // Arrange
   const space = new Space("hello world")
-  var count = 0
-
-  space.on("append", (property, value) => {
-    count++
-  })
 
   // Act
   space.append("foo", "bar")
@@ -114,7 +109,6 @@ test("append", () => {
 
   // Assert
   strictEqual(space.get("foo"), "bar")
-  strictEqual(count, 1)
 
   // Act
   space.append("foo", "two")
@@ -234,24 +228,6 @@ test("concat", () => {
 
   // Assert
   strictEqual(a.get("hi"), "mom")
-})
-
-test("create", () => {
-  // Arrange
-  const a = new Space("hello world")
-  var count = 0
-
-  a.on("create", (property, value) => {
-    count++
-  })
-
-  // Act
-  a.create("foo", "bar")
-  a.set("foo2", "bar")
-
-  // Assert
-  strictEqual(a.get("foo"), "bar")
-  strictEqual(count, 1)
 })
 
 test("decrement", () => {
@@ -622,106 +598,6 @@ test("each", () => {
 
   // Assert
   strictEqual(result, "21")
-})
-
-test("events", () => {
-  // Arrange
-  const value = new Space("hello world\nhi mom")
-  var result = ""
-  const popsMethod = () => {
-        result = "pops"
-      }
-
-  value.on("change", popsMethod)
-
-  // Act
-  value.set("hi", "dad")
-
-  // Assert
-  strictEqual(result, "pops")
-
-  // Arrange
-  result = ""
-  value.off("change", popsMethod)
-
-  // Act
-  value.set("hi", "pop")
-
-  // Assert
-  strictEqual(result, "")
-
-  // Arrange
-  var count = 0
-  const inc = () => {
-        count++
-      }
-
-  value.on("set", inc)
-  value.on("patch", inc)
-  value.on("clear", inc)
-  value.on("delete", inc)
-  value.on("rename", inc)
-
-  // Act
-  value.set("yo", "bob")
-  value.patch("foo bar")
-  value.delete("yo")
-  value.rename("foo", "foo2")
-  value.clear()
-
-  // Assert
-  strictEqual(count, 5, "Expected count to equal 5.")
-
-  // Event params
-  // Arrange
-  const a = new Space("hello world")
-  var b = ""
-  var c = ""
-  var setCount = 0
-  var changeCount  = 0
-
-  a.on("set", (property, value) => {
-    b = value
-  })
-  a.on("change", () => {
-    changeCount++
-  })
-  a.on("patch", (patch) => {
-    c = patch
-  })
-  a.on("set", (property, value) => {
-    setCount++
-  })
-
-  // Act
-  a.set("hello", "bob")
-  a.patch("hi mom")
-
-  // Assert
-  strictEqual(b, "bob")
-  strictEqual(c, "hi mom")
-  strictEqual(setCount, 1)
-  strictEqual(changeCount, 2)
-})
-
-test("event bubbling", () => {
-  // Arrange
-  const cafe = new Space("name Haus\nmenu\n coffee\n  light\n   price 2.50\n  dark\n   price 3\n")
-  var count = 0
-
-  cafe
-    .get("menu coffee light")
-    .on("change", () => {
-      count++
-    })
-
-  // Act
-  cafe
-    .get("menu coffee light")
-    .set("price", "6")
-
-  // Assert
-  strictEqual(count, 1)
 })
 
 test("every", () => {
@@ -1867,18 +1743,12 @@ test("query", () => {
 test("reload", () => {
   // Arrange
   const a = new Space("john\n age 5\nsusy\n age 6")
-  var count = 0
 
   // Act
   ok(a.reload())
 
   // Assert
   strictEqual(a.length, 0, "empty reload cleared object")
-
-  // Arrange
-  a.on("reload", () => {
-    count++
-  })
 
   // Act
   a.reload("john 1")
@@ -1887,7 +1757,6 @@ test("reload", () => {
   // Assert
   strictEqual(a.length, 1)
   strictEqual(a.get("john"), "2")
-  strictEqual(count, 2)
 })
 
 test("rename", () => {

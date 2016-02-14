@@ -1,3 +1,9 @@
+0.21.0 / 2016-02-14
+===================
+- BREAKING: Removed Events and Listeners. If needed, one could create a proxy class that extends built in methods with events. The code is cleaner without the events (fewer side effects)
+- BREAKING: Removed on, off, trigger, clearListeners, and create methods.
+- Removed the 4th param to "set" method (noEvents)
+
 0.20.1 / 2016-02-14
 ===================
 - Refactored to use strict and ES6

@@ -8,7 +8,7 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.20.1"
+Space.version = "0.21.0"
 
 /**
  * @param property string
@@ -454,10 +454,6 @@ Space._unionSingle = (spaceA, spaceB) => {
   return union
 }
 
-Space.prototype._append = function(property, value) {
-  this._setPair(property, value)
-}
-
 /**
  * Add a property & value to the bottom of the space object.
  *
@@ -466,8 +462,8 @@ Space.prototype._append = function(property, value) {
  * @return space this
  */
 Space.prototype.append = function(property, value) {
-  this._append(property, value)
-  return this.trigger("append", property, value).trigger("change")
+  this._setPair(property, value)
+  return this
 }
 
 /**
@@ -503,30 +499,8 @@ Space.prototype.clear = function(space) {
   if (this.isEmpty())
     return this
   this._clear()
-  this.trigger("clear")
   if (space)
     this._load(space)
-  this.trigger("change")
-  return this
-}
-
-/**
- * Removes all listeners.
- *
- * @param eventName? string. Optionally pass an eventName to only remove those events.
- * @return space this
- */
-Space.prototype.clearListeners = function(eventName) {
-  if (!this._events)
-    return this
-  if (eventName)
-    delete this._events[eventName]
-  else {
-    for (let eventName in this._events) {
-      if (this._events.hasOwnProperty(eventName))
-        delete this._events[eventName]
-    }
-  }
   return this
 }
 
@@ -553,19 +527,6 @@ Space.prototype.concat = function(b) {
     a.append(property, value)
   })
   return this
-}
-
-/**
- * Identical to append, except it fires a create event instead.
- * todo: remove this or append?
- *
- * @param property string
- * @param value any
- * @return space this
- */
-Space.prototype.create = function(property, value) {
-  this._setPair(property, value)
-  return this.trigger("create", property, value).trigger("change")
 }
 
 /**
@@ -707,12 +668,9 @@ Space.prototype.deepLength = function() {
  * @return space this
  */
 Space.prototype["delete"] = function(property) {
-  var somethingChanged = false
-
   while (this._delete(property)) {
-    somethingChanged = true
   }
-  return somethingChanged ? this.trigger("delete", property).trigger("change") : this
+  return this
 }
 
 /**
@@ -729,7 +687,7 @@ Space.prototype.deleteAt = function(index) {
     somethingChanged = this._deleteByIndex(index)
   else if (index && index.length)
     somethingChanged = this._deleteByIndexes(index)
-  return somethingChanged ? this.trigger("delete", index).trigger("change") : this
+  return this
 }
 
 /**
@@ -920,7 +878,7 @@ Space.prototype.filter = function(fn, inPlace) {
 
   for (let i = 0; i < length; i++) {
     if (fn.call(this, properties[i], values[i], i) === true)
-      result._append(properties[i], values[i])
+      result.append(properties[i], values[i])
   }
   return result
 }
@@ -1732,38 +1690,6 @@ Space.prototype.next = function(property) {
 }
 
 /**
- * @param eventName string
- * @param fn function
- * @return this
- */
-Space.prototype.off = function(eventName, fn) {
-  if (!this._events || !this._events[eventName])
-    return this
-  for (let i in this._events[eventName]) {
-    if (this._events[eventName][i] === fn)
-      this._events[eventName].splice(i, 1)
-  }
-  return this
-}
-
-/**
- * @param eventName string
- * @param fn function
- * @return this
- */
-Space.prototype.on = function(eventName, fn) {
-  // We only create the events map when a listener is first set. Otherwise
-  // there is no need for it.
-  // StringMap<function[]> Event listeners
-  if (!this._events)
-    this._events = {}
-  if (!this._events[eventName])
-    this._events[eventName] = []
-  this._events[eventName].push(fn)
-  return this
-}
-
-/**
  * Return the property/value pair at passed index as a space object.
  *
  * @param index int
@@ -1822,9 +1748,7 @@ Space.prototype._patch = function(patch) {
  * @return space
  */
 Space.prototype.patch = function(patch) {
-  this._patch(patch)
-  // todo, do not trigger patch if no change
-  return this.trigger("patch", patch).trigger("change")
+  return this._patch(patch)
 }
 
 /**
@@ -1904,13 +1828,11 @@ Space.prototype.push = function(value) {
  * @return space this
  */
 Space.prototype.reload = function(content) {
-  // todo, do not trigger patch if no change
   delete this._properties
   delete this._values
   delete this._index
   delete this._type
   this._load(content)
-  this.trigger("reload")
   return this
 }
 
@@ -1936,9 +1858,6 @@ Space.prototype.rename = function(oldName, newName, renameAll, recursive) {
   if (renameAll)
     return this._renameAll(oldName, newName, recursive)
   this._rename(oldName, newName)
-  if (oldName !== newName)
-    this.trigger("rename", oldName, newName)
-  this.trigger("change")
   return this
 }
 
@@ -2018,10 +1937,9 @@ Space.prototype._sanitizeSpacePath = function(path) {
  * @param property string Can be a spacePath
  * @param value any
  * @param index? int
- * @param noEvents? By default set triggers "set" and "change" events unless this is set to true.
  * @return space this
  */
-Space.prototype.set = function(property, value, index, noEvents) {
+Space.prototype.set = function(property, value, index) {
   property = property.toString()
   if (Space._isSpacePath(property))
     this._setBySpacePath(property, value)
@@ -2032,8 +1950,6 @@ Space.prototype.set = function(property, value, index, noEvents) {
   else
     this._setPair(property, value)
 
-  if (!noEvents)
-    this.trigger("set", property, value, index).trigger("change")
   return this
 }
 
@@ -2634,21 +2550,6 @@ Space.prototype._toXMLWithAttributes = function(property, spaceCount) {
   xml += spaces + "<" + property + attributesStr + ">" + contentStr +
          "</" + property + ">" + (spaceCount === -1 || !contentStr? "" : "\n")
   return xml
-}
-
-/**
- * @param eventName string
- * @return this
- */
-Space.prototype.trigger = function(eventName) {
-  if (!this._events || !this._events[eventName])
-    return this
-  const args = Array.prototype.slice.call(arguments)
-
-  for (let i in this._events[eventName]) {
-    this._events[eventName][i].apply(this, args.slice(1))
-  }
-  return this
 }
 
 /**
