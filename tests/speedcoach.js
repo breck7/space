@@ -48,7 +48,7 @@ speedcoach._getTestResults = function () {
       return false
 
     var nextTest = tests[index + 1] // array
-    
+
     var testName = currentTest[0] // string
     var elapsedTime = nextTest[1] - currentTest[1] // number
     var memoryIncrease = "" // string|number

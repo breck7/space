@@ -1,4 +1,4 @@
-var qunit = require("qunit")
+const qunit = require("qunit")
 
 qunit.run({
 	deps: {

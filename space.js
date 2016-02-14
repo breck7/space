@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * @param content any
  * @return space
@@ -6,13 +8,13 @@ function Space(content) {
   return this._load(content)
 }
 
-Space.version = "0.19.11"
+Space.version = "0.20.1"
 
 /**
  * @param property string
  * @return bool
  */
-Space._isSpacePath = function(property) {
+Space._isSpacePath = (property) => {
   return property.indexOf(" ") > -1
 }
 
@@ -31,19 +33,19 @@ Space._isSpacePath = function(property) {
  * @param start Delimiter at end of heredoc
  * @return space
  */
-Space.fromHeredoc = function(content, start, end) {
+Space.fromHeredoc = (content, start, end) => {
   // Remove Windows newlines
   content = content.replace(/\n\r/g, "\n")
 
-  var lines = content.split("\n")
+  const lines = content.split("\n")
+  const linesToDelete = []
+  const startRegex = new RegExp("\^" + start + "(?: |$)")
+  const linesLength = lines.length
+  const startLength = start.length
+  const endRegex = new RegExp("\^" + end)
   var startIndex = null
-  var linesToDelete = []
-  var startRegex = new RegExp("\^" + start + "(?: |$)")
-  var linesLength = lines.length
-  var startLength = start.length
-  var endRegex = new RegExp("\^" + end)
 
-  for (var i = 0; i < linesLength; i++) {
+  for (let i = 0; i < linesLength; i++) {
     if (startIndex === null) {
       if (lines[i].match(startRegex)) {
         startIndex = i
@@ -70,7 +72,7 @@ Space.fromHeredoc = function(content, start, end) {
  * @param hasHeaders boolean Default is true.
  * @return space
  */
-Space.fromCsv = function (str, hasHeaders) {
+Space.fromCsv = (str, hasHeaders) => {
   return Space.fromDelimiter(str, ",", hasHeaders)
 }
 
@@ -81,15 +83,15 @@ Space.fromCsv = function (str, hasHeaders) {
  * @param sanitizeString? boolean Whether to strip carriage returns
  * @return space
  */
-Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
+Space.fromDelimiter = (str, delimiter, hasHeaders, sanitizeString) => {
   if (sanitizeString !== false && str.indexOf("\r") > -1)
     str = str.replace(/\r/g, "")
 
-  var rows = [[]]
-  var strHasQuotes = str.indexOf("\"") > -1
+  const rows = [[]]
+  const strHasQuotes = str.indexOf("\"") > -1
 
   if (strHasQuotes) {
-    var length = str.length
+    const length = str.length
     var currentItem = ""
     var inQuote = str.substr(0, 1) === "\""
     var currentPosition = inQuote ? 1 : 0
@@ -97,7 +99,7 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
     var isLastChar
     var currentRow = 0
     var c
-    var nextCharIsQuote
+    var isNextCharAQuote
 
     while (currentPosition < length) {
       c = str[currentPosition]
@@ -147,28 +149,27 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
       currentPosition++
     }
   } else {
-    var lines = str.split(/\n/g)
-    var lineCount = lines.length
-    for (var i = 0; i < lineCount; i++) {
+    const lines = str.split(/\n/g)
+    const lineCount = lines.length
+    for (let i = 0; i < lineCount; i++) {
       if (lines[i])
         rows[i] = lines[i].split(delimiter)
     }
   }
 
-  var headerRow = rows[0]
-  var numberOfColumns = headerRow.length
+  const numberOfColumns = rows[0].length
   hasHeaders = hasHeaders === false ? false : true
+  const headerRow = hasHeaders ? rows[0] : []
 
   if (hasHeaders) {
     // Strip any spaces from column names in the header row.
     // This makes the mapping not quite 1 to 1 if there are any spaces in prop names.
-    for (var i = 0; i < numberOfColumns; i++) {
+    for (let i = 0; i < numberOfColumns; i++) {
       headerRow[i] = headerRow[i].replace(/ /g, "")
     }
   } else {
     // If str has no headers, create them as 0,1,2,3
-    headerRow = []
-    for (var i = 0; i < numberOfColumns; i++) {
+    for (let i = 0; i < numberOfColumns; i++) {
       headerRow.push(i)
     }
   }
@@ -176,18 +177,18 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
   // Immediately ditch ref to str for GC
   str = null
 
-  var result = new Space()
-  var resultProps = []
-  var resultValues = []
-  var headerIndex = {}
+  const result = new Space()
+  const resultProps = []
+  const resultValues = []
+  const headerIndex = {}
 
-  var type = {}
+  const type = {}
   type.properties = headerRow
 
-  var rowCount = rows.length
+  const rowCount = rows.length
   var rowIndex = 0
-  for (var i = (hasHeaders ? 1 : 0); i < rowCount; i++) {
-    var obj = new Space()
+  for (let i = (hasHeaders ? 1 : 0); i < rowCount; i++) {
+    const obj = new Space()
 
     obj.setWithType(type, rows[i])
     resultProps.push(rowIndex)
@@ -195,7 +196,7 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
     rowIndex++
   }
 
-  var collectionType = {}
+  const collectionType = {}
   collectionType.properties = resultProps
   collectionType.index = resultProps // In this case index is identical to array
   result.setWithType(collectionType, resultValues)
@@ -212,24 +213,24 @@ Space.fromDelimiter = function (str, delimiter, hasHeaders, sanitizeString) {
  * @param rows (string|int[])[]
  * @return space
  */
-Space.fromArrayWithHeader = function (rows) {
+Space.fromArrayWithHeader = (rows) => {
   if (!rows.length)
     return new Space()
 
-  var length = rows.length
-  var indexes = []
-  var childrenArray = []
-  var rowType = {}
+  const length = rows.length
+  const indexes = []
+  const childrenArray = []
+  const rowType = {}
   rowType.properties = rows[0]
 
-  for (var i = 1; i < length; i++) {
-    var obj = new Space()
+  for (let i = 1; i < length; i++) {
+    const obj = new Space()
     obj.setWithType(rowType, rows[i])
 
     childrenArray.push(obj)
     indexes.push(i - 1)
   }
-  var collectionType = {}
+  const collectionType = {}
   collectionType.properties = indexes
   collectionType.index = indexes
 
@@ -243,7 +244,7 @@ Space.fromArrayWithHeader = function (rows) {
  * @param hasHeaders boolean Default is true.
  * @return space
  */
-Space.fromSsv = function (str, hasHeaders) {
+Space.fromSsv = (str, hasHeaders) => {
   return Space.fromDelimiter(str, " ", hasHeaders)
 }
 
@@ -252,7 +253,7 @@ Space.fromSsv = function (str, hasHeaders) {
  * @param hasHeaders boolean Default is true.
  * @return space
  */
-Space.fromTsv = function (str, hasHeaders) {
+Space.fromTsv = (str, hasHeaders) => {
   return Space.fromDelimiter(str, "\t", hasHeaders)
 }
 
@@ -264,37 +265,37 @@ Space.fromTsv = function (str, hasHeaders) {
  * @param startAt? int Optionally only (re)index part of the array.
  * @return StringMap<int> For example: {name: 0, age: 1}
  */
-Space.makeIndex = function (properties, index, startAt) {
-  var length = properties.length
+Space.makeIndex = (properties, index, startAt) => {
+  const length = properties.length
   index = index || {}
   startAt = startAt || 0
 
-  for (var i = startAt || 0; i < length; i++) {
+  for (let i = startAt || 0; i < length; i++) {
     index[properties[i]] = i
   }
 
   return index
 }
 
-Space._parseXml2 = function (str) {
-  var el = document.createElement("div")
+Space._parseXml2 = (str) => {
+  const el = document.createElement("div")
   el.innerHTML = str
   return el
 }
 
-Space._initializeXmlParser = function () {
+Space._initializeXmlParser = () => {
   if (Space._parseXml)
     return
 
   if (typeof window.DOMParser !== "undefined") {
-    Space._parseXml = function (xmlStr) {
+    Space._parseXml = (xmlStr) => {
       return (new window.DOMParser()).parseFromString(xmlStr, "text/xml")
     }
   }
 
   else if (typeof window.ActiveXObject !== "undefined" && new window.ActiveXObject("Microsoft.XMLDOM")) {
-      Space._parseXml = function (xmlStr) {
-          var xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM")
+      Space._parseXml = (xmlStr) => {
+          const xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM")
           xmlDoc.async = "false"
           xmlDoc.loadXML(xmlStr)
           return xmlDoc
@@ -309,9 +310,9 @@ Space._initializeXmlParser = function () {
  * @param str string The XML string to parse
  * @return space
  */
-Space.fromXml = function (str) {
+Space.fromXml = (str) => {
   Space._initializeXmlParser()
-  var xml = Space._parseXml(str)
+  const xml = Space._parseXml(str)
 
   try {
     return Space._fromXml(xml).get("children")
@@ -322,13 +323,13 @@ Space.fromXml = function (str) {
 
 }
 
-Space._fromXml = function (xml) {
-  var result = new Space()
-  var children = new Space()
+Space._fromXml = (xml) => {
+  const result = new Space()
+  const children = new Space()
 
   // Set attributes
   if (xml.attributes) {
-    for (var a = 0; a < xml.attributes.length; a++) {
+    for (let a = 0; a < xml.attributes.length; a++) {
       result.set(xml.attributes[a].name, xml.attributes[a].value)
     }
   }
@@ -338,8 +339,8 @@ Space._fromXml = function (xml) {
 
   // Set content
   if (xml.childNodes && xml.childNodes.length > 0) {
-    for (var i = 0; i < xml.childNodes.length; i++) {
-      var child = xml.childNodes[i]
+    for (let i = 0; i < xml.childNodes.length; i++) {
+      const child = xml.childNodes[i]
 
       if (child.tagName && child.tagName.match(/parsererror/i))
         throw new Error("Parse Error")
@@ -349,7 +350,7 @@ Space._fromXml = function (xml) {
       else if (child.tagName)
         children.append(child.tagName, new Space())
       else if (child.data) {
-        var data = child.data.trim()
+        const data = child.data.trim()
         if (data)
           children.push(data)
       }
@@ -362,9 +363,9 @@ Space._fromXml = function (xml) {
   return result
 }
 
-Space._pairToString = function(property, value, spaces) {
+Space._pairToString = (property, value, spaces) => {
   // Set up the property part of the property/value pair
-  var string = Space._strRepeat(" ", spaces) + property
+  const string = Space._strRepeat(" ", spaces) + property
 
   // If the value is a space, concatenate it
   if (value instanceof Space)
@@ -387,13 +388,13 @@ Space._pairToString = function(property, value, spaces) {
  * @param indexes int|int[]
  * @return Array of removed values
  */
-Space._removeItems = function(array, indexes) {
-  var removedValues = []
+Space._removeItems = (array, indexes) => {
+  const removedValues = []
 
   if (typeof indexes === "number")
     indexes = [indexes]
 
-  for (var i = indexes.length - 1; i >= 0 ; i--)
+  for (let i = indexes.length - 1; i >= 0 ; i--)
     removedValues.push(array.splice(indexes[i], 1))
 
   return removedValues
@@ -404,9 +405,9 @@ Space._removeItems = function(array, indexes) {
  * @param int
  * @return string
  */
-Space._strRepeat = function(string, count) {
+Space._strRepeat = (string, count) => {
   var str = ""
-  for (var i = 0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     str += string
   }
   return str
@@ -419,11 +420,11 @@ Space._strRepeat = function(string, count) {
  * @param array Array of Spaces
  * @return space
  */
-Space.union = function() {
+Space.union = function () {
+  const argumentsLength = arguments.length
   var union = Space._unionSingle(arguments[0], arguments[1])
-  var argumentsLength = arguments.length
 
-  for (var i = 0; i < argumentsLength; i++) {
+  for (let i = 0; i < argumentsLength; i++) {
     if (i === 1) continue // skip the first one
     union = Space._unionSingle(union, arguments[i])
     if (!union.length)
@@ -437,14 +438,14 @@ Space.union = function() {
  * @param space
  * @return space
  */
-Space._unionSingle = function(spaceA, spaceB) {
-  var union = new Space()
+Space._unionSingle = (spaceA, spaceB) => {
+  const union = new Space()
 
   if (!(spaceB instanceof Space))
     return union
 
-  spaceA.each(function(property, value) {
-    var spaceBValue = spaceB._getValueByProperty(property)
+  spaceA.each((property, value) => {
+    const spaceBValue = spaceB._getValueByProperty(property)
     if (value instanceof Space && spaceBValue && spaceBValue instanceof Space)
       union._setPair(property, Space._unionSingle(value, spaceB._getValueByProperty(property)))
     if (value === spaceBValue)
@@ -521,7 +522,7 @@ Space.prototype.clearListeners = function(eventName) {
   if (eventName)
     delete this._events[eventName]
   else {
-    for (var eventName in this._events) {
+    for (let eventName in this._events) {
       if (this._events.hasOwnProperty(eventName))
         delete this._events[eventName]
     }
@@ -547,8 +548,8 @@ Space.prototype.clone = function() {
 Space.prototype.concat = function(b) {
   if (typeof b === "string")
     b = new Space(b)
-  var a = this
-  b.each(function(property, value) {
+  const a = this
+  b.each((property, value) => {
     a.append(property, value)
   })
   return this
@@ -573,12 +574,13 @@ Space.prototype.create = function(property, value) {
  * @return space this
  */
 Space.prototype.deleteDuplicates = function(recursive) {
-  var matches = {} // StringMap<int>
+  const matches = {} // StringMap<int>
 
-  this.each(function (property, value, index) {
-    var isDupe = matches[property] !== undefined
+  const me = this
+  this.each((property, value, index) => {
+    const isDupe = matches[property] !== undefined
     if (isDupe) {
-      this._deleteByIndex(index)
+      me._deleteByIndex(index)
       return true
     }
     matches[property] = true
@@ -597,7 +599,7 @@ Space.prototype._delete = function(property) {
 }
 
 Space.prototype._deleteByIndex = function(index) {
-  var values = this._getValues()
+  const values = this._getValues()
   if (values[index] === undefined)
     return 0
 
@@ -608,10 +610,10 @@ Space.prototype._deleteByIndex = function(index) {
 }
 
 Space.prototype._deleteByIndexes = function (indexesToDelete) {
-  var length = indexesToDelete.length
-  var values = this._getValues()
+  const length = indexesToDelete.length
+  const values = this._getValues()
 
-  for (var i = length - 1; i >= 0 ; i--) {
+  for (let i = length - 1; i >= 0 ; i--) {
     this._deleteProperty(indexesToDelete[i])
     values.splice(indexesToDelete[i], 1)
   }
@@ -621,15 +623,15 @@ Space.prototype._deleteByIndexes = function (indexesToDelete) {
 }
 
 Space.prototype._deleteByProperty = function(property) {
-  var index = this.indexOf(property)
+  const index = this.indexOf(property)
   return index === -1 ? 0 : this._deleteByIndex(index)
 }
 
 Space.prototype._deleteBySpacePath = function(spacePath) {
   // Get parent
-  var parts = spacePath.split(/ /)
-  var child = parts.pop()
-  var parent = this.get(parts.join(" "))
+  const parts = spacePath.split(/ /)
+  const child = parts.pop()
+  const parent = this.get(parts.join(" "))
 
   return parent instanceof Space ? parent._delete(child) : 0
 }
@@ -690,7 +692,7 @@ Space.prototype.decrement = function(path, amount) {
 Space.prototype.deepLength = function() {
   var length = 0
 
-  this.every(function () {
+  this.every(() => {
     length++
   })
   return length
@@ -741,22 +743,23 @@ Space.prototype.deleteAt = function(index) {
  * @return space
  */
 Space.prototype.diff = function(space) {
-  var diff = new Space()
+  const diff = new Space()
 
   if (!(space instanceof Space))
     space = new Space(space)
 
-  this.each(function(property, value) {
-    var spaceValue = space._getValueByProperty(property)
+  const me = this
+  this.each((property, value) => {
+    const spaceValue = space._getValueByProperty(property)
 
     // Case: Deleted
     if (spaceValue === undefined) {
       diff._setPair(property, "")
       return true
     }
-    var thisValue = this._getValueByProperty(property)
-    var typeofSpaceValue = typeof(spaceValue)
-    var typeofThisValue = typeof(thisValue)
+    const thisValue = me._getValueByProperty(property)
+    const typeofSpaceValue = typeof(spaceValue)
+    const typeofThisValue = typeof(thisValue)
 
     // Different Properties
     if (typeofThisValue !== typeofSpaceValue) {
@@ -777,14 +780,13 @@ Space.prototype.diff = function(space) {
       return true
     }
     // Both are Objects
-    var sub_diff = thisValue.diff(spaceValue)
+    const sub_diff = thisValue.diff(spaceValue)
     if (sub_diff.length)
       diff._setPair(property, sub_diff)
   })
 
   // Leftovers are Additions
-  var me = this
-  space.each(function(property, value) {
+  space.each((property, value) => {
     if (me.has(property))
       return true
     if (typeof value !== "object") {
@@ -807,19 +809,19 @@ Space.prototype.diff = function(space) {
  * @return space this
  */
 Space.prototype.each = function(fn, deep, reverse) {
-  var length = this.length
-  var properties = this._getProperties()
-  var values = this._getValues()
+  const length = this.length
+  const properties = this._getProperties()
+  const values = this._getValues()
 
   if (!reverse) {
-    for (var i = 0; i < length; i++) {
+    for (let i = 0; i < length; i++) {
       if (deep && values[i] instanceof Space)
         values[i].each(fn, deep)
       if (fn.call(this, properties[i], values[i], i) === false)
         return this
     }
   } else {
-    for (var i = length - 1; i >= 0; i--) {
+    for (let i = length - 1; i >= 0; i--) {
       if (deep && values[i] instanceof Space)
         values[i].each(fn, deep)
       if (fn.call(this, properties[i], values[i], i) === false)
@@ -828,15 +830,6 @@ Space.prototype.each = function(fn, deep, reverse) {
   }
   return this
 }
-
-/**
- * @return StringMap<function[]> Event listeners
- */
-Object.defineProperty(Space.prototype, "events", {
-    get: function events() {
-      return this._events || {}
-    }
-})
 
 /**
  * Apply a function to every line in the instance.
@@ -854,8 +847,8 @@ Space.prototype.every = function(fn) {
 Space.prototype._every = function(fn, leafsOnly) {
   var result = true
 
-  this.each(function(property, value, index) {
-    var isSpace = value instanceof Space
+  this.each((property, value, index) => {
+    const isSpace = value instanceof Space
     if (!isSpace || !leafsOnly)
       result = fn.call(this, property, value, index)
     if (result === false)
@@ -875,11 +868,11 @@ Space.prototype._every = function(fn, leafsOnly) {
  * @return space
  */
 Space.prototype.extract = function (properties) {
-  var props = properties.split(" ")
-  var propKey = {}
-  var matches = new Space()
+  const props = properties.split(" ")
+  const propKey = {}
+  const matches = new Space()
 
-  props.forEach(function (val) {
+  props.forEach((val) => {
     propKey[val] = true
   })
 
@@ -888,7 +881,7 @@ Space.prototype.extract = function (properties) {
 }
 
 Space.prototype._extract = function (propKey, matches) {
-  this.each(function (property, value) {
+  this.each((property, value) => {
     if (propKey[property])
       matches.append(property, value)
     else if (value instanceof Space)
@@ -920,12 +913,12 @@ Space.prototype.everyLeaf = function(fn) {
 Space.prototype.filter = function(fn, inPlace) {
   if (inPlace)
     return this._filterInPlace(fn)
-  var result = new Space()
-  var length = this.length
-  var properties = this._getProperties()
-  var values = this._getValues()
+  const result = new Space()
+  const length = this.length
+  const properties = this._getProperties()
+  const values = this._getValues()
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     if (fn.call(this, properties[i], values[i], i) === true)
       result._append(properties[i], values[i])
   }
@@ -934,10 +927,10 @@ Space.prototype.filter = function(fn, inPlace) {
 
 Space.prototype._filterInPlace = function(fn) {
   this._dropType()
-  var properties = this._getProperties()
-  var values = this._getValues()
+  const properties = this._getProperties()
+  const values = this._getValues()
 
-  for (var i = this.length - 1; i >= 0 ; i--) {
+  for (let i = this.length - 1; i >= 0 ; i--) {
     if (fn.call(this, properties[i], values[i], i) !== true) {
       properties.splice(i, 1)
       values.splice(i, 1)
@@ -959,10 +952,10 @@ Space.prototype._filterInPlace = function(fn) {
 Space.prototype.find = function(property, value) {
   // for now assume string test
   // search this one
-  var matches = new Space()
+  const matches = new Space()
   if (this.get(property) === value)
     matches.push(this)
-  this.each(function(prop, val) {
+  this.each((prop, val) => {
     if (!(val instanceof Space))
       return true
     val
@@ -980,8 +973,8 @@ Space.prototype.find = function(property, value) {
  * @return space this
  */
 Space.prototype.flattenTypes = function () {
-  var unionType = this.getUnionType()
-  this.each(function (k, v) {
+  const unionType = this.getUnionType()
+  this.each((k, v) => {
     if (v instanceof Space)
       v.setType(unionType)
   })
@@ -995,9 +988,9 @@ Space.prototype.flattenTypes = function () {
  * @return string
  */
 Space.prototype.format = function(str) {
-  var that = this
-  return str.replace(/{([^\}]+)}/g, function(match, path) {
-    var value = that.get(path)
+  const that = this
+  return str.replace(/{([^\}]+)}/g, (match, path) => {
+    const value = that.get(path)
     return value !== undefined ? value : ""
   })
 }
@@ -1024,8 +1017,8 @@ Space.prototype.get = function(spacePath) {
  * @return space
  */
 Space.prototype.getAll = function(query) {
-  var matches = new Space()
-  this.each(function(property, value) {
+  const matches = new Space()
+  this.each((property, value) => {
     if (property !== query)
       return true
     matches.append(property, value)
@@ -1041,13 +1034,13 @@ Space.prototype.getAll = function(query) {
  * @return array
  */
 Space.prototype.getArray = function(query, recursive) {
-  var matches = []
+  const matches = []
   this._getArray(query, recursive === undefined ? true : recursive, matches)
   return matches
 }
 
 Space.prototype._getArray = function(query, recursive, matches) {
-  this.each(function(property, value) {
+  this.each((property, value) => {
     if (property === query)
       matches.push(value)
     if (recursive && value instanceof Space)
@@ -1063,8 +1056,8 @@ Space.prototype._getArray = function(query, recursive, matches) {
  * @return any[]
  */
 Space.prototype.getColumn = function(path) {
-  var arr = []
-  this.each(function (k, v) {
+  const arr = []
+  this.each((k, v) => {
     if (v instanceof Space)
       arr.push(v.get(path))
   })
@@ -1075,12 +1068,12 @@ Space.prototype.getColumn = function(path) {
  * @return int Returns index of this object in its parent or -1 if it's a root object.
  */
 Space.prototype.getIndex = function() {
-  var parent = this.getParent()
-  var that = this
+  const parent = this.getParent()
+  const that = this
   var index
   if (!parent)
     return -1
-  parent.each(function (k, v, i) {
+  parent.each((k, v, i) => {
     if (v === that) {
       index = i
       return false
@@ -1101,12 +1094,12 @@ Space.prototype.getParent = function() {
  */
 Space.prototype.getPath = function() {
   var parent = this._parent
-  var path = ""
   var child = this
+  var path = ""
   var first = ""
 
   while (parent) {
-    parent.each(function (k, v) {
+    parent.each((k, v) => {
       if (v === child) {
         path = k + first + path
         first = " "
@@ -1167,7 +1160,7 @@ Space.prototype._getValueByProperty = function(property) {
 
 Space.prototype._getPropertyByIndex = function(index) {
   // Passing -1 gets the last item, et cetera
-  var length = this.length
+  const length = this.length
 
   if (index < 0)
     index = length + index
@@ -1214,16 +1207,16 @@ Space.prototype.getType = function () {
  * @return StringMap<Type>
  */
 Space.prototype.getTypeIndex = function() {
-  var index = {}
-  this.each(function (k, v, i) {
+  const index = {}
+  this.each((k, v, i) => {
     if (!(v instanceof Space))
       return true
-    var type = v.getType()
+    const type = v.getType()
 
     if (type.key === undefined)
       type.key = type.properties.join(" ")
 
-    var typeInIndex = index[type.key]
+    const typeInIndex = index[type.key]
 
     // If it's not in the index yet add it
     if (!typeInIndex)
@@ -1247,20 +1240,20 @@ Space.prototype.getUnionType = function () {
   if (!this.length)
     return {properties: []}
 
-  var typeIndex = this.getTypeIndex()
-  var keys = Object.keys(typeIndex)
+  const typeIndex = this.getTypeIndex()
+  const keys = Object.keys(typeIndex)
   // If there's only one type return that
   if (keys.length === 1)
     return typeIndex[keys[0]]
 
-  var index = {}
-  var props = []
-  var type = {properties: props, index: index}
+  const index = {}
+  const props = []
+  const type = {properties: props, index: index}
 
   // Remove dupes
-  var properties = keys.join(" ").split(/ /g)
-  var length = properties.length
-  for (var i = 0; i < length; i++) {
+  const properties = keys.join(" ").split(/ /g)
+  const length = properties.length
+  for (let i = 0; i < length; i++) {
     if (index[properties[i]] === undefined) {
       props.push(properties[i])
       index[properties[i]] = props.length
@@ -1277,7 +1270,7 @@ Space.prototype.getUnionType = function () {
  * @return any The matching value
  */
 Space.prototype._getValueByString = function(spacePath) {
-  var value = this._getValueByProperty(spacePath)
+  const value = this._getValueByProperty(spacePath)
 
   if (value)
     return value
@@ -1288,14 +1281,14 @@ Space.prototype._getValueByString = function(spacePath) {
   if (!Space._isSpacePath(spacePath))
     return undefined
 
-  var parts = spacePath.split(/ /g)
-  var current = parts.shift()
+  const parts = spacePath.split(/ /g)
+  const current = parts.shift()
 
   // Not set
   if (!this.has(current))
     return undefined
 
-  var currentValue = this._getValueByProperty(current)
+  const currentValue = this._getValueByProperty(current)
 
   if (currentValue instanceof Space)
     return this._getValueByProperty(current).get(parts.join(" "))
@@ -1311,11 +1304,11 @@ Space.prototype._getValueByString = function(spacePath) {
  * @return space
  */
 Space.prototype._getValueBySpace = function(space) {
-  var result = new Space()
-  var me = this
+  const result = new Space()
+  const me = this
 
-  space.each(function(property, v) {
-    var value = me._getValueByProperty(property)
+  space.each((property, v) => {
+    const value = me._getValueByProperty(property)
 
     // If this doesnt have that property, continue
     if (typeof value === "undefined")
@@ -1369,11 +1362,11 @@ Space.prototype.getValues = function() {
  * @return space
  */
 Space.prototype.grab = function (properties) {
-  var result = new Space()
-  var that = this
+  const result = new Space()
+  const that = this
 
-  properties.forEach(function (prop) {
-    var value = that.get(prop)
+  properties.forEach((prop) => {
+    const value = that.get(prop)
     if (value)
       result.set(prop, value)
   })
@@ -1396,12 +1389,12 @@ Space.prototype.grab = function (properties) {
 Space.prototype.group = function(path, fn) {
   if (typeof path === "string")
     path = [path]
-  var result = new Space()
-  var groups = {}
-  this.each(function (k, v, i) {
+  const result = new Space()
+  const groups = {}
+  this.each((k, v, i) => {
     if (!(v instanceof Space))
       return true
-    var groupKey = v.grab(path)
+    const groupKey = v.grab(path)
     if (!groups[groupKey]) {
       groups[groupKey] = new Space()
       result.push(groups[groupKey])
@@ -1452,16 +1445,16 @@ Space.prototype.indexOf = function(property, last) {
   if (!this.has(property))
     return -1
 
-  var length = this.length
-  var properties = this._getProperties()
+  const length = this.length
+  const properties = this._getProperties()
 
   if (!last) {
-    for (var i = 0; i < length; i++) {
+    for (let i = 0; i < length; i++) {
       if (properties[i] === property)
         return i
     }
   } else {
-    for (var i = length - 1; i >= 0; i--) {
+    for (let i = length - 1; i >= 0; i--) {
       if (properties[i] === property)
         return i
     }
@@ -1497,10 +1490,10 @@ Space.prototype.isEmpty = function() {
  * @return bool
  */
 Space.prototype.isFlat = function() {
-  var length = this.length
-  var values = this._getValues()
+  const length = this.length
+  const values = this._getValues()
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     if (values[i] instanceof Space)
       return false
   }
@@ -1514,14 +1507,14 @@ Space.prototype.isFlat = function() {
  * @return bool
  */
 Space.prototype.isStringMap = function(deep) {
-  var length = this.length
-  var map = {}
+  const length = this.length
+  const map = {}
+  const properties = this._getProperties()
+  const values = this._getValues()
   var property
   var value
-  var properties = this._getProperties()
-  var values = this._getValues()
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     property = properties[i]
     if (map[property])
       return false
@@ -1529,7 +1522,7 @@ Space.prototype.isStringMap = function(deep) {
     if (!deep)
       continue
     value = values[i]
-    if ((!value instanceof Space))
+    if (!(value instanceof Space))
       continue
     if (!value.isStringMap())
       return false
@@ -1537,9 +1530,7 @@ Space.prototype.isStringMap = function(deep) {
   return true
 }
 
-/**
- * @return int
- */
+// @returns int
 Object.defineProperty(Space.prototype, "length", {
     get: function length() {
       return this._getValues().length
@@ -1561,8 +1552,8 @@ Space.prototype._load = function(content, root) {
 
   // Load from Space object
   if (content instanceof Space) {
-    var me = this
-    content.each(function(property, value) {
+    const me = this
+    content.each((property, value) => {
       if (value instanceof Space)
         me._setPair(property, value.clone())
       else
@@ -1583,7 +1574,7 @@ Space.prototype._load = function(content, root) {
 }
 
 Space.prototype._loadFromObject = function(content, root) {
-  for (var property in content) {
+  for (let property in content) {
     if (!content.hasOwnProperty(property))
       continue
     // Todo: wrap the below line in a try/catch to handle errors thrown
@@ -1595,7 +1586,7 @@ Space.prototype._loadFromObject = function(content, root) {
 }
 
 Space.prototype._loadPair = function(property, value, root) {
-  var type = typeof value
+  const type = typeof value
   if (value === null)
     this._setPair(property, "null")
   else if (value === undefined)
@@ -1634,12 +1625,12 @@ Space.prototype._sanitizeString = function(string) {
  * @return space
  */
 Space.prototype._loadFromString = function(string) {
-  var pairs = string.split(/\n(?! )/g)
-  var length = pairs.length
+  const pairs = string.split(/\n(?! )/g)
+  const length = pairs.length
   var matches
   var pair
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     pair = pairs[i]
     if (matches = pair.match(/^([^ ]+)(\n|$)/)) // Space
       this._setPair(matches[1], new Space()._loadFromString(pair.substr(matches[1].length).replace(/\n /g, "\n").replace(/^\n +/, "\n")))
@@ -1670,12 +1661,12 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
   if (!inPlace)
     return new Space(this).map(propertiesFn, valuesFn, deep)
 
-  var length = this.length
+  const length = this.length
+  const values = this._getValues()
   var properties = this._getProperties()
-  var values = this._getValues()
 
-  for (var i = 0; i < length; i++) {
-    var oldName = properties[i]
+  for (let i = 0; i < length; i++) {
+    const oldName = properties[i]
     if (propertiesFn)
       properties = this._setProperty(i, propertiesFn(oldName))
     if (deep && values[i] instanceof Space)
@@ -1695,11 +1686,11 @@ Space.prototype.map = function(propertiesFn, valuesFn, deep, inPlace) {
  * @return space this
  */
 Space.prototype.mergeDuplicates = function() {
-  var matches = {}
-  var indexesToDelete = []
-  var me = this
+  const matches = {}
+  const indexesToDelete = []
+  const me = this
 
-  this.each(function (key, value, index) {
+  this.each((key, value, index) => {
     if (!(value instanceof Space))
       return true
 
@@ -1724,7 +1715,7 @@ Space.prototype.mergeDuplicates = function() {
  * @return space This
  */
 Space.prototype.nest = function(property) {
-  var newSpace = new Space()
+  const newSpace = new Space()
 
   newSpace.set(property, this)
   return this.reload(newSpace.toString())
@@ -1748,7 +1739,7 @@ Space.prototype.next = function(property) {
 Space.prototype.off = function(eventName, fn) {
   if (!this._events || !this._events[eventName])
     return this
-  for (var i in this._events[eventName]) {
+  for (let i in this._events[eventName]) {
     if (this._events[eventName][i] === fn)
       this._events[eventName].splice(i, 1)
   }
@@ -1788,8 +1779,8 @@ Space.prototype._patch = function(patch) {
   if (!(patch instanceof Space))
     patch = new Space(patch)
 
-  var me = this
-  patch.each(function(property, patchValue) {
+  const me = this
+  patch.each((property, patchValue) => {
     // If patch value is a string, doesnt matter what property subject is.
     if (typeof patchValue === "string") {
       if (patchValue === "")
@@ -1845,9 +1836,9 @@ Space.prototype.pop = function() {
   if (!this.length)
     return null
 
-  var result = new Space()
-  var property = this._getPropertyByIndex(-1)
-  var value = this._getValueByProperty(property)
+  const result = new Space()
+  const property = this._getPropertyByIndex(-1)
+  const value = this._getValueByProperty(property)
 
   result.set(property, value)
   this._deleteByIndex(this.length - 1)
@@ -1924,7 +1915,7 @@ Space.prototype.reload = function(content) {
 }
 
 Space.prototype._rename = function(oldName, newName) {
-  var index = this.indexOf(oldName)
+  const index = this.indexOf(oldName)
 
   if (index === -1)
     return this
@@ -1952,7 +1943,7 @@ Space.prototype.rename = function(oldName, newName, renameAll, recursive) {
 }
 
 Space.prototype._renameAll = function(oldName, newName, recursive) {
-  this.each(function (key, value, index) {
+  this.each((key, value, index) => {
     if (key === oldName)
       this._setPair(newName, value, index, true)
     if (recursive && value instanceof Space)
@@ -1982,10 +1973,10 @@ Space.prototype._renameAll = function(oldName, newName, recursive) {
  * @return this
  */
 Space.prototype.renameObjects = function (property) {
-  this.each(function (prop, value, index) {
+  this.each((prop, value, index) => {
     if (!(value instanceof Space))
       return true
-    var newKey = value.get(property)
+    const newKey = value.get(property)
 
     this._setProperty(index, newKey)
     value["delete"](property)
@@ -2058,9 +2049,9 @@ Space.prototype.setType = function(type) {
   if (!this._values)
     return this.setWithType(type)
 
-  var newProps = type.properties
-  var newVals = []
-  var that = this
+  const newProps = type.properties
+  const newVals = []
+  const that = this
 
   newProps.forEach(function (columnName) {
     newVals.push(that.get(columnName))
@@ -2076,15 +2067,15 @@ Space.prototype._setBySpacePath = function(path, value) {
   if (!path)
     return null
 
-  var generations = path.split(/ /g)
+  const generations = path.split(/ /g)
+  const generationsLength = generations.length
   var currentContext = this
   var currentPath
   var index
   var isLeaf
   var newValue
-  var generationsLength = generations.length
 
-  for (var i = 0; i < generationsLength; i++) {
+  for (let i = 0; i < generationsLength; i++) {
     currentPath = generations[i]
     isLeaf = (i === (generations.length - 1))
 
@@ -2122,10 +2113,10 @@ Space.prototype._setPair = function(property, value, index, overwrite) {
   if (!property)
     return
 
-  var length = this.length
+  const length = this.length
+  const valueType = typeof value
+  const values = this._getValues()
   var isSpace = value instanceof Space
-  var valueType = typeof value
-  var values = this._getValues()
 
   if (!isSpace && valueType === "object" && value) {
     value = new Space(value)
@@ -2194,8 +2185,8 @@ Space.prototype.setWithType = function (type, values) {
 Space.prototype.shift = function() {
   if (!this.length)
     return null
-  var property = this._getPropertyByIndex(0)
-  var result = new Space()
+  const property = this._getPropertyByIndex(0)
+  const result = new Space()
 
   result.set(property, this.get(property))
   this._deleteByIndex(0)
@@ -2212,19 +2203,19 @@ Space.prototype.shift = function() {
  * @return space this
  */
 Space.prototype.sort = function(fn) {
-  var sortable = []
-  var properties = this._getProperties()
-  var length = this.length
-  var values = this._getValues()
+  const sortable = []
+  const properties = this._getProperties()
+  const length = this.length
+  const values = this._getValues()
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     sortable.push({property: properties[i], value: values[i], index: i})
   }
 
   sortable.sort(fn)
 
   this._clear()
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     this._setPair(sortable[i].property, sortable[i].value)
   }
   return this
@@ -2252,10 +2243,10 @@ Space.prototype.sortBy = function (propertyOrProps, parseFnOrFns) {
   propertyOrProps = propertyOrProps instanceof Array ? propertyOrProps : [propertyOrProps]
   parseFnOrFns = parseFnOrFns instanceof Array ? parseFnOrFns : [parseFnOrFns]
 
-  var propertiesLength = propertyOrProps.length
-  this.sort(function(pairA, pairB) {
-    var pairAIsSpace = pairA.value instanceof Space
-    var pairBIsSpace = pairB.value instanceof Space
+  const propertiesLength = propertyOrProps.length
+  this.sort((pairA, pairB) => {
+    const pairAIsSpace = pairA.value instanceof Space
+    const pairBIsSpace = pairB.value instanceof Space
 
     if (!pairBIsSpace && !pairAIsSpace)
       return 0
@@ -2264,9 +2255,9 @@ Space.prototype.sortBy = function (propertyOrProps, parseFnOrFns) {
     else if (!pairBIsSpace)
       return 1
 
-    for (i = 0; i < propertiesLength; i++) {
-      var property = propertyOrProps[i]
-      var parseFn = parseFnOrFns[i]
+    for (let i = 0; i < propertiesLength; i++) {
+      const property = propertyOrProps[i]
+      const parseFn = parseFnOrFns[i]
 
       var av = pairA.value.get(property)
       var bv = pairB.value.get(property)
@@ -2297,10 +2288,10 @@ Space.prototype.sortBy = function (propertyOrProps, parseFnOrFns) {
  * @return array|space Of space objects or space object with nested entries
  */
 Space.prototype.split = function(delimiter, propertyName) {
-  var matches = propertyName ? new Space() : []
+  const matches = propertyName ? new Space() : []
   var currentItem = null
 
-  this.each(function(property, value) {
+  this.each((property, value) => {
     if (property === delimiter) {
       // Insert the previous item if we had created one.
       if (currentItem)
@@ -2347,34 +2338,34 @@ Space.prototype.toCsv = function() {
  * @return string
  */
 Space.prototype.toDelimited = function(delimiter, header) {
-  var str = ""
-  var regex = new RegExp("(\\n|\\\"|\\" + delimiter + ")")
-  var escapeFunction = function (str) {
+  const regex = new RegExp("(\\n|\\\"|\\" + delimiter + ")")
+  const escapeFunction = (str) => {
         // No escaping necessary
         if (!str.match(regex)) return str
 
         // Surround the str with "" and replace any " with ""
         return "\"" + str.replace(/\"/g, "\"\"") + "\""
       }
-  var rows = []
-  var header = header || this.getUnionType().properties
+  const rows = []
+  var str = ""
+  header = header || this.getUnionType().properties
 
   // Build the header row
-  header.forEach(function (columnName) {
+  header.forEach((columnName) => {
     str += delimiter + escapeFunction(columnName)
   })
 
   str = str.substr(1) + "\n" // Chop the first comma and add newline
 
-  this.each(function (property, row) {
+  this.each((property, row) => {
     //  We expect value to be an instance of space
     if (!(row instanceof Space))
       return true
 
     var rowStr = ""
 
-    header.forEach(function (columnName) {
-      var v = row.get(columnName) || ""
+    header.forEach((columnName) => {
+      const v = row.get(columnName) || ""
       rowStr += delimiter + escapeFunction(v.toString())
     })
 
@@ -2392,10 +2383,10 @@ Space.prototype.toDelimited = function(delimiter, header) {
 Space.prototype.toArrayWithHeader = function (type) {
   if (!this.length)
     return []
-  var values = this._getValues()
+  const values = this._getValues()
   if (!type) {
     // Get first type.
-    this.each(function (k, v) {
+    this.each((k, v) => {
       type = v instanceof Space && v.getType()
       if (type)
         return false
@@ -2404,9 +2395,9 @@ Space.prototype.toArrayWithHeader = function (type) {
       return []
   }
 
-  var length = this.length
-  var result = [type.properties]
-  for (var i = 0; i < length; i++) {
+  const length = this.length
+  const result = [type.properties]
+  for (let i = 0; i < length; i++) {
     if (values[i]._type === type)
       result.push(values[i]._getValues())
   }
@@ -2422,7 +2413,7 @@ Space.prototype.toArrayWithHeader = function (type) {
  * @return space this
  */
 Space.prototype.toggle = function(property, value1, value2) {
-  var current = this.get(property)
+  const current = this.get(property)
 
   if (current === value1)
     this.set(property, value2)
@@ -2438,7 +2429,7 @@ Space.prototype.toggle = function(property, value1, value2) {
  * @return string
  */
 Space.prototype.toJavascript = function(multiline) {
-  var str = "new Space(\"" + this.toString().replace(/\n/g, "\\n").replace(/\"/g, "\\\"") + "\")"
+  const str = "new Space(\"" + this.toString().replace(/\n/g, "\\n").replace(/\"/g, "\\\"") + "\")"
 
   if (multiline)
     return str.replace(/\\n/g, "\\n\\\n")
@@ -2460,19 +2451,19 @@ Space.prototype.toJSON = function(guessTypes, pretty) {
 }
 
 Space.prototype._toObject = function() {
-  var properties = this.getProperties()
+  const properties = this.getProperties()
   var isArray = properties.length > 0
   var next = 0
 
-  properties.forEach(function (v) {
+  properties.forEach((v) => {
     if (v !== next.toString())
       isArray = false
     next++
   })
 
-  var obj = isArray ? [] : {}
+  const obj = isArray ? [] : {}
 
-  this.each(function(property, value) {
+  this.each((property, value) => {
     var v
     if (value instanceof Space)
       v = value._toObject()
@@ -2512,8 +2503,8 @@ Space.prototype.toObject = function(guessTypes) {
   if (guessTypes)
     return this._toObject()
 
-  var obj = {}
-  this.each(function(property, value) {
+  const obj = {}
+  this.each((property, value) => {
     if (value instanceof Space)
       obj[property] = value.toObject()
     else
@@ -2531,7 +2522,7 @@ Space.prototype.toQueryString = function() {
   var string = ""
   var first = ""
 
-  this.each(function(property, value) {
+  this.each((property, value) => {
     string += first + encodeURIComponent(property) + "=" + encodeURIComponent(value)
     first = "&"
   })
@@ -2553,12 +2544,12 @@ Space.prototype.toString = function() {
 }
 
 Space.prototype._toString = function(spaces) {
+  const properties = this._getProperties()
+  const length = this.length
+  const values = this._getValues()
   var string = ""
-  var properties = this._getProperties()
-  var length = this.length
-  var values = this._getValues()
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     string += Space._pairToString(properties[i], values[i], spaces)
   }
 
@@ -2590,10 +2581,10 @@ Space.prototype.toXML = function(pretty) {
 }
 
 Space.prototype._toXML = function(spaceCount) {
+  const spaces = spaceCount === -1 ? "" : Space._strRepeat(" ", spaceCount)
   var xml = ""
-  var spaces = spaceCount === -1 ? "" : Space._strRepeat(" ", spaceCount)
 
-  this.each(function(property, value) {
+  this.each((property, value) => {
     xml += spaces + "<" + property + ">"
     if (!(value instanceof Space))
       xml += value
@@ -2614,13 +2605,13 @@ Space.prototype.toXMLWithAttributes = function(pretty) {
 }
 
 Space.prototype._toXMLWithAttributes = function(property, spaceCount) {
+  const spaces = spaceCount === -1 ? "" : Space._strRepeat(" ", spaceCount)
+  const children = this.get("children")
   var xml = ""
-  var spaces = spaceCount === -1 ? "" : Space._strRepeat(" ", spaceCount)
   var attributesStr = ""
   var contentStr = ""
-  var children = this.get("children")
 
-  this.each(function (prop, value) {
+  this.each((prop, value) => {
     if (prop === "children")
       return true
     if (value && value.replace)
@@ -2652,9 +2643,9 @@ Space.prototype._toXMLWithAttributes = function(property, spaceCount) {
 Space.prototype.trigger = function(eventName) {
   if (!this._events || !this._events[eventName])
     return this
-  var args = Array.prototype.slice.call(arguments)
+  const args = Array.prototype.slice.call(arguments)
 
-  for (var i in this._events[eventName]) {
+  for (let i in this._events[eventName]) {
     this._events[eventName][i].apply(this, args.slice(1))
   }
   return this
@@ -2667,8 +2658,8 @@ Space.prototype.trigger = function(eventName) {
  * @return this
  */
 Space.prototype.trim = function(recursive) {
-  var indexesToDelete = [] // int[]
-  this.each(function (property, value, index) {
+  const indexesToDelete = [] // int[]
+  this.each((property, value, index) => {
     if (value instanceof Space) {
       if (recursive)
         value.trim(recursive)

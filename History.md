@@ -1,3 +1,8 @@
+0.20.1 / 2016-02-14
+===================
+- Refactored to use strict and ES6
+- Fixed 2 accidental global var bugs
+
 0.19.11 / 2016-02-09
 ====================
 - Fixed bug where multiple newline sanitizing wasn't global

@@ -1,10 +1,10 @@
-all:
-	java -jar ~/compiler.jar --js=space.js --js_output_file=space.min.js
-	open tests/min.html
-	node tests/node-test.js
+all: build testmin testnode
 
 beautify:
 	js-beautify -f space.js -r -s 2
+
+build:
+	java -jar ~/compiler.jar --compilation_level=SIMPLE --language_out=ECMASCRIPT5 --js=space.js --js_output_file=space.min.js
 
 docco:
 	docco space.js

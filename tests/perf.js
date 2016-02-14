@@ -13,12 +13,12 @@ function getRandomString (min, max) {
   var string = ""
   var length = (Math.round(Math.random() * (max - min))) + min
   var randomNumber
-  
+
   for (var i = 0; i < length; i++) {
     randomNumber = Math.floor(Math.random() * _chars.length)
     string += _chars.substring(randomNumber, randomNumber + 1)
   }
-  
+
   return string
 }
 

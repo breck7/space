@@ -1,10 +1,8 @@
-var testStrings = {}
-var multiline = function (fn) {
-	return fn.toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
-}
+"use strict";
 
-testStrings.renameAll = multiline(function () {/*
-first-name John
+const testStrings = {}
+
+testStrings.renameAll = `first-name John
 children
  child
   first-name Frank
@@ -15,28 +13,23 @@ children
   first-name Sue
   children
    child
-    first-name Abe
-*/})
+    first-name Abe`
 
-testStrings.mergeDuplicates = multiline(function () {/*
-file
+testStrings.mergeDuplicates = `file
  one
 file
  two
 file
- four
-*/})
+ four`
 
-testStrings.deleteDuplicates = multiline(function () {/*
-file one
+testStrings.deleteDuplicates = `file one
 file
  two
 file
  four
-*/})
+`
 
-testStrings.filter = multiline(function () {/*
-john
+testStrings.filter = `john
  age 21
  height 123
 mairi
@@ -48,9 +41,9 @@ frank
 bob
  age 21
  height 123
-*/})
+`
 
-testStrings.group = multiline(function () {/*
+testStrings.group = `
 0
  age 21
  count 2
@@ -60,9 +53,9 @@ testStrings.group = multiline(function () {/*
 2
  age 50
  count 1
-*/})
+`
 
-testStrings.webpage = multiline(function () {/*head
+testStrings.webpage = `head
 body
  div
  div
@@ -73,18 +66,18 @@ body
  div
   class footer
   content hi
-*/})
+`
 
-testStrings.webpageTrimmed = multiline(function () {/*body
+testStrings.webpageTrimmed = `body
  div
   class main
   content yo
  div
   class footer
   content hi
-*/})
+`
 
-testStrings.toXml = multiline(function () {/*
+testStrings.toXml = `
 html
  head
  body
@@ -95,9 +88,9 @@ html
   div
    class footer
    content hi
-*/})
+`
 
-testStrings.sortByMultiple = multiline(function () {/*
+testStrings.sortByMultiple = `
 state
  name Error
  date 4/1/10
@@ -110,17 +103,17 @@ state
  name Error
  date 1/3/32
  key c
-*/})
+`
 
 testStrings.json2 = [{"id":755,"settings":"123"},{"id":756,"settings":"456"}]
-testStrings.json2space = multiline(function () {/*docs
+testStrings.json2space = `docs
  0
   id 755
   settings 123
  1
   id 756
   settings 456
-*/})
+`
 
 testStrings.every = "user\n\
 name Aristotle\n\
@@ -162,7 +155,7 @@ testStrings.toXmlPrettyResult = "<html>\n\
 </html>\n\
 "
 
-testStrings.toXmlWithAttributes = multiline(function () {/*html
+testStrings.toXmlWithAttributes = `html
  class main
  children
   head
@@ -173,7 +166,7 @@ testStrings.toXmlWithAttributes = multiline(function () {/*html
      class main
      children
       0 Hello world
-*/})
+`
 
 testStrings.toXmlWithAttributesResult = "<html class=\"main\">\n\
   <head></head>\n\
@@ -183,7 +176,7 @@ testStrings.toXmlWithAttributesResult = "<html class=\"main\">\n\
 </html>\n\
 "
 
-testStrings.splitTest = multiline(function () {/*
+testStrings.splitTest = `
 thisWillBe ignored
 title This is a test
 content Hello world
@@ -194,9 +187,9 @@ date 2/25/2015
 title This is definitely a test
 content Hello earth
 date 2/25/2016
-*/})
+`
 
-testStrings.heredoc = multiline(function () {/*
+testStrings.heredoc = `
 title This is a test
 summary This is a multiline
  string with indentation.
@@ -225,10 +218,9 @@ In this case, we have:
 
 endbody
 date 2/25/2014
-*/})
+`
 
-testStrings.delimited = multiline(function () {/*0
-testStrings.delimited = multiline(function () {/*0
+testStrings.delimited = `0
  id 1
  title Some book
  summary An expose, on the result of one "plus" one
@@ -236,9 +228,9 @@ testStrings.delimited = multiline(function () {/*0
  id 2
  title The answer, my friend, is...
  summary "Two"
-*/})
+`
 
-testStrings.renameTest = multiline(function () {/*title b on GitHub
+testStrings.renameTest = `title b on GitHub
 description
 hideLabels true
 public true
@@ -256,38 +248,38 @@ types
  created_at date
 x language
 y stargazers_counter
-*/})
+`
 
-testStrings.csv = multiline(function () {/*id,title,summary
+testStrings.csv = `id,title,summary
 1,Some book,"An expose, on the result of one ""plus"" one"
 2,"The answer, my friend, is...","""Two"""
-*/})
+`
 
-testStrings.csvNoHeaders = multiline(function () {/*bob,12,red
+testStrings.csvNoHeaders = `bob,12,red
 mike,321,blue
 al,1214,green
-*/})
+`
 
-testStrings.ssv = multiline(function () {/*id title summary
+testStrings.ssv = `id title summary
 1 "Some book" "An expose, on the result of one ""plus"" one"
 2 "The answer, my friend, is..." """Two"""
-*/})
+`
 
-testStrings.ssv = multiline(function () {/*id title summary
+testStrings.ssv = `id title summary
 1 "Some book" "An expose, on the result of one ""plus"" one"
 2 "The answer, my friend, is..." """Two"""
-*/})
+`
 
-testStrings.renameObjects = multiline(function () {/*
+testStrings.renameObjects = `
 0
  name John Doe
  email johndoe@email.com
 1
  name Mary Jane
  email maryjane@email.com
-*/})
+`
 
-testStrings.newLines = multiline(function () {/*
+testStrings.newLines = `
 tree
  palm
   green true
@@ -297,11 +289,12 @@ tree
 
   location Maine
 bush foo
-*/})
+`
 
-testStrings.tsv = "id\ttitle\tsummary\n\
-1\tSome book\t\"An expose, on the result of one \"\"plus\"\" one\"\n\
-2\tThe answer, my friend, is...\t\"\"\"Two\"\"\"\n"
+testStrings.tsv = `id\ttitle\tsummary
+1\tSome book\t\"An expose, on the result of one \"\"plus\"\" one\"
+2\tThe answer, my friend, is...\t\"\"\"Two\"\"\"
+`
 
 testStrings.json = {
   "firstName": "John",
@@ -333,5 +326,5 @@ testStrings.json = {
 }
 
 // Export for use in Node.js
-if (typeof exports != 'undefined')
+if (typeof exports !== 'undefined')
   module.exports = testStrings;
