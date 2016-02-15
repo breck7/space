@@ -1,3 +1,7 @@
+0.21.1 / 2016-02-15
+===================
+- Added space.d.ts and moved doc comments from space.js to space.d.ts
+
 0.21.0 / 2016-02-14
 ===================
 - BREAKING: Removed Events and Listeners. If needed, one could create a proxy class that extends built in methods with events. The code is cleaner without the events (fewer side effects)
