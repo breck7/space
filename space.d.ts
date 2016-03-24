@@ -742,7 +742,7 @@ interface SpaceInstance {
    *
    * @param property string|int|spacePath
    * @param value1 any
-   * @param value2 any
+   * @param value2? any If not provided, toggle will either set property to value1 or delete property.
    * @return space this
    */
   toggle: (property: string, value1: any, value2: any) => SpaceInstance;

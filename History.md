@@ -1,3 +1,8 @@
+0.21.2 / 2016-03-24
+===================
+- Updated toggle method to make 2nd param optional. Not passing it will add/remove property being toggled.
+- Internal: Moved testStrings to test file.
+
 0.21.1 / 2016-02-15
 ===================
 - Added space.d.ts and moved doc comments from space.js to space.d.ts

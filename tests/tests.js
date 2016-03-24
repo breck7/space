@@ -2416,6 +2416,17 @@ test("toggle", () => {
   a.toggle("on", "true", "false")
   // Assert
   strictEqual(a.get("on"), "true")
+  // Arrange
+  const length = a.length
+  // Act
+  a.toggle("color", "blue")
+  // Assert
+  strictEqual(a.get("color"), "blue")
+  // Act
+  a.toggle("color", "blue")
+  // Assert
+  strictEqual(a.get("color"), undefined)
+  strictEqual(a.length, length)
 })
 
 test("toJavascript", () => {

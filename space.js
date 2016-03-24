@@ -4,7 +4,7 @@ function Space(content) {
   this._load(content)
 }
 
-Space.version = "0.21.1"
+Space.version = "0.21.2"
 
 Space._isSpacePath = (property) => {
   return property.indexOf(" ") > -1
@@ -1732,8 +1732,12 @@ Space.prototype.toArrayWithHeader = function (type) {
 Space.prototype.toggle = function(property, value1, value2) {
   const current = this.get(property)
 
-  if (current === value1)
-    this.set(property, value2)
+  if (current === value1) {
+    if (value2 === undefined)
+      this.delete(property)
+    else
+      this.set(property, value2)
+  }
   else
     this.set(property, value1)
   return this
