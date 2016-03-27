@@ -268,10 +268,17 @@ testStrings.ssv = `id title summary
 2 "The answer, my friend, is..." """Two"""
 `
 
-testStrings.ssv = `id title summary
-1 "Some book" "An expose, on the result of one ""plus"" one"
-2 "The answer, my friend, is..." """Two"""
+testStrings.ssvFixedColumnComment1 = "This is some comment with spaces"
+testStrings.ssvFixedColumnComment2 = "Each row should be capped to 2 columns"
+testStrings.ssvFixedColumns = `id comment
+123 ${testStrings.ssvFixedColumnComment1}
+456 ${testStrings.ssvFixedColumnComment2}
 `
+
+testStrings.ssvMissingColumns = `state abbreviation population
+california ca 35000000
+texas tx
+washington wa 6000000`
 
 testStrings.renameObjects = `
 0
@@ -1168,6 +1175,22 @@ test("fromSsv", () => {
   // Assert
   strictEqual(a.toString(), testStrings.delimited)
   strictEqual(a.toSsv(), testStrings.ssv)
+
+  // Arrange/Act
+  const fixedCol = Space.fromSsv(testStrings.ssvFixedColumns)
+
+  // Assert
+  strictEqual(fixedCol.at(0).get("comment"), testStrings.ssvFixedColumnComment1)
+  strictEqual(fixedCol.at(1).get("comment"), testStrings.ssvFixedColumnComment2)
+  strictEqual(fixedCol.at(1).length, 2)
+
+  // Arrange/Act
+  const missingCols = Space.fromSsv(testStrings.ssvMissingColumns)
+
+  // Assert
+  strictEqual(missingCols.at(0).length, 3)
+  strictEqual(missingCols.at(1).length, 3)
+  strictEqual(missingCols.at(2).length, 3)
 })
 
 test("fromTsv", () => {

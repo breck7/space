@@ -1,3 +1,7 @@
+0.21.3 / 2016-03-27
+===================
+- fromDelimiter now will ensure that all rows have an equal number of columns
+
 0.21.2 / 2016-03-24
 ===================
 - Updated toggle method to make 2nd param optional. Not passing it will add/remove property being toggled.

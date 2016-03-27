@@ -4,7 +4,7 @@ function Space(content) {
   this._load(content)
 }
 
-Space.version = "0.21.2"
+Space.version = "0.21.3"
 
 Space._isSpacePath = (property) => {
   return property.indexOf(" ") > -1
@@ -155,8 +155,21 @@ Space.fromDelimiter = (str, delimiter, hasHeaders, sanitizeString) => {
   var rowIndex = 0
   for (let i = (hasHeaders ? 1 : 0); i < rowCount; i++) {
     const obj = new Space()
+    let row = rows[i]
+    // If the row contains too many columns, shift the extra columns onto the last one.
+    // This allows you to not have to escape delimiter characters in the final column.
+    if (row.length > numberOfColumns) {
+      row[numberOfColumns - 1] = row.slice(numberOfColumns - 1).join(delimiter)
+      row = row.slice(0, numberOfColumns)
+    } else if (row.length < numberOfColumns) {
+      // If the row is missing columns add empty columns until it is full.
+      // This allows you to make including delimiters for empty ending columns in each row optional.
+      while (row.length < numberOfColumns) {
+        row.push("")
+      }
+    }
 
-    obj.setWithType(type, rows[i])
+    obj.setWithType(type, row)
     resultProps.push(rowIndex)
     resultValues.push(obj)
     rowIndex++
