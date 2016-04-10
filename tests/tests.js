@@ -263,6 +263,13 @@ mike,321,blue
 al,1214,green
 `
 
+testStrings.toFixedWidth =
+`name score color
+ bob    12   red
+mike   321  blue
+  al  1214 green
+`
+
 testStrings.ssv = `id title summary
 1 "Some book" "An expose, on the result of one ""plus"" one"
 2 "The answer, my friend, is..." """Two"""
@@ -2450,6 +2457,13 @@ test("toggle", () => {
   // Assert
   strictEqual(a.get("color"), undefined)
   strictEqual(a.length, length)
+})
+
+test("toFixedWidth", () => {
+  // Arrange
+  const a = Space.fromCsv("name,score,color\n" + testStrings.csvNoHeaders)
+  // Act/Assert
+  strictEqual(a.toFixedWidth(), testStrings.toFixedWidth, "Expected correct spacing")
 })
 
 test("toJavascript", () => {

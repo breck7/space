@@ -1,3 +1,8 @@
+0.21.4 / 2016-04-10
+===================
+- Added toFixedWidth method
+- Changed some code from ES5 => ES6
+
 0.21.3 / 2016-03-27
 ===================
 - fromDelimiter now will ensure that all rows have an equal number of columns

@@ -723,6 +723,13 @@ interface SpaceInstance {
   toCsv: () => string;
 
   /**
+   * Returns an SSV string where the cells in each column are the same width.
+   *
+   * @return string
+   */
+  toFixedWidth: () => string;
+
+  /**
    * @param delimiter string
    * @param header? Array like ["name", "city", "state", "country", "income"]
    * @return string
