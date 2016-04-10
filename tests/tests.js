@@ -2464,6 +2464,11 @@ test("toFixedWidth", () => {
   const a = Space.fromCsv("name,score,color\n" + testStrings.csvNoHeaders)
   // Act/Assert
   strictEqual(a.toFixedWidth(), testStrings.toFixedWidth, "Expected correct spacing")
+
+  // Arrange
+  const b = Space.fromCsv("name\njoe\nfrankenstein")
+  // Act/Assert
+  strictEqual(b.toFixedWidth(1), "n\nj\nf\n", "Expected max width to be enforced")
 })
 
 test("toJavascript", () => {

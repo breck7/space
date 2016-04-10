@@ -1,3 +1,7 @@
+0.21.5 / 2016-04-10
+===================
+- Added maxWidth param to toFixedWidth method
+
 0.21.4 / 2016-04-10
 ===================
 - Added toFixedWidth method

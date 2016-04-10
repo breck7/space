@@ -725,9 +725,10 @@ interface SpaceInstance {
   /**
    * Returns an SSV string where the cells in each column are the same width.
    *
+   * @param maxWidth? Maximum cell width. Default is 100.
    * @return string
    */
-  toFixedWidth: () => string;
+  toFixedWidth: (maxWidth?: int) => string;
 
   /**
    * @param delimiter string

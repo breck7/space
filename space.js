@@ -4,7 +4,7 @@ function Space(content) {
   this._load(content)
 }
 
-Space.version = "0.21.4"
+Space.version = "0.21.5"
 
 Space._isSpacePath = property => property.indexOf(" ") > -1
 
@@ -1675,43 +1675,35 @@ Space.prototype.toCsv = function() {
 }
 
 Space.prototype.toDelimited = function(delimiter, header) {
-  return this._toDelimited(delimiter, header)
-}
-
-Space.prototype._toDelimited = function(delimiter, header, widths) {
   const regex = new RegExp("(\\n|\\\"|\\" + delimiter + ")")
-  const escapeFunction = str => {
+  const cellFn = (str, row, column) => {
         // No escaping necessary
-        if (!str.match(regex)) return str
+        if (!str.match(regex))
+          return str
 
         // Surround the str with "" and replace any " with ""
         return `"` + str.replace(/\"/g, `""`) + `"`
       }
-  const padFn = widths
-    ? (cellText, col) => Space._strRepeat(" ", widths[col] - cellText.toString().length) + cellText
-    : cellText => cellText
-  const rows = []
-  let str = ""
   header = header || this.getUnionType().properties
+  return this._toDelimited(delimiter, header, cellFn)
+}
+
+Space.prototype._toDelimited = function(delimiter, header, cellFn) {
+  const rows = []
 
   // Build the header row
-  header.forEach((columnName, i) => str += delimiter + padFn(escapeFunction(columnName), i))
+  let str = header.map((columnName, i) => cellFn(columnName, 0, i)).join(delimiter) + "\n"
 
-  str = str.substr(1) + "\n" // Chop the first comma and add newline
-
-  this.each((property, row) => {
+  this.each((property, row, rowNumber) => {
     //  We expect value to be an instance of space
     if (!(row instanceof Space))
       return true
 
-    let rowStr = ""
+    let rowStr = header.map((columnName, i) =>
+      cellFn( (row.get(columnName) || "").toString(), rowNumber + 1, i)
+    ).join(delimiter)
 
-    header.forEach((columnName, i) => {
-      const v = row.get(columnName) || ""
-      rowStr += delimiter + padFn(escapeFunction(v.toString()), i)
-    })
-
-    str += rowStr.substr(1) + "\n" // Chop the first comma and add newline
+    str += rowStr + "\n"
   })
   return str
 }
@@ -1740,9 +1732,11 @@ Space.prototype.toArrayWithHeader = function (type) {
   return result
 }
 
-Space.prototype.toFixedWidth = function() {
+Space.prototype.toFixedWidth = function(maxWidth) {
+  maxWidth = maxWidth || 100
   const header = this.getUnionType().properties
-  const widths = header.map(col => col.length)
+  const widths = header.map(col => col.length > maxWidth ? maxWidth : col.length)
+
   this.each((k, v) => {
     if (!(v instanceof Space))
       return true
@@ -1752,10 +1746,20 @@ Space.prototype.toFixedWidth = function() {
         return true
       const length = cellValue.toString().length
       if (length > widths[i])
-        widths[i] = length
+        widths[i] = length > maxWidth ? maxWidth : length
     })
   })
-  return this._toDelimited(" ", header, widths)
+  const cellFn = (cellText, row, col) => {
+    const width = widths[col]
+    // Strip newlines in fixedWidth output
+    const cellValue = cellText.toString().replace(/\n/g, "\\n")
+    const cellLength = cellValue.length
+    if (cellLength > width) {
+      return cellValue.substr(0, width)
+    }
+    return Space._strRepeat(" ", width - cellLength) + cellValue
+  }
+  return this._toDelimited(" ", header, cellFn)
 }
 
 Space.prototype.toggle = function(property, value1, value2) {
