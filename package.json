@@ -4,7 +4,7 @@
   "description": "A lightweight language for objects",
   "main": "./space.min.js",
   "scripts": {
-    "test": "node tests/node-test.js"
+    "test": "node tests/node-test-min.js"
   },
   "repository": {
     "type": "git",

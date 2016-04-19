@@ -30,6 +30,9 @@ testmin:
 testnode:
 	node tests/node-test.js
 
+testnodemin:
+	node tests/node-test-min.js
+
 version:
 	node version.js
 
