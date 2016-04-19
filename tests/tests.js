@@ -2428,6 +2428,44 @@ test("split", () => {
   strictEqual(c.get("post content"), "Hello earth")
 })
 
+test("tokens", () => {
+  // Arrange
+  const test = `person
+ name Breck
+ country USA
+ books
+  one SICP
+  two Pragmatic
+ num 12
+ multiline this is a string
+  over multiple lines.
+     and this one has extra indents
+ num 12
+`
+  const test2 = `person;>name=Breck;>country=USA;>books;>>one=SICP;>>two=Pragmatic;>num=12;>multiline=this is a string
+over multiple lines.
+   and this one has extra indents;>num=12;`
+  const a = new Space(test)
+
+  // Act
+  Space._setTokens(";", ";", ">", "=")
+
+  // Assert
+  strictEqual(a.toString(), test2)
+
+  // Act
+  const b = new Space(test2)
+
+  // Assert
+  strictEqual(a.toString(), b.toString())
+
+  // Act
+  Space._setTokens()
+
+  // Assert
+  strictEqual(b.toString(), test)
+})
+
 test("toCsv", () => {
   // Arrange
   const a = new Space(testStrings.delimited)
@@ -2495,7 +2533,9 @@ test("toJavascript", () => {
   // Arrange
   const multiline = new Space("name John\nname John")
   // Assert
-  strictEqual(multiline.toJavascript(true), "new Space(\"name John\\n\\\nname John\\n\\\n\")")
+  strictEqual(multiline.toJavascript(true), `new Space(\`name John
+name John
+\`)`)
 })
 
 test("toJSON", () => {

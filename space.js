@@ -4,17 +4,26 @@ function Space(content) {
   this._load(content)
 }
 
-Space.version = "0.21.5"
+Space._setTokens = (lineChar, escapedLineChar, indentChar, separatorChar) => {
+  Space._lineChar = lineChar || "\n"
+  Space._escLineChar = escapedLineChar || "\\n"
+  Space._indentChar = indentChar || " "
+  Space._separatorChar = separatorChar || " "
+  Space._lineRegex = new RegExp(Space._lineChar, "g")
+}
+Space._setTokens()
 
-Space._isSpacePath = property => property.indexOf(" ") > -1
+Space.version = "0.22.0"
+
+Space._isSpacePath = property => property.indexOf(Space._separatorChar) > -1
 
 Space.fromHeredoc = (content, start, end) => {
   // Remove Windows newlines
-  content = content.replace(/\n\r/g, "\n")
+  content = content.replace(/\r/g, "")
 
-  const lines = content.split("\n")
+  const lines = content.split(Space._lineChar)
   const linesToDelete = []
-  const startRegex = new RegExp("\^" + start + "(?: |$)")
+  const startRegex = new RegExp("\^" + start + `(?:${Space._separatorChar}|$)`)
   const linesLength = lines.length
   const startLength = start.length
   const endRegex = new RegExp("\^" + end)
@@ -27,19 +36,19 @@ Space.fromHeredoc = (content, start, end) => {
         // Make sure the key starts with a " " so its value is treated as a multiline
         // string.
         if (lines[i].length === startLength)
-          lines[i] = lines[i] + " "
+          lines[i] = lines[i] + Space._indentChar
       } else
         continue
     } else if (lines[i].match(endRegex)) {
       startIndex = null
       linesToDelete.push(i)
     } else
-      lines[i] = " " + lines[i]
+      lines[i] = Space._indentChar + lines[i]
   }
 
   Space._removeItems(lines, linesToDelete)
 
-  return new Space(lines.join("\n"))
+  return new Space(lines.join(Space._lineChar))
 }
 
 Space.fromCsv = (str, hasHeaders) => {
@@ -309,21 +318,24 @@ Space._fromXml = xml => {
 }
 
 Space._pairToString = (property, value, spaces) => {
+  const ic = Space._indentChar
+  const sc = Space._separatorChar
+  const lc = Space._lineChar
   // Set up the property part of the property/value pair
-  const string = Space._strRepeat(" ", spaces) + property
+  const string = Space._strRepeat(ic, spaces) + property
 
   // If the value is a space, concatenate it
   if (value instanceof Space)
-    return string + "\n" + value._toString(spaces + 1)
+    return string + lc + value._toString(spaces + 1)
 
   value = value.toString()
 
   // multiline string
-  if (value.indexOf("\n") > -1)
-    return string + " " + value.replace(/\n/g, "\n" + Space._strRepeat(" ", spaces + 1)) + "\n"
+  if (value.indexOf(lc) > -1)
+    return string + ic + value.replace(Space._lineRegex, lc + Space._strRepeat(ic, spaces + 1)) + lc
 
   // Plain string
-  return string + " " + value + "\n"
+  return string + sc + value + lc
 }
 
 Space._removeItems = (array, indexes) => {
@@ -471,9 +483,9 @@ Space.prototype._deleteByProperty = function(property) {
 
 Space.prototype._deleteBySpacePath = function(spacePath) {
   // Get parent
-  const parts = spacePath.split(/ /)
+  const parts = spacePath.split(Space._separatorChar)
   const child = parts.pop()
-  const parent = this.get(parts.join(" "))
+  const parent = this.get(parts.join(Space._separatorChar))
 
   return parent instanceof Space ? parent._delete(child) : 0
 }
@@ -645,7 +657,7 @@ Space.prototype._every = function(fn, leafsOnly) {
 }
 
 Space.prototype.extract = function (properties) {
-  const props = properties.split(" ")
+  const props = properties.split(Space._separatorChar)
   const propKey = {}
   const matches = new Space()
 
@@ -804,7 +816,7 @@ Space.prototype.getPath = function() {
     parent.each((k, v) => {
       if (v === child) {
         path = k + first + path
-        first = " "
+        first = Space._separatorChar
         return false
       }
     })
@@ -880,7 +892,7 @@ Space.prototype.getTypeIndex = function() {
     const type = v.getType()
 
     if (type.key === undefined)
-      type.key = type.properties.join(" ")
+      type.key = type.properties.join(Space._separatorChar)
 
     const typeInIndex = index[type.key]
 
@@ -909,7 +921,7 @@ Space.prototype.getUnionType = function () {
   const type = {properties: props, index: index}
 
   // Remove dupes
-  const properties = keys.join(" ").split(/ /g)
+  const properties = keys.join(Space._separatorChar).split(Space._separatorChar)
   const length = properties.length
   for (let i = 0; i < length; i++) {
     if (index[properties[i]] === undefined) {
@@ -933,7 +945,7 @@ Space.prototype._getValueByString = function(spacePath) {
   if (!Space._isSpacePath(spacePath))
     return undefined
 
-  const parts = spacePath.split(/ /g)
+  const parts = spacePath.split(Space._separatorChar)
   const current = parts.shift()
 
   // Not set
@@ -943,7 +955,7 @@ Space.prototype._getValueByString = function(spacePath) {
   const currentValue = this._getValueByProperty(current)
 
   if (currentValue instanceof Space)
-    return this._getValueByProperty(current).get(parts.join(" "))
+    return this._getValueByProperty(current).get(parts.join(Space._separatorChar))
 
   else
     return undefined
@@ -1173,30 +1185,48 @@ Space.prototype._loadPair = function(property, value, root) {
 }
 
 Space.prototype._sanitizeString = function(string) {
-  // Space always start on a property. Eliminate whitespace at beginning of string
-  string = string.replace(/^\s*/, "")
+  const startingDelimiters = new RegExp(`^(${Space._indentChar}|${Space._lineChar}|${Space._separatorChar})*`)
+  // Currently space always start on a property. Eliminate delimiters at beginning of string
+  string = string.replace(startingDelimiters, "")
 
-  /* Eliminate Windows \r characters.*/
+  /* Currently we eliminate Windows \r characters.*/
   string = string.replace(/\r/g, "")
 
-  /** Space does not have useless lines*/
-  string = string.replace(/\n\n+/g, "\n")
+  /** Currently we strip extra line chars */
+  const extraLineChars = new RegExp(`${Space._lineChar}${Space._lineChar}+`, "g")
+  string = string.replace(extraLineChars, Space._lineChar)
 
   return string
 }
 
 Space.prototype._loadFromString = function(string) {
-  const pairs = string.split(/\n(?! )/g)
+  // Split string on line char but not line char followed by indent char
+  const lc = Space._lineChar
+  const ic = Space._indentChar
+  const sc = Space._separatorChar
+  const reg = new RegExp(`${lc}(?!${ic})`, "g")
+  const spaceRegex = new RegExp(`^([^${sc}]+)(${lc}|$)`)
+  const leafRegex = new RegExp(`^([^${sc}]+)${sc}`)
+  const lineAndIndent = new RegExp(`${lc}${ic}`, "g")
+  const lineAndIndents = new RegExp(`^${lc}${ic}+`)
+  const pairs = string.split(reg)
   const length = pairs.length
-  let matches
-  let pair
 
   for (let i = 0; i < length; i++) {
-    pair = pairs[i]
-    if (matches = pair.match(/^([^ ]+)(\n|$)/)) // Space
-      this._setPair(matches[1], new Space()._loadFromString(pair.substr(matches[1].length).replace(/\n /g, "\n").replace(/^\n +/, "\n")))
-    else if (matches = pair.match(/^([^ ]+) /)) // Leaf
-      this._setPair(matches[1], pair.substr(matches[1].length + 1).replace(/\n /g, "\n"))
+    let pair = pairs[i]
+    let matches
+
+    // Nested Space Node
+    if (matches = pair.match(spaceRegex)) {
+      this._setPair(matches[1], new Space()._loadFromString(
+        pair.substr(matches[1].length)
+            .replace(lineAndIndent, lc)
+            .replace(lineAndIndents, lc)))
+    }
+    // Leaf Node
+    else if (matches = pair.match(leafRegex)) {
+      this._setPair(matches[1], pair.substr(matches[1].length + 1).replace(lineAndIndent, lc))
+    }
   }
   return this
 }
@@ -1423,10 +1453,6 @@ Space.prototype.reverse = function () {
   return this
 }
 
-Space.prototype._sanitizeSpacePath = function(path) {
-  return path.toString().replace(/\n/g, "").replace(/^ +/, "").replace(/  /g, "")
-}
-
 /**
  * Set a property/value pair.
  *
@@ -1467,13 +1493,7 @@ Space.prototype.setType = function(type) {
 }
 
 Space.prototype._setBySpacePath = function(path, value) {
-  // Sanitize path
-  path = path ? this._sanitizeSpacePath(path) : false
-
-  if (!path)
-    return null
-
-  const generations = path.split(/ /g)
+  const generations = path.replace(Space._lineRegex, "").split(Space._separatorChar).filter(c => c.length > 0)
   const generationsLength = generations.length
   let currentContext = this
   let currentPath
@@ -1513,8 +1533,6 @@ Space.prototype._setBySpacePath = function(path, value) {
  * @return void
  */
 Space.prototype._setPair = function(property, value, index, overwrite) {
-  // Sanitize property
-  // property = property.toString().replace(/( |\n)/g, "")
   property = property.toString()
   if (!property)
     return
@@ -1667,7 +1685,7 @@ Space.prototype.split = function(delimiter, propertyName) {
 }
 
 Space.prototype.tableOfContents = function() {
-  return this.getProperties().join(" ")
+  return this.getProperties().join(Space._separatorChar)
 }
 
 Space.prototype.toCsv = function() {
@@ -1675,7 +1693,7 @@ Space.prototype.toCsv = function() {
 }
 
 Space.prototype.toDelimited = function(delimiter, header) {
-  const regex = new RegExp("(\\n|\\\"|\\" + delimiter + ")")
+  const regex = new RegExp(`(\\n|\\"|\\${delimiter})`)
   const cellFn = (str, row, column) => {
         // No escaping necessary
         if (!str.match(regex))
@@ -1776,12 +1794,11 @@ Space.prototype.toggle = function(property, value1, value2) {
   return this
 }
 
-Space.prototype.toJavascript = function(multiline) {
-  const str = "new Space(\"" + this.toString().replace(/\n/g, "\\n").replace(/\"/g, "\\\"") + "\")"
+Space.prototype.toJavascript = function(backticks) {
+  if (backticks)
+    return `new Space(\`${this.toString().replace(/\`/g, "\\`")}\`)`
 
-  if (multiline)
-    return str.replace(/\\n/g, "\\n\\\n")
-  return str
+  return `new Space("${this.toString().replace(/\"/g, `\\"`).replace(/\n/g, "\\n")}")`
 }
 
 Space.prototype.toJSON = function(guessTypes, pretty) {

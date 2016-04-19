@@ -758,10 +758,10 @@ interface SpaceInstance {
   /**
    * Return executable javascript code for reserializing this instance.
    *
-   * @param multiline? bool Whether to return the code on more than one line. Default is false.
+   * @param backticks? bool Whether to use ES6 backticks. Default is false.
    * @return string
    */
-  toJavascript: (multiline?: boolean) => string;
+  toJavascript: (backticks?: boolean) => string;
 
   /**
    * Return JSON

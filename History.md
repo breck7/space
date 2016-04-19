@@ -1,3 +1,8 @@
+0.22.0 / 2016-04-19
+===================
+- Refactor to make token characters all vars instead of strings.
+- BREAKING: Minor change to toJavascript(true); now returns code using backticks instead of escaped new lines.
+
 0.21.5 / 2016-04-10
 ===================
 - Added maxWidth param to toFixedWidth method
