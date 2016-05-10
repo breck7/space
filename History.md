@@ -1,3 +1,7 @@
+0.22.1 / 2016-05-10
+===================
+- Added quoteChar parameter to fromDelimiter to allow passing of different enclosing chars.
+
 0.22.0 / 2016-04-19
 ===================
 - Refactor to make token characters all vars instead of strings.

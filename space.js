@@ -9,11 +9,12 @@ Space._setTokens = (lineChar, escapedLineChar, indentChar, separatorChar) => {
   Space._escLineChar = escapedLineChar || "\\n"
   Space._indentChar = indentChar || " "
   Space._separatorChar = separatorChar || " "
+  Space._separatorRegEx = new RegExp(Space._separatorChar, "g")
   Space._lineRegex = new RegExp(Space._lineChar, "g")
 }
 Space._setTokens()
 
-Space.version = "0.22.0"
+Space.version = "0.22.1"
 
 Space._isSpacePath = property => property.indexOf(Space._separatorChar) > -1
 
@@ -55,17 +56,22 @@ Space.fromCsv = (str, hasHeaders) => {
   return Space.fromDelimiter(str, ",", hasHeaders)
 }
 
-Space.fromDelimiter = (str, delimiter, hasHeaders, sanitizeString) => {
+Space.fromDelimiter = (str, delimiter, hasHeaders, sanitizeString, quoteChar) => {
+  return Space._fromDelimiter(str, delimiter, hasHeaders, sanitizeString, quoteChar || `"`)
+}
+
+Space._fromDelimiter = (str, delimiter, hasHeaders, sanitizeString, quote) => {
   if (sanitizeString !== false && str.indexOf("\r") > -1)
     str = str.replace(/\r/g, "")
 
   const rows = [[]]
-  const strHasQuotes = str.indexOf("\"") > -1
+  const strHasQuotes = str.indexOf(quote) > -1
+  const newLine = "\n"
 
   if (strHasQuotes) {
     const length = str.length
     let currentItem = ""
-    let inQuote = str.substr(0, 1) === "\""
+    let inQuote = str.substr(0, 1) === quote
     let currentPosition = inQuote ? 1 : 0
     let nextChar
     let isLastChar
@@ -77,10 +83,10 @@ Space.fromDelimiter = (str, delimiter, hasHeaders, sanitizeString) => {
       c = str[currentPosition]
       isLastChar = currentPosition + 1 === length
       nextChar = str[currentPosition + 1]
-      isNextCharAQuote = nextChar === "\""
+      isNextCharAQuote = nextChar === quote
 
       if (inQuote) {
-        if (c !== "\"")
+        if (c !== quote)
           currentItem += c
         // Both the current and next char are ", so the " is escaped
         else if (isNextCharAQuote) {
@@ -102,7 +108,7 @@ Space.fromDelimiter = (str, delimiter, hasHeaders, sanitizeString) => {
             currentPosition++ // Jump 2
           }
         }
-        else if (c === "\n") {
+        else if (c === newLine) {
           rows[currentRow].push(currentItem)
           currentItem = ""
           currentRow++
@@ -121,7 +127,7 @@ Space.fromDelimiter = (str, delimiter, hasHeaders, sanitizeString) => {
       currentPosition++
     }
   } else {
-    const lines = str.split(/\n/g)
+    const lines = str.split(newLine)
     const lineCount = lines.length
     for (let i = 0; i < lineCount; i++) {
       if (lines[i])
@@ -137,7 +143,7 @@ Space.fromDelimiter = (str, delimiter, hasHeaders, sanitizeString) => {
     // Strip any spaces from column names in the header row.
     // This makes the mapping not quite 1 to 1 if there are any spaces in prop names.
     for (let i = 0; i < numberOfColumns; i++) {
-      headerRow[i] = headerRow[i].replace(/ /g, "")
+      headerRow[i] = headerRow[i].replace(Space._separatorRegEx, "")
     }
   } else {
     // If str has no headers, create them as 0,1,2,3

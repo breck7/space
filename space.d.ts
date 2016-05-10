@@ -57,9 +57,10 @@ interface SpaceStatic {
    * @param delimiter string
    * @param hasHeaders? boolean Default is true.
    * @param sanitizeString? boolean Whether to strip carriage returns
+   * @param quoteChar? string Defaults to ".
    * @return space
    */
-  fromDelimiter: (str: string, delimiter: string, hasHeaders?: boolean, sanitizeString?: boolean) => SpaceInstance;
+  fromDelimiter: (str: string, delimiter: string, hasHeaders?: boolean, sanitizeString?: boolean, quoteChar?: string) => SpaceInstance;
 
   /**
    * @param str string The csv string to parse

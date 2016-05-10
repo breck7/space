@@ -179,6 +179,10 @@ testStrings.toXmlWithAttributesResult = "<html class=\"main\">\n\
 </html>\n\
 "
 
+testStrings.fromDelimited = `foodName^weight^Pri
+~Apple~^2.2^1
+~Banana~^3.2^1`
+
 testStrings.splitTest = `
 thisWillBe ignored
 title This is a test
@@ -1159,6 +1163,16 @@ test("fromCsv no headers", () => {
   // Assert
   strictEqual(a.length, 3)
   strictEqual(a.get("1 2"), "blue")
+})
+
+test("fromDelimited", () => {
+  // Arrange
+  const a = Space.fromDelimiter(testStrings.fromDelimited, "^", undefined, undefined, "~")
+
+  // Assert
+  strictEqual(a.length, 2)
+  strictEqual(a.get("0 weight"), "2.2")
+  strictEqual(a.get("1 foodName"), "Banana")
 })
 
 test("fromHeredoc", () => {

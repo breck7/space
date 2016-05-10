@@ -1,10 +1,10 @@
 {
   "name": "space",
-  "version": "0.22.0",
+  "version": "0.22.1",
   "description": "A lightweight language for objects",
   "main": "./space.min.js",
   "scripts": {
-    "test": "node tests/node-test-min.js"
+    "test": "node tests/node-test.js"
   },
   "repository": {
     "type": "git",
