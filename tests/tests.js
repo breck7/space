@@ -80,19 +80,6 @@ testStrings.webpageTrimmed = `body
   content hi
 `
 
-testStrings.toXml = `
-html
- head
- body
-  div
-  div
-   class main
-   content yo
-  div
-   class footer
-   content hi
-`
-
 testStrings.sortByMultiple = `
 state
  name Error
@@ -118,45 +105,58 @@ testStrings.json2space = `docs
   settings 456
 `
 
-testStrings.every = "user\n\
-name Aristotle\n\
-admin false\n\
-stage\n\
- name home\n\
- domain test.test.com\n\
-pro false\n\
-domains\n\
- test.test.com\n\
-  images\n\
-  blocks\n\
-  users\n\
-  stage home\n\
-  pages\n\
-   home\n\
-    settings\n\
-     data\n\
-      title Hello, World\n\
-    block1\n\
-     content Hello world\n"
+testStrings.every = `user
+name Aristotle
+admin false
+stage
+ name home
+ domain test.test.com
+pro false
+domains
+ test.test.com
+  images
+  blocks
+  users
+  stage home
+  pages
+   home
+    settings
+     data
+      title Hello, World
+    block1
+     content Hello world`
+
+testStrings.toXml = `
+html
+ head
+ body
+  div
+  div
+   class main
+   content yo
+  div
+   class footer
+   content hi
+`
 
 testStrings.toXmlResult = "<html><head></head><body><div></div><div><class>main</class><content>yo</content>" +
   "</div><div><class>footer</class><content>hi</content></div></body></html>"
 
-testStrings.toXmlPrettyResult = "<html>\n\
-  <head></head>\n\
-  <body>\n\
-    <div></div>\n\
-    <div>\n\
-      <class>main</class>\n\
-      <content>yo</content>\n\
-    </div>\n\
-    <div>\n\
-      <class>footer</class>\n\
-      <content>hi</content>\n\
-    </div>\n\
-  </body>\n\
-</html>\n\
-"
+testStrings.toXmlPrettyResult = `<html>
+  <head></head>
+  <body>
+    <div></div>
+    <div>
+      <class>main</class>
+      <content>yo</content>
+    </div>
+    <div>
+      <class>footer</class>
+      <content>hi</content>
+    </div>
+  </body>
+</html>
+`
 
 testStrings.toXmlWithAttributes = `html
  class main
@@ -171,13 +171,13 @@ testStrings.toXmlWithAttributes = `html
       0 Hello world
 `
 
-testStrings.toXmlWithAttributesResult = "<html class=\"main\">\n\
-  <head></head>\n\
-  <body style=\"color: red;\">\n\
-    <div class=\"main\">Hello world</div>\n\
-  </body>\n\
-</html>\n\
-"
+testStrings.toXmlWithAttributesResult = `<html class="main">
+  <head></head>
+  <body style="color: red;">
+    <div class="main">Hello world</div>
+  </body>
+</html>
+`
 
 testStrings.fromDelimited = `foodName^weight^Pri
 ~Apple~^2.2^1
