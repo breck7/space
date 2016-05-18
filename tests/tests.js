@@ -2456,13 +2456,13 @@ test("tokens", () => {
      and this one has extra indents
  num 12
 `
-  const test2 = `person;>name=Breck;>country=USA;>books;>>one=SICP;>>two=Pragmatic;>num=12;>multiline=this is a string
-over multiple lines.
-   and this one has extra indents;>num=12;`
   const a = new Space(test)
+  const test2 = `person;=name=Breck;=country=USA;=books;==one=SICP;==two=Pragmatic;=num=12;=multiline=this is a string
+over multiple lines.
+   and this one has extra indents;=num=12;`
 
   // Act
-  Space._setTokens(";", ";", ">", "=")
+  Space._setTokens(";", "=")
 
   // Assert
   strictEqual(a.toString(), test2)

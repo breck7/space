@@ -6,9 +6,6 @@ beautify:
 build:
 	java -jar ~/compiler.jar --compilation_level=SIMPLE --language_out=ECMASCRIPT5 --js=space.js --js_output_file=space.min.js
 
-docco:
-	docco space.js
-
 install:
 	cd ..; sudo npm install -g space/; npm install space/
 

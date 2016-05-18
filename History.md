@@ -1,3 +1,7 @@
+0.22.2 / 2016-05-17
+===================
+- Removed unused second param to _setTokens
+
 0.22.1 / 2016-05-10
 ===================
 - Added quoteChar parameter to fromDelimiter to allow passing of different enclosing chars.
