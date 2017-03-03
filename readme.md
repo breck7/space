@@ -1,3 +1,16 @@
+Update 3/3/2017
+===============
+
+Space has evolved into Tree: https://github.com/breck7/tree
+
+The significant changes of this encoding in a nutshell:
+
+Note (2012): Only supported hash tables.
+Space (2013): Support for other complex structures but Input !== Output for all documents.
+Tree (2017): Input === Output for all documents.
+
+This project will no longer be updated.
+
 Space
 =====
 
