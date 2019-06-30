@@ -1,7 +1,7 @@
 Update 3/3/2017
 ===============
 
-Space has evolved into Tree: https://github.com/breck7/treeprogram
+Use Tree Notation! Space has evolved into Tree Notation: https://github.com/breck7/jtree
 
 The significant changes of this encoding in a nutshell:
 
